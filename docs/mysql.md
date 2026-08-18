@@ -27,17 +27,22 @@ ON UPDATE CASCADE
 
 ## time (공부 시간)
 
-| 속성명 | 자료형  | 제약 조건   | 설명              |
-| ------ | ------- | ----------- | ----------------- |
-| id     | INTEGER | FOREIGN KEY | 사용자 ID         |
-| total  | INTEGER | 단위: 초    | 총 합 공부 시간   |
-| month  | INTEGER | 단위: 초    | 이번 달 공부 시간 |
-| week   | INTEGER | 단위: 초    | 이번 주 공부 시간 |
-| day    | INTEGER | 단위: 초    | 오늘의 공부 시간  |
+| 속성명              | 자료형  | 제약 조건   | 설명                              |
+| ------------------- | ------- | ----------- | --------------------------------- |
+| id                  | INTEGER | FOREIGN KEY | 사용자 ID                         |
+| total               | INTEGER | 단위: 초    | 총 합 공부 시간                   |
+| month               | INTEGER | 단위: 초    | 이번 달 공부 시간                 |
+| week                | INTEGER | 단위: 초    | 이번 주 공부 시간                 |
+| day                 | INTEGER | 단위: 초    | 오늘의 공부 시간                  |
+| last_day_reset_at   | DATE    |             | day 값을 마지막으로 리셋한 날짜   |
+| last_week_reset_at  | DATE    |             | week 값을 마지막으로 리셋한 날짜  |
+| last_month_reset_at | DATE    |             | month 값을 마지막으로 리셋한 날짜 |
 
 FOREIGN KEY (id) REFERENCES user(id)
 ON DELETE CASCADE
 ON UPDATE CASCADE
+
+- cron과 lazy check가 리셋 여부를 판단하는 기준값. `IF last_day_reset_at < 오늘` 조건으로 중복 리셋도 자연스럽게 방지됨.
 
 ## time_log (기간별 공부 시간 스냅샷)
 
@@ -399,7 +404,6 @@ ON UPDATE CASCADE
 
 ---
 
-## 아직 열려있는 이슈
+## 참고 사항
 
-- **time_log 스케줄러 구현 방식** - cron + 조회 시점 lazy check 하이브리드 여부 결정 필요.
-- **class 연간 갱신 배치** - 매 학년도 시작 시점에 (학년도, 학년, 반) row들을 누가/어떻게 생성하고, 기존 학생들을 새 `class_id`로 재배정할지 프로세스 설계 필요.
+- **time_log 스케줄러**: cron(일/주/월 경계에 일괄 flush+reset) + lazy check(요청 시점에 `last_*_reset_at`이 오늘 이전이면 즉시 flush+reset) 하이브리드로 결정. `time` 테이블의 `last_day_reset_at`/`last_week_reset_at`
