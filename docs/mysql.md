@@ -25,6 +25,8 @@ FOREIGN KEY (id) REFERENCES auth(id)
 ON DELETE CASCADE
 ON UPDATE CASCADE
 
+--- (구현 완료)
+
 ## time (공부 시간)
 
 | 속성명              | 자료형  | 제약 조건   | 설명                              |
