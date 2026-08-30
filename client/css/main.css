@@ -1,0 +1,161 @@
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 200px;
+    margin: 38px 0 0 58px;
+}
+
+main {
+    margin-left: 200px;
+}
+
+body {
+    margin-top: 38px;
+}
+
+.main_box {
+    margin: 0 370px 0 370px;
+}
+
+.first_box {
+    display: flex;
+    gap: 20px;
+}
+
+.img_box {
+    display: flex;
+    width: 112px;
+    height: 60px;
+    padding-top: 248px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    background: #D7D8DE;
+    padding: 248px 20px 20px 628px;
+}
+
+.button_box {
+    display: flex;
+    gap: 12px;
+    padding: 20px;
+}
+
+.main_button {
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.logo {
+    display: flex;
+    width: 120px;
+    height: 40px;
+    align-items: center;
+    gap: 2px;
+    aspect-ratio: 3/1;
+}
+
+.pre_profile {
+    width: 368px;
+    height: 302px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.pre_profile_top {
+    display: flex;
+    flex-direction: row;
+    gap: 70px;
+
+    width: 368px;
+    height: 80px;
+    padding: 12px;
+}
+
+.pre_profile_left {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+}
+
+.pre_profile_right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 54px;
+    padding: 8px;
+}
+
+.pre_profile_img {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+
+    background: #1A68D7;
+}
+
+.pre_profile_name {
+    align-self: stretch;
+
+    color: #000;
+    font-family: Pretendard;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.pre_profile_info {
+    align-self: stretch;
+
+    color: #444;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.pre_profile_pro {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    align-items: center;
+}
+
+.profile_go {
+    color: #666;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.logout_box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.logout {
+    color: #CF5353;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
