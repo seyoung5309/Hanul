@@ -75,8 +75,10 @@ body {
     gap: 70px;
 
     width: 368px;
-    height: 80px;
+    height: 88px;
     padding: 12px;
+
+    border-bottom: 1px solid #D7D8DE;
 }
 
 .pre_profile_left {
@@ -101,17 +103,6 @@ body {
     border-radius: 999px;
 
     background: #1A68D7;
-}
-
-.pre_profile_name {
-    align-self: stretch;
-
-    color: #000;
-    font-family: Pretendard;
-    font-size: 24px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: normal;
 }
 
 .pre_profile_info {
@@ -155,6 +146,54 @@ body {
     text-align: center;
     font-family: Pretendard;
     font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.pre_profile_bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    margin-top: 20px;
+}
+
+.text {
+    color: #000;
+    font-family: Pretendard;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.many_study_major_box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.many_study_major {
+    display: flex;
+    height: 30px;
+    padding: 11px 20px;
+    align-items: center;
+    gap: 10px;
+
+    border-radius: 15px;
+    border: 1px solid #D7D8DE;
+    background: #1A68D7;
+    /* position: absolute; */
+    width: auto;
+    height: 30px;
+
+    /* 폰트 */
+    color: #F8F9FD;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 16px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
