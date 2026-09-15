@@ -52,22 +52,46 @@
                 </div>
             </div>
         </div>
-        <div class="second_box">
-            <div> <!-- 달력 -->
 
+        <!-- 두 번째 박스 -->
+        <div class="second_box">
+            <div class="calendar_box"> <!-- 달력 -->
+                <div class="calendar-wrapper">
+
+                    <div class="month-panel">
+                        <div class="month-header">
+                            <h2 id="monthLabel">8월</h2>
+                            <div class="month-nav">
+                                <button onclick="changeMonth(-1)">‹</button>
+                                <button onclick="changeMonth(1)">›</button>
+                            </div>
+                        </div>
+                        <div class="weekday-row">
+                            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                        </div>
+                        <div class="date-row" id="dateGrid"
+                            style="display:grid; grid-template-columns:repeat(7,1fr); row-gap:6px;">
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="event-panel" id="eventPanel"></div>
+
+                </div>
             </div>
-            <div> <!-- 오늘의 급식 ---->
-                <label class="text" styly:="font-size: 24px">오늘의 급식</label>
-                <div>
-                    <button>조식</button>
-                    <button>중식</button>
-                    <button>석식</button>
+            <div class="food"> <!-- 오늘의 급식 ---->
+                <label class="small_title_text" styly:="font-size: 24px">오늘의 급식</label>
+                <div class="food_buttons">
+                    <button class="food_button">조식</button>
+                    <button class="food_button">중식</button>
+                    <button class="food_button">석식</button>
                 </div>
                 <label>0월 0일 급식</label>
                 <label>급식 메뉴......</label>
             </div>
-            <div> <!-- 참여한 스터리룸 조회-->
-                <label>내가 참여한 스터디룸</label>
+            <div class="studyroom_box"> <!-- 참여한 스터리룸 조회-->
+                <label class="small_title_text">내가 참여한 스터디룸</label>
                 <label>더 보러 가기</label>
                 <div>
                     <label>스터디룸 이름</label>
@@ -77,6 +101,7 @@
                 </div>
             </div>
         </div>
+
         <div class="p_connect_box">
             <div class="third_box">
                 <div class="c_connect_box">
@@ -96,6 +121,8 @@
             </div>
         </div>
     </div>
+
+    <script src="../js/calendar.js"></script>
 </body>
 
 </html>
