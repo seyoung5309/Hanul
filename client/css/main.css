@@ -13,6 +13,7 @@ main {
 
 body {
     margin-top: 38px;
+    justify-content: center;
 }
 
 .main_box {
@@ -21,6 +22,7 @@ body {
 
 .first_box {
     display: flex;
+    justify-content: space-between;
     gap: 20px;
 }
 
@@ -32,7 +34,7 @@ body {
 
 .img_box {
     display: flex;
-    width: 112px;
+    width: 132px;
     height: 60px;
     padding-top: 248px;
     justify-content: center;
@@ -67,7 +69,7 @@ body {
 }
 
 .pre_profile {
-    width: 368px;
+    width: 354px;
     height: 302px;
     padding: 12px;
     border-radius: 12px;
@@ -77,10 +79,11 @@ body {
 
 .pre_profile_top {
     display: flex;
+    justify-content: space-between;
     flex-direction: row;
-    gap: 70px;
+    gap: auto;
 
-    width: 368px;
+    width: 330px;
     height: 88px;
     padding: 12px;
 
@@ -98,9 +101,9 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    align-items: flex-end;
-    gap: 54px;
-    padding: 8px;
+    align-items: end;
+    gap: 42px;
+    marginty: 8px;
 }
 
 .pre_profile_img {
@@ -113,6 +116,7 @@ body {
 
 .pre_profile_info {
     align-self: stretch;
+    white-space: nowrap;
 
     color: #444;
     text-align: center;
@@ -131,6 +135,8 @@ body {
 }
 
 .profile_go {
+    white-space: nowrap;
+
     color: #666;
     text-align: center;
     font-family: Pretendard;
@@ -399,6 +405,45 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.d_day_box {
+    display: flex;
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.notification_box {
+    display: flex;
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.rank_box {
+    display: flex;
+    width: 780px;
+    padding: 12px 12px 0 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
 
     border-radius: 12px;
     border: 1px solid #D7D8DE;
