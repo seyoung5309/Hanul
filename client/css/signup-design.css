@@ -13,14 +13,12 @@ body {
     background-color: #ffffff;
 }
 
-/* 중앙 블럭 */
 .signup-container {
     width: 100%;
     max-width: 420px;
     padding: 40px 20px;
 }
 
-/* 한울 로고 */
 .logo {
     text-align: center;
     color: #2c3e75;
@@ -29,7 +27,6 @@ body {
     margin-bottom: 50px;
 }
 
-/* 회원가입 로고 */
 .signup-title {
     color: #2c3e75;
     font-size: 18px;
@@ -37,7 +34,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* 입력 블럭 */
 .input-group {
     margin-bottom: 16px;
 }
@@ -66,7 +62,6 @@ body {
     color: #a0a6b5;
 }
 
-/* 다음으로 버튼 */
 .next-button {
     width: 100%;
     padding: 15px;
@@ -84,7 +79,6 @@ body {
     background-color: #22305a;
 }
 
-/* 로그인 부분 */
 .login-link {
     display: flex;
     justify-content: space-between;
