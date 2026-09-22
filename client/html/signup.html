@@ -13,18 +13,18 @@
     <h1 class="logo">한울</h1>
     <h2 class="signup-title">회원 가입</h2>
 
-    <form action="#" method="POST">
+    <form id="signupArea">
         <div class="input-group">
             <label for="email">이메일</label>
             <input type="email" id="email" placeholder="이메일을 입력해 주세요.">
         </div>
         <div class="input-group">
             <label for="password">비밀번호</label>
-            <input type="password" id="password" placeholder="비밀번호를 입력해 주세요.">
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력해 주세요.">
         </div>
         <div class="input-group">
             <label for="password">비밀번호 재입력</label>
-            <input type="password" id="re_password" placeholder="비밀먼호를 입력해 주세요.">
+            <input type="password" id="re_password" name="re_password" placeholder="비밀먼호를 입력해 주세요.">
         </div>
         <button type="submit" class="next-button">다음으로</button>
     </form>
@@ -34,5 +34,29 @@
         <a href="login.html">로그인하기</a>
     </div>
 </div>
+<script>
+    const signupArea = document.getElementById('signupArea');
+    signupArea.addEventListener('submit', async function(e) {
+        e.preventDefault()
+
+        const emailValue = document.getElementById('email').value;
+        const passwordValue = document.getElementById('password').value;
+        const rePasswordValue = document.getElementById('re_password').value;
+
+        const giving = {
+            email: emailValue,
+            password: passwordValue,
+            rePassword: rePasswordValue,
+        };
+
+        await fetch('/api/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(giving)
+        });
+    });
+</script>
 </body>
 </html>

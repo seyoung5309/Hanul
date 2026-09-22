@@ -13,14 +13,14 @@
     <h1 class="logo">한울</h1>
     <h2 class="login-title">로그인</h2>
 
-    <form action="#" method="POST">
+    <form id="loginArea">
         <div class="input-group">
             <label for="email">이메일</label>
-            <input type="email" id="email" placeholder="이메일을 입력해 주세요.">
+            <input type="email" id="email" name="email" placeholder="이메일을 입력해 주세요.">
         </div>
         <div class="input-group">
             <label for="password">비밀번호</label>
-            <input type="password" id="password" placeholder="비밀번호를 입력해 주세요.">
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력해 주세요.">
         </div>
         <button type="submit" class="login-button">로그인</button>
     </form>
@@ -39,5 +39,27 @@
         </div>
     </div>
 </div>
+    <script>
+        const loginArea = document.getElementById('loginArea');
+        loginArea.addEventListener('submit', async function(e) {
+            e.preventDefault()
+
+            const emailValue = document.getElementById('email').value;
+            const passwordValue = document.getElementById('password').value;
+
+            const giving = {
+                email: emailValue,
+                password: passwordValue,
+            };
+
+            await fetch('/api/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(giving)
+            });
+        });
+    </script>
 </body>
 </html>
