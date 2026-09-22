@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <nav>
+        <img class="main" src="../assets/logo.png">
+    </nav>
+    <div class="main_box">
+        <div class="first_box">
+            <div>
+                <div class="img_box">
+                    <div class="button_box">
+                        <img class="main_button" src="../assets/main_button_left.png">
+                        <img class="main_button" src="../assets/main_button_right.png">
+                    </div>
+                </div>
+            </div>
+            <div class="pre_profile">
+                <div class="pre_profile_top">
+                    <div class="pre_profile_left">
+                        <div class="pre_profile_img"></div>
+                        <div class="pre_profile_pro">
+                            <label class="text" style="align-self: stretch; font-size: 24px">이름</label>
+                            <label class="pre_profile_info">0학년 0반 0번</label>
+                        </div>
+                    </div>
+                    <div class="pre_profile_right">
+                        <label class="profile_go">프로필 바로가기</label>
+                        <div class="logout_box">
+                            <label class="logout">로그아웃</label>
+                            <img src="../assets/logout.png">
+                        </div>
+                    </div>
+                </div>
+                <div class="pre_profile_bottom">
+                    <label class="text" style="font-size: 20px">통계</label>
+                    <label class="text" style="font-size: 16px">총 공부 시간</label>
+                    <label class="text" style="font-size: 24px">00시간 00분 00초</label>
+                    <label class="text" style="font-size: 16px">가장 많이 공부한 분야</label>
+                    <div class="many_study_major_box">
+                        <button class="many_study_major">CS</button>
+                        <button class="many_study_major">OS</button>
+                        <button class="many_study_major">미적분 1</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 두 번째 박스 -->
+        <div class="second_box">
+            <div class="calendar_box"> <!-- 달력 -->
+                <div class="calendar-wrapper">
+
+                    <div class="month-panel">
+                        <div class="month-header">
+                            <h2 id="monthLabel">8월</h2>
+                            <div class="month-nav">
+                                <button onclick="changeMonth(-1)">‹</button>
+                                <button onclick="changeMonth(1)">›</button>
+                            </div>
+                        </div>
+                        <div class="weekday-row">
+                            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                        </div>
+                        <div class="date-row" id="dateGrid"
+                            style="display:grid; grid-template-columns:repeat(7,1fr); row-gap:6px;">
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="event-panel" id="eventPanel"></div>
+
+                </div>
+            </div>
+            <div class="food"> <!-- 오늘의 급식 ---->
+                <label class="small_title_text" styly:="font-size: 24px">오늘의 급식</label>
+                <div class="food_buttons">
+                    <button class="food_button">조식</button>
+                    <button class="food_button">중식</button>
+                    <button class="food_button">석식</button>
+                </div>
+                <label>0월 0일 급식</label>
+                <label>급식 메뉴......</label>
+            </div>
+            <div class="studyroom_box"> <!-- 참여한 스터리룸 조회-->
+                <label class="small_title_text">내가 참여한 스터디룸</label>
+                <label>더 보러 가기</label>
+                <div>
+                    <label>스터디룸 이름</label>
+                    <label>방 설명</label>
+                    <label>총합 공부 시간</label>
+                    <label>00시 00분 00초</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="p_connect_box">
+            <div class="third_box">
+                <div class="c_connect_box">
+                    <div class="d_day_box">
+                        <label>다가오는 일정</label>
+                    </div>
+                    <div class="notification_box">
+                        <label>읽지 않은 알림</label>
+                    </div>
+                </div>
+                <div class="rank_box">
+                    <label>주간 랭킹</label>
+                </div>
+            </div>
+            <div class="fourth_box">
+                <label>To Do</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer 불러오기 -->
+    <div data-include="../component/footer.html"></div>
+    <script src="../js/include.js"></script>
+
+    <!-- Calendar 불러오기 -->
+    <script src="../js/calendar.js"></script>
+</body>
+
+</html>

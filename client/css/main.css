@@ -1,0 +1,451 @@
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 200px;
+    margin: 38px 0 0 58px;
+}
+
+main {
+    margin-left: 200px;
+}
+
+body {
+    margin-top: 38px;
+    justify-content: center;
+}
+
+.main_box {
+    margin: 0 370px 0 370px;
+}
+
+.first_box {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.second_box {
+    display: flex;
+    margin-top: 22px;
+    gap: 20px;
+}
+
+.img_box {
+    display: flex;
+    width: 132px;
+    height: 60px;
+    padding-top: 248px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    background: #D7D8DE;
+    padding: 248px 20px 20px 628px;
+}
+
+.button_box {
+    display: flex;
+    gap: 12px;
+    padding: 20px;
+}
+
+.main_button {
+    width: 40px;
+    height: 40px;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+.logo {
+    display: flex;
+    width: 120px;
+    height: 40px;
+    align-items: center;
+    gap: 2px;
+    aspect-ratio: 3/1;
+}
+
+.pre_profile {
+    width: 354px;
+    height: 302px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.pre_profile_top {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: auto;
+
+    width: 330px;
+    height: 88px;
+    padding: 12px;
+
+    border-bottom: 1px solid #D7D8DE;
+}
+
+.pre_profile_left {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: center;
+}
+
+.pre_profile_right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: end;
+    gap: 42px;
+    marginty: 8px;
+}
+
+.pre_profile_img {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+
+    background: #1A68D7;
+}
+
+.pre_profile_info {
+    align-self: stretch;
+    white-space: nowrap;
+
+    color: #444;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.pre_profile_pro {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    align-items: center;
+}
+
+.profile_go {
+    white-space: nowrap;
+
+    color: #666;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.logout_box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.logout {
+    color: #CF5353;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.pre_profile_bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    margin-top: 20px;
+}
+
+.text {
+    color: #000;
+    font-family: Pretendard;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.many_study_major_box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.many_study_major {
+    display: flex;
+    height: 30px;
+    padding: 11px 20px;
+    align-items: center;
+    gap: 10px;
+
+    border-radius: 15px;
+    border: 1px solid #D7D8DE;
+    background: #1A68D7;
+    /* position: absolute; */
+    width: auto;
+    height: 30px;
+
+    /* 폰트 */
+    color: #F8F9FD;
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+/* 급식 관련 */
+
+.food {
+    display: flex;
+    width: 280px;
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    align-self: stretch;
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+}
+
+.food_buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: stretch;
+}
+
+.food_button {
+    width: 68px;
+    height: 29px;
+    display: flex;
+    padding: 5px 20px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 100px;
+
+    text-align: center;
+    font-family: Pretendard;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.small_title_text {
+    color: #000;
+    font-family: Pretendard;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+
+/* 달력 관련 */
+
+.calendar-wrapper {
+    display: flex;
+    width: 480px;
+    padding: 20px;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+/* 왼쪽: 월간 그리드 */
+.month-panel {
+    flex: 1.2;
+    min-width: 0;
+}
+
+.month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.month-header h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.month-nav {
+    display: flex;
+    gap: 6px;
+}
+
+.month-nav button {
+    border: none;
+    background: none;
+    color: #d9534f;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.weekday-row,
+.date-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+}
+
+.weekday-row {
+    font-size: 12px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 6px;
+}
+
+.weekday-row span:first-child {
+    color: #d9534f;
+}
+
+.weekday-row span:last-child {
+    color: #4a90d9;
+}
+
+.date-cell {
+    font-size: 13px;
+    padding: 5px 0;
+    color: #222;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.date-cell.dim {
+    color: #ccc;
+}
+
+.date-cell.sun {
+    color: #d9534f;
+}
+
+.date-cell.sat {
+    color: #4a90d9;
+}
+
+.date-cell.selected {
+    background: #2f6ee0;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* 가운데 구분선 */
+.divider {
+    width: 1px;
+    align-self: stretch;
+    background: #eee;
+}
+
+/* 오른쪽: 이벤트 리스트 */
+.event-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.event-item {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+}
+
+.event-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.event-title {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.4;
+}
+
+.studyroom_box {
+    display: flex;
+    width: 380px;
+    padding: 20px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.d_day_box {
+    display: flex;
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.notification_box {
+    display: flex;
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
+
+.rank_box {
+    display: flex;
+    width: 780px;
+    padding: 12px 12px 0 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+
+    border-radius: 12px;
+    border: 1px solid #D7D8DE;
+    background: #FFF;
+}
