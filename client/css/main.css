@@ -1,16 +1,8 @@
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    margin: 34.5px 0 0 0;
-}
-
 main {
     margin-left: 200px;
 }
 
 body {
-    margin-top: 38px;
     justify-content: center;
 }
 
@@ -101,7 +93,6 @@ body {
     justify-content: space-between;
     align-items: end;
     gap: 42px;
-    marginty: 8px;
 }
 
 .pre_profile_img {
