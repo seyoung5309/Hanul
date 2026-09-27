@@ -130,6 +130,35 @@ async function findSubjectsByRooms(roomIds) {
   return result;
 }
 
+// 방별 누적 공부 시간 (SR-012). { roomId: { totalSeconds, mySeconds, activeCount } }
+//   totalSeconds: 이 방에서 모든 참가자가 공부한 시간 합 (개인이 드러나지 않는 합계라 공개 범위와 무관)
+//   mySeconds: 이 방에서 내가 공부한 시간
+//   activeCount: 지금 이 방에서 공부 중인 기록 수 (화면에서 총합 시간을 1초마다 늘릴 때 사용)
+async function findRoomTimes(roomIds, userId) {
+  const result = Object.fromEntries(roomIds.map((id) => [id, { totalSeconds: 0, mySeconds: 0, activeCount: 0 }]));
+  if (roomIds.length === 0) return result;
+
+  const [rows] = await pool.query(
+    `SELECT l.room_id AS roomId,
+            SUM(TIMESTAMPDIFF(SECOND, l.start, COALESCE(l.end, NOW()))) AS totalSeconds,
+            SUM(IF(s.user_id = ?, TIMESTAMPDIFF(SECOND, l.start, COALESCE(l.end, NOW())), 0)) AS mySeconds,
+            SUM(l.status = '공부중') AS activeCount
+     FROM study_log l JOIN study_session s ON s.id = l.session_id
+     WHERE l.room_id IN (?)
+     GROUP BY l.room_id`,
+    [userId, roomIds],
+  );
+  // SUM 결과는 DECIMAL이라 문자열로 오므로 숫자로 바꾼다.
+  for (const row of rows) {
+    result[row.roomId] = {
+      totalSeconds: Number(row.totalSeconds),
+      mySeconds: Number(row.mySeconds),
+      activeCount: Number(row.activeCount),
+    };
+  }
+  return result;
+}
+
 // 참가자와 공부 현황. 공개 범위 적용은 컨트롤러에서 한다.
 // todaySeconds: 오늘(KST) 이 방에서 공부한 시간 (SR-012 방별 공부 시간)
 async function findMembers(roomId) {
@@ -214,6 +243,7 @@ module.exports = {
   findMemberIds,
   findMyRooms,
   findSubjectsByRooms,
+  findRoomTimes,
   findMembers,
   createInvite,
   findInviteForUpdate,

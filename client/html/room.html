@@ -14,69 +14,60 @@
     <main class="room">
         <header class="room__header">
             <a href="study-room.html" class="room__back"><img src="../assets/arrow-back.svg" alt="뒤로가기"></a>
-            <h1 class="room__title">학생회 스터디룸</h1>
+            <h1 class="room__title"></h1>
+            <div class="room__study">
+                <select class="room__subject" aria-label="공부할 과목"></select>
+                <button type="button" class="room__study-btn">공부 시작</button>
+            </div>
         </header>
 
         <div class="room__content">
             <div class="timer">
                 <div class="timer__item">
                     <p class="timer__label">총합 공부 시간</p>
-                    <p class="timer__num">99:99:99</p>
+                    <p class="timer__num timer__num--total">00:00:00</p>
                 </div>
                 <div class="timer__item">
                     <p class="timer__label">나의 공부 시간</p>
-                    <p class="timer__num timer__num--mine">99:99:99</p>
+                    <p class="timer__num timer__num--mine">00:00:00</p>
                 </div>
             </div>
 
             <div class="chat">
-                <ul class="chat__messages">
-                    <li class="message">
-                        <div class="message__avatar"></div>
-                        <div class="message__body">
-                            <p class="message__meta"><span>오세영</span><span>2026-09-08</span></p>
-                            <p class="message__text">우리 수학 진도 어디까지야?</p>
-                        </div>
-                    </li>
-                    <li class="message">
-                        <div class="message__avatar"></div>
-                        <div class="message__body">
-                            <p class="message__meta"><span>조세연</span><span>2026-09-08</span></p>
-                            <p class="message__text">나 수업 기억이 안나</p>
-                        </div>
-                    </li>
-                    <li class="message">
-                        <div class="message__avatar"></div>
-                        <div class="message__body">
-                            <p class="message__meta"><span>오세영</span><span>2026-09-08</span></p>
-                            <p class="message__text">빨간 비행기, 파랑 비행기, 검정 비행기</p>
-                        </div>
-                    </li>
-                    <li class="message">
-                        <div class="message__avatar"></div>
-                        <div class="message__body">
-                            <p class="message__meta"><span>오세영</span><span>2026-09-08</span></p>
-                            <p class="message__text">수학에서 극한은 변수나 함수가 일정한 값이나 무한대에 한없이 가까워질 때 도달하는 상태나 그 값을 뜻하는 거래</p>
-                        </div>
-                    </li>
-                </ul>
+                <!-- 채팅은 다음 작업에서 연동 -->
+                <ul class="chat__messages"></ul>
                 <form class="chat__form" onsubmit="return false;">
                     <div class="chat__input">
-                        <input type="text" placeholder="내일 수학 수행이래">
+                        <input type="text" placeholder="채팅은 준비 중입니다" disabled>
                         <div class="chat__buttons">
-                            <button type="button"><img src="../assets/plus.svg" alt="첨부"></button>
-                            <button type="submit"><img src="../assets/send.svg" alt="전송"></button>
+                            <button type="button" disabled><img src="../assets/plus.svg" alt="첨부"></button>
+                            <button type="submit" disabled><img src="../assets/send.svg" alt="전송"></button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </main>
+
+    <!-- 3시간마다 응답 확인 (ST-003) -->
+    <div class="study-check" hidden>
+        <div class="study-check__box">
+            <p class="study-check__title">아직 공부 중인가요?</p>
+            <p class="study-check__text"><span class="study-check__count">30</span>초 안에 응답이 없으면 공부가 종료됩니다.</p>
+            <button type="button" class="study-check__btn">응답</button>
+        </div>
+    </div>
+
     <!-- navigate 불러오기 -->
     <div data-include="../component/navigate.html"></div>
 
     <!-- Component 불러오기-->
     <script src="../js/include.js"></script>
+
+    <!-- API 연동 (socket.io.js는 서버가 제공) -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/pages/room.js"></script>
 </body>
 
 </html>

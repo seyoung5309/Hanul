@@ -92,8 +92,12 @@ async function createRoom(req, res) {
 
 async function getMyRooms(req, res) {
   const rooms = await roomModel.findMyRooms(req.user.id);
-  const subjects = await roomModel.findSubjectsByRooms(rooms.map((room) => room.id));
-  res.json(rooms.map((room) => ({ ...room, subjects: subjects[room.id] })));
+  const roomIds = rooms.map((room) => room.id);
+  const [subjects, times] = await Promise.all([
+    roomModel.findSubjectsByRooms(roomIds),
+    roomModel.findRoomTimes(roomIds, req.user.id),
+  ]);
+  res.json(rooms.map((room) => ({ ...room, ...times[room.id], subjects: subjects[room.id] })));
 }
 
 // SR-002
@@ -115,13 +119,15 @@ async function joinByCode(req, res) {
 // SR-003, CL-001: 방 정보와 참가자 공부 현황 (반 메인도 같은 API)
 async function getRoom(req, res) {
   const room = await loadMemberRoom(req);
-  const [members, subjects] = await Promise.all([
+  const [members, subjects, times] = await Promise.all([
     roomModel.findMembers(room.id),
     roomModel.findSubjectsByRooms([room.id]),
+    roomModel.findRoomTimes([room.id], req.user.id),
   ]);
 
   res.json({
     ...room,
+    ...times[room.id],
     subjects: subjects[room.id],
     members: members.map((m) => {
       const isMe = m.userId === req.user.id;

@@ -190,3 +190,96 @@ img {
     width: 24px;
     height: 24px;
 }
+
+/* ===== 공부 시작·종료 ===== */
+.room__study {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.room__subject {
+    height: 44px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 16px;
+    color: #222;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 12px;
+}
+
+.room__subject:disabled {
+    color: #666;
+    background: #f3f3f3;
+}
+
+.room__study-btn {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a68d7;
+    border-radius: 12px;
+}
+
+.room__study-btn--stop {
+    background: #cf5353;
+}
+
+.room__study-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* ===== 3시간 응답 확인 ===== */
+.study-check {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.study-check[hidden] {
+    display: none;
+}
+
+.study-check__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px 56px;
+    background: #fff;
+    border-radius: 16px;
+}
+
+.study-check__title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.study-check__text {
+    font-size: 16px;
+    color: #444;
+}
+
+.study-check__count {
+    font-weight: 700;
+    color: #cf5353;
+}
+
+.study-check__btn {
+    margin-top: 8px;
+    padding: 12px 48px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a68d7;
+    border-radius: 12px;
+}
