@@ -1,15 +1,445 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한울</title>
+    <title>한울 - 스터디룸</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/study-room.css">
 </head>
 
-<body data-page="study-room">
+<body>
+    <main class="container">
+        <div class="col-left">
+            <section class="room-section room-section--recent">
+                <h2 class="section-title">최근 자주 방문한 스터디룸</h2>
+                <div class="room-grid">
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">인원 2/8</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">인원 2/8</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+            <section class="room-section">
+                <h2 class="section-title">내가 만든 스터디룸</h2>
+                <div class="room-grid">
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+            <section class="room-section room-section--joined">
+                <h2 class="section-title">내가 참여한 스터디룸</h2>
+                <div class="room-grid">
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="room.html" class="room-card">
+                        <div class="room-card__thumb"></div>
+                        <div class="room-card__body">
+                            <div class="room-card__head">
+                                <div class="room-card__text">
+                                    <p class="room-card__name">스터디룸 이름</p>
+                                    <p class="room-card__sub">방 설명</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </div>
+                            <div class="room-card__times">
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">총합 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                                <div class="room-card__time">
+                                    <p class="room-card__sub">나의 공부 시간</p>
+                                    <p class="room-card__num">99:99:99</p>
+                                </div>
+                            </div>
+                            <div class="tags">
+                                <span class="tag">CS</span>
+                                <span class="tag">OS</span>
+                                <span class="tag">미적분 1</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-right">
+            <div class="card profile">
+                <div class="profile__head">
+                    <div class="profile__user">
+                        <div class="profile__avatar"></div>
+                        <div class="profile__info">
+                            <p class="profile__name">이미림</p>
+                            <p class="profile__class">0학년 0반 0번</p>
+                        </div>
+                    </div>
+                    <div class="profile__links">
+                        <a href="#" class="profile__link">프로필 바로가기</a>
+                        <a href="#" class="profile__logout">로그아웃 <img src="../assets/logout.svg" alt=""></a>
+                    </div>
+                </div>
+                <div class="profile__stats">
+                    <p class="profile__stats-title">통계</p>
+                    <div class="profile__stat">
+                        <p class="label">총 공부 시간</p>
+                        <p class="profile__time">00시간 00분 00초</p>
+                    </div>
+                    <div class="profile__stat">
+                        <p class="label">가장 많이 공부한 분야</p>
+                        <div class="tags">
+                            <span class="tag">CS</span>
+                            <span class="tag">OS</span>
+                            <span class="tag">미적분 1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card notice">
+                <h2 class="card__title">읽지 않은 알림</h2>
+                <div class="chips">
+                    <button class="chip chip--active">채팅</button>
+                    <button class="chip">공지사항</button>
+                </div>
+                <ul class="list">
+                    <li class="list__item">
+                        <div class="item-text">
+                            <p class="item-title">lim x→ 2 를 이 식에 대입해</p>
+                            <p class="item-sub">오세영</p>
+                        </div>
+                    </li>
+                    <li class="list__item">
+                        <div class="item-text">
+                            <p class="item-title">lim x→ 2 를 이 식에 대입해</p>
+                            <p class="item-sub">오세영</p>
+                        </div>
+                    </li>
+                    <li class="list__item">
+                        <div class="item-text">
+                            <p class="item-title">lim x→ 2 를 이 식에 대입해</p>
+                            <p class="item-sub">오세영</p>
+                        </div>
+                    </li>
+                    <li class="list__item">
+                        <div class="item-text">
+                            <p class="item-title">lim x→ 2 를 이 식에 대입해</p>
+                            <p class="item-sub">오세영</p>
+                        </div>
+                    </li>
+                    <li class="list__item">
+                        <div class="item-text">
+                            <p class="item-title">lim x→ 2 를 이 식에 대입해</p>
+                            <p class="item-sub">오세영</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- navigate 불러오기 -->
     <div data-include="../component/navigate.html"></div>
+
+    <!-- footer 불러오기 -->
     <div data-include="../component/footer.html"></div>
+
+    <!-- Calendar 불러오기 -->
+    <script src="../js/calendar.js"></script>
+
+    <!-- Component 불러오기-->
     <script src="../js/include.js"></script>
 </body>
 

@@ -1,15 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>한울</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/ai-assistant.css">
 </head>
 
-<body data-page="ai-assistant">
+<body>
+    <main class="ai">
+        <!-- 기록 패널: 클릭하면 펼쳐지고 접힘 -->
+        <details class="history">
+            <summary class="history__head">
+                <span class="history__title"><img src="../assets/docs.svg" alt="">기록</span>
+                <img src="../assets/arrow_down.svg" alt="" class="history__arrow">
+            </summary>
+            <ul class="history__list">
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+                <li>쎈 수학 문제집 극한 단원 전부 풀기</li>
+            </ul>
+        </details>
+
+        <h1 class="ai__title">AI에게 일정 리마인드를 물어보세요</h1>
+
+        <div class="ai__info">
+            <p>미림마이스터고등학교 2학년 웹 응용 SW 프로그래밍 실무 - 과목 프로젝트 수행평가</p>
+            <p>Developer GitHub</p>
+            <p class="small">seyoung5309</p>
+            <p class="small">mirim-jyd</p>
+            <p>한울 (2026.08.10 ~ 진행중)</p>
+        </div>
+
+        <form class="chat__input" onsubmit="return false;">
+            <input type="text" placeholder="내일 수학 수행이래">
+            <div class="chat__buttons">
+                <button type="button"><img src="../assets/plus.svg" alt="첨부"></button>
+                <button type="submit"><img src="../assets/send.svg" alt="전송"></button>
+            </div>
+        </form>
+    </main>
+
+    <!-- navigate 불러오기 -->
     <div data-include="../component/navigate.html"></div>
-    <div data-include="../component/footer.html"></div>
+
+    <!-- Component 불러오기-->
     <script src="../js/include.js"></script>
 </body>
 

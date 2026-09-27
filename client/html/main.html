@@ -1,123 +1,458 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/main.css">
     <title>한울</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/main.css">
 </head>
 
 <body>
-    <div class="main_box">
-        <div class="first_box">
-            <div>
-                <div class="img_box">
-                    <div class="button_box">
-                        <img class="main_button" src="../assets/main_button_left.png">
-                        <img class="main_button" src="../assets/main_button_right.png">
+    <main class="container">
+        <!-- 1행: 배너 + 프로필 -->
+        <section class="row row--top">
+            <div class="banner">
+                <div class="banner__controls">
+                    <button class="banner__btn"><img src="../assets/banner-prev.svg" alt="이전"></button>
+                    <button class="banner__btn"><img src="../assets/banner-next.svg" alt="다음"></button>
+                </div>
+            </div>
+
+            <div class="card profile">
+                <div class="profile__head">
+                    <div class="profile__user">
+                        <div class="profile__avatar"></div>
+                        <div class="profile__info">
+                            <p class="profile__name">이미림</p>
+                            <p class="profile__class">0학년 0반 0번</p>
+                        </div>
+                    </div>
+                    <div class="profile__links">
+                        <a href="profile.html" class="profile__link">프로필 바로가기</a>
+                        <a href="#" class="profile__logout">로그아웃 <img src="../assets/logout.svg" alt=""></a>
+                    </div>
+                </div>
+                <div class="profile__stats">
+                    <p class="profile__stats-title">통계</p>
+                    <div class="profile__stat">
+                        <p class="label">총 공부 시간</p>
+                        <p class="profile__time">00시간 00분 00초</p>
+                    </div>
+                    <div class="profile__stat">
+                        <p class="label">가장 많이 공부한 분야</p>
+                        <div class="tags">
+                            <span class="tag">CS</span>
+                            <span class="tag">OS</span>
+                            <span class="tag">미적분 1</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="pre_profile">
-                <div class="pre_profile_top">
-                    <div class="pre_profile_left">
-                        <div class="pre_profile_img"></div>
-                        <div class="pre_profile_pro">
-                            <label class="text" style="align-self: stretch; font-size: 24px">이름</label>
-                            <label class="pre_profile_info">0학년 0반 0번</label>
-                        </div>
-                    </div>
-                    <div class="pre_profile_right">
-                        <label class="profile_go">프로필 바로가기</label>
-                        <div class="logout_box">
-                            <label class="logout">로그아웃</label>
-                            <img src="../assets/logout.png">
-                        </div>
+        </section>
+
+        <!-- 2행: 달력 + 급식 + 참여 스터디룸 -->
+        <section class="row row--mid">
+            <div class="card calendar">
+                <div class="calendar__head">
+                    <p class="calendar__month">8월</p>
+                    <div class="calendar__arrows">
+                        <button><img src="../assets/cal-prev.svg" alt="이전 달"></button>
+                        <button><img src="../assets/cal-next.svg" alt="다음 달"></button>
                     </div>
                 </div>
-                <div class="pre_profile_bottom">
-                    <label class="text" style="font-size: 20px">통계</label>
-                    <label class="text" style="font-size: 16px">총 공부 시간</label>
-                    <label class="text" style="font-size: 24px">00시간 00분 00초</label>
-                    <label class="text" style="font-size: 16px">가장 많이 공부한 분야</label>
-                    <div class="many_study_major_box">
-                        <button class="many_study_major">CS</button>
-                        <button class="many_study_major">OS</button>
-                        <button class="many_study_major">미적분 1</button>
+                <div class="calendar__body">
+                    <div class="calendar__grid">
+                        <span class="dow">일</span><span class="dow">월</span><span class="dow">화</span><span
+                            class="dow">수</span><span class="dow">목</span><span class="dow">금</span><span
+                            class="dow">토</span>
+                        <span class="other">26</span><span class="other">27</span><span class="other">28</span><span
+                            class="other">29</span><span class="other">30</span><span
+                            class="other">31</span><span>1</span>
+                        <span
+                            class="sun">2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span>
+                        <span
+                            class="sun">9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+                        <span
+                            class="sun">16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span>
+                        <span class="sun">23</span><span>24</span><span>25</span><span>26</span><span>27</span><span
+                            class="today">28</span><span>29</span>
+                        <span class="sun">30</span><span>31</span><span class="other">1</span><span
+                            class="other">2</span><span class="other">3</span><span class="other">4</span><span
+                            class="other">5</span>
                     </div>
+                    <ul class="calendar__events">
+                        <li>
+                            <p class="date">8월 10일</p>
+                            <p class="title">개학식</p>
+                        </li>
+                        <li>
+                            <p class="date">8월 9~19일</p>
+                            <p class="title">스기나미스고고교<br>교류</p>
+                        </li>
+                        <li>
+                            <p class="date">8월 9~19일</p>
+                            <p class="title">스기나미스고고교<br>교류</p>
+                        </li>
+                        <li>
+                            <p class="date">8월 28일</p>
+                            <p class="title">학생회 인수인계<br>수련회</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
 
-        <!-- 두 번째 박스 -->
-        <div class="second_box">
-            <div class="calendar_box"> <!-- 달력 -->
-                <div class="calendar-wrapper">
+            <div class="card meal">
+                <div class="meal__head">
+                    <h2 class="card__title">오늘의 급식</h2>
+                    <div class="chips">
+                        <button class="chip">조식</button>
+                        <button class="chip chip--active">중식</button>
+                        <button class="chip">석식</button>
+                    </div>
+                </div>
+                <div class="meal__menu">
+                    <p class="meal__date">8월 27일 중식</p>
+                    <ul>
+                        <li>비빔 물 냉면</li>
+                        <li>수제 닭봉 튀김</li>
+                        <li>갈비 만두</li>
+                        <li>미숫가루 두유</li>
+                        <li>배추김치</li>
+                        <li>흰 쌀밥</li>
+                    </ul>
+                </div>
+            </div>
 
-                    <div class="month-panel">
-                        <div class="month-header">
-                            <h2 id="monthLabel">8월</h2>
-                            <div class="month-nav">
-                                <button onclick="changeMonth(-1)">‹</button>
-                                <button onclick="changeMonth(1)">›</button>
+            <div class="card joined">
+                <h2 class="card__title">내가 참여한 스터디룸</h2>
+                <div class="card__actions card__actions--end">
+                    <a href="study-room.html" class="link-blue">더보러 가기</a>
+                </div>
+                <ul class="list joined__list">
+                    <li class="list__item">
+                        <a href="room.html" class="joined__item">
+                            <div class="item-text">
+                                <p class="item-title">스터디룸 이름</p>
+                                <p class="item-sub">방 설명</p>
+                            </div>
+                            <div class="joined__time">
+                                <p class="item-sub">총합 공부 시간</p>
+                                <p class="joined__num">99:99:99</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="list__item">
+                        <a href="room.html" class="joined__item">
+                            <div class="item-text">
+                                <p class="item-title">스터디룸 이름</p>
+                                <p class="item-sub">방 설명</p>
+                            </div>
+                            <div class="joined__time">
+                                <p class="item-sub">총합 공부 시간</p>
+                                <p class="joined__num">99:99:99</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="list__item">
+                        <a href="room.html" class="joined__item">
+                            <div class="item-text">
+                                <p class="item-title">스터디룸 이름</p>
+                                <p class="item-sub">방 설명</p>
+                            </div>
+                            <div class="joined__time">
+                                <p class="item-sub">총합 공부 시간</p>
+                                <p class="joined__num">99:99:99</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="list__item">
+                        <a href="room.html" class="joined__item">
+                            <div class="item-text">
+                                <p class="item-title">스터디룸 이름</p>
+                                <p class="item-sub">방 설명</p>
+                            </div>
+                            <div class="joined__time">
+                                <p class="item-sub">총합 공부 시간</p>
+                                <p class="joined__num">99:99:99</p>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="list__item">
+                        <a href="room.html" class="joined__item">
+                            <div class="item-text">
+                                <p class="item-title">스터디룸 이름</p>
+                                <p class="item-sub">방 설명</p>
+                            </div>
+                            <div class="joined__time">
+                                <p class="item-sub">총합 공부 시간</p>
+                                <p class="joined__num">99:99:99</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 3행: (일정 + 알림 / 주간 랭킹) + To Do -->
+        <section class="row row--bottom">
+            <div class="col-left">
+                <div class="pair">
+                    <div class="card schedule">
+                        <h2 class="card__title">다가오는 일정</h2>
+                        <div class="card__actions">
+                            <div class="chips">
+                                <button class="chip chip--active">전체</button>
+                                <button class="chip">이번주</button>
+                            </div>
+                            <a href="#" class="link-blue">추가하기</a>
+                        </div>
+                        <ul class="list">
+                            <li class="list__item list__item--center">
+                                <div class="item-text">
+                                    <p class="item-title">수학 포트폴리오 1차 수행평가</p>
+                                    <p class="item-sub">2026.08.13</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </li>
+                            <li class="list__item list__item--center">
+                                <div class="item-text">
+                                    <p class="item-title">데이터AI 크리에이터 캠프 발대식</p>
+                                    <p class="item-sub">2026.08.13</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </li>
+                            <li class="list__item list__item--center">
+                                <div class="item-text">
+                                    <p class="item-title">COS Pro Java 1급 자격증 시험</p>
+                                    <p class="item-sub">2026.08.21</p>
+                                </div>
+                                <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card notice">
+                        <h2 class="card__title">읽지 않은 알림</h2>
+                        <div class="card__actions">
+                            <div class="chips">
+                                <button class="chip">채팅</button>
+                                <button class="chip chip--active">공지사항</button>
                             </div>
                         </div>
-                        <div class="weekday-row">
-                            <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+                        <ul class="list">
+                            <li class="list__item">
+                                <div class="item-text">
+                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
+                                    <p class="item-sub">공지사항</p>
+                                </div>
+                            </li>
+                            <li class="list__item">
+                                <div class="item-text">
+                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
+                                    <p class="item-sub">공지사항</p>
+                                </div>
+                            </li>
+                            <li class="list__item">
+                                <div class="item-text">
+                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
+                                    <p class="item-sub">공지사항</p>
+                                </div>
+                            </li>
+                            <li class="list__item">
+                                <div class="item-text">
+                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
+                                    <p class="item-sub">공지사항</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card ranking">
+                    <h2 class="card__title">주간 랭킹</h2>
+                    <div class="card__actions card__actions--end">
+                        <a href="#" class="link-blue">랭킹 자세히 보기</a>
+                    </div>
+                    <div class="ranking__bars">
+                        <div class="bar bar--1">
+                            <p class="bar__rank">1</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
                         </div>
-                        <div class="date-row" id="dateGrid"
-                            style="display:grid; grid-template-columns:repeat(7,1fr); row-gap:6px;">
+                        <div class="bar bar--2">
+                            <p class="bar__rank">2</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
+                        </div>
+                        <div class="bar bar--3">
+                            <p class="bar__rank">3</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
+                        </div>
+                        <div class="bar">
+                            <p class="bar__rank">4</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
+                        </div>
+                        <div class="bar">
+                            <p class="bar__rank">5</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
+                        </div>
+                        <div class="bar">
+                            <p class="bar__rank">6</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
+                        </div>
+                        <div class="bar">
+                            <p class="bar__rank">7</p>
+                            <div class="bar__user">
+                                <div class="bar__avatar"></div>
+                                <p class="bar__id">2101</p>
+                                <p class="bar__name">이미림</p>
+                                <p class="bar__time">00:00:00</p>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="divider"></div>
-
-                    <div class="event-panel" id="eventPanel"></div>
-
+            <div class="card todo">
+                <h2 class="card__title">To Do</h2>
+                <div class="card__actions todo__actions">
+                    <button class="todo__all">전체 완료 처리하기</button>
+                    <a href="#" class="link-blue">추가하기</a>
                 </div>
+                <ul class="list todo__list">
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">쎈 수학 문제집 극한 단원 전부 풀기</p>
+                            <p class="item-sub item-sub--regular">방과 후에 수렴과 발산에 대해 제대로 이해하고, 문제를...</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">‘우리 프로그래머들’ 책 읽기</p>
+                            <p class="item-sub item-sub--regular">책 읽은 뒤에 독서로 작성하기</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">카페인 세 잔 섭취하기</p>
+                            <p class="item-sub item-sub--regular">카페인의 부작용 덕분에 설레는 마음으로<br>공부할 수 있다</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">카페인 한 잔 섭취하기</p>
+                            <p class="item-sub item-sub--regular">카페인의 부작용 덕분에 설레는 마음으로<br>공부할 수 있다</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">카페인 두 잔 섭취하기</p>
+                            <p class="item-sub item-sub--regular">카페인의 부작용 덕분에 설레는 마음으로<br>공부할 수 있다</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">카페인 세 잔 섭취하기</p>
+                            <p class="item-sub item-sub--regular">카페인의 부작용 덕분에 설레는 마음으로<br>공부할 수 있다</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list__item todo__item">
+                        <input type="checkbox" class="checkbox">
+                        <div class="item-text">
+                            <p class="item-title">카페인 세 잔 섭취하기</p>
+                            <p class="item-sub item-sub--regular">카페인의 부작용 덕분에 설레는 마음으로<br>공부할 수 있다</p>
+                        </div>
+                        <div class="more-wrap">
+                            <button class="more"><img src="../assets/more.svg" alt="더보기"></button>
+                            <div class="popup">
+                                <button class="popup__item"><img src="../assets/pen.svg" alt="">수정하기</button>
+                                <button class="popup__item popup__item--danger">삭제하기</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
             </div>
-            <div class="food"> <!-- 오늘의 급식 ---->
-                <label class="small_title_text" styly:="font-size: 24px">오늘의 급식</label>
-                <div class="food_buttons">
-                    <button class="food_button">조식</button>
-                    <button class="food_button">중식</button>
-                    <button class="food_button">석식</button>
-                </div>
-                <label>0월 0일 급식</label>
-                <label>급식 메뉴......</label>
-            </div>
-            <div class="studyroom_box"> <!-- 참여한 스터리룸 조회-->
-                <label class="small_title_text">내가 참여한 스터디룸</label>
-                <label>더 보러 가기</label>
-                <div>
-                    <label>스터디룸 이름</label>
-                    <label>방 설명</label>
-                    <label>총합 공부 시간</label>
-                    <label>00시 00분 00초</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="p_connect_box">
-            <div class="third_box">
-                <div class="c_connect_box">
-                    <div class="d_day_box">
-                        <label>다가오는 일정</label>
-                    </div>
-                    <div class="notification_box">
-                        <label>읽지 않은 알림</label>
-                    </div>
-                </div>
-                <div class="rank_box">
-                    <label>주간 랭킹</label>
-                </div>
-            </div>
-            <div class="fourth_box">
-                <label>To Do</label>
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <!-- navigate 불러오기 -->
     <div data-include="../component/navigate.html"></div>

@@ -1,0 +1,192 @@
+/* ===== 공통 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    color: #000;
+    background: #fff;
+    min-width: 1920px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    font: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+}
+
+img {
+    display: block;
+}
+
+/* ===== 스터디룸 내부 ===== */
+.room {
+    position: absolute;
+    top: 0;
+    left: 150px;
+    width: 1600px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.room__header {
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    padding: 16px;
+    border: 1px solid #d7d8de;
+}
+
+.room__back img {
+    width: 32px;
+    height: 32px;
+}
+
+.room__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a68d7;
+}
+
+.room__content {
+    position: relative;
+    flex: 1;
+    background: #f3f3f3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.timer {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+    width: 380px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 16px;
+}
+
+.timer__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.timer__label {
+    font-size: 16px;
+    font-weight: 400;
+    color: #666;
+}
+
+.timer__num {
+    font-size: 36px;
+}
+
+.timer__num--mine {
+    font-size: 40px;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.chat__messages {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 80px;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.message__avatar {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #1a68d7;
+}
+
+.message__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #444;
+}
+
+.message__meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.message__text {
+    font-size: 20px;
+}
+
+.chat__form {
+    padding: 10px 20px 40px;
+}
+
+.chat__input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: #fff;
+    border: 1px solid #1a68d7;
+    border-radius: 100px;
+}
+
+.chat__input input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font: inherit;
+    font-size: 20px;
+    line-height: 20px;
+    color: #222;
+}
+
+.chat__input input::placeholder {
+    color: #929292;
+}
+
+.chat__buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.chat__buttons img {
+    width: 24px;
+    height: 24px;
+}
