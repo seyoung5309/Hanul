@@ -21,6 +21,8 @@ module.exports = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    // AWS RDS는 SSL로 연결한다. (mysql2에 내장된 RDS 인증서 사용)
+    ssl: process.env.DB_SSL === "rds" ? "Amazon RDS" : undefined,
   },
   jwt: {
     secret: process.env.JWT_SECRET,
