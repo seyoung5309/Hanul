@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const roomModel = require("./roomModel");
 const withTransaction = require("../utils/transaction");
 const { splitByKstDate } = require("../utils/date");
 
@@ -30,6 +31,7 @@ async function startLogs(sessionId, roomIds) {
     `INSERT IGNORE INTO study_log (session_id, room_id, last_heartbeat_at) VALUES ${values}`,
     roomIds.flatMap((roomId) => [sessionId, roomId]),
   );
+  await roomModel.touchActivity(roomIds);
 }
 
 async function endLogs(sessionId, roomIds) {

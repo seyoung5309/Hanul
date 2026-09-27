@@ -70,6 +70,7 @@ module.exports = {
   CHECK_INTERVAL_SECONDS,
   CHECK_RESPONSE_SECONDS,
   HEARTBEAT_TIMEOUT_SECONDS,
+  isVisibleIn,
   startSession,
   endSession,
 };

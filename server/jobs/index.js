@@ -1,7 +1,11 @@
 const cron = require("node-cron");
 const studyModel = require("../models/studyModel");
 const studyService = require("../services/studyService");
+const roomModel = require("../models/roomModel");
+const roomService = require("../services/roomService");
 const { getIO } = require("../socket");
+
+const INACTIVE_ROOM_DAYS = 30; // SR-010: 마지막 활동(참가·공부·채팅) 후 이 기간이 지나면 삭제
 
 const {
   CHECK_INTERVAL_SECONDS,
@@ -69,7 +73,10 @@ async function sendDueNotifications() {
 }
 
 async function deleteInactiveRooms() {
-  // TODO
+  const io = getIO();
+  for (const roomId of await roomModel.findInactiveRoomIds(INACTIVE_ROOM_DAYS)) {
+    await roomService.closeRoom(io, roomId, "inactive");
+  }
 }
 
 module.exports = startJobs;
