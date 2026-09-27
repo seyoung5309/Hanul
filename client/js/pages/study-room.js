@@ -58,6 +58,7 @@
       ".room-section--joined",
       rooms.filter((room) => room.ownerId !== me.id), // 반 메인 포함
     );
+    Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
   }
 
   init().catch((err) => console.error(err));

@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const roomModel = require("../models/roomModel");
 const chatModel = require("../models/chatModel");
+const notificationModel = require("../models/notificationModel");
 const userModel = require("../models/userModel");
 const roomService = require("../services/roomService");
 const notificationService = require("../services/notificationService");
@@ -252,6 +253,7 @@ async function answerInvite(req, res) {
     return invite.roomId;
   });
 
+  await notificationModel.markReadByTarget(req.user.id, "room_invite", inviteId); // 응답한 초대 알림은 읽음
   if (accept) roomService.emitRoomUpdated(getIO(), roomId, "joined");
   res.json({ roomId, accepted: accept });
 }

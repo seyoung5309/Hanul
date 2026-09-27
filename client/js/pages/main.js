@@ -35,6 +35,7 @@
     const [me, rooms] = await Promise.all([api("GET", "/users/me"), api("GET", "/rooms")]);
     fillProfileCard(me);
     renderJoinedRooms(rooms.filter((room) => room.type === "custom").slice(0, MAX_JOINED));
+    Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
   }
 
   init().catch((err) => console.error(err));

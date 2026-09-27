@@ -294,6 +294,7 @@
         const f = (name, label, type = "text", extra = {}) => ({ name, label, type, in: "body", ...extra });
         const path = (name, label = name) => f(name, label, "number", { in: "path", share: true });
         const VIS = ["", "all", "class", "room", "private"];
+        const NOTI_TYPES = ["", "notice", "schedule", "study_room"];
 
         const GROUPS = [
             {
@@ -428,6 +429,39 @@
                     {
                         name: "채팅 신고", req: "CL-004", method: "POST", path: "/api/rooms/:roomId/chats/:chatId/report",
                         fields: [path("roomId"), path("chatId"), f("reason", "사유")],
+                    },
+                ],
+            },
+            {
+                title: "알림", open: true, items: [
+                    {
+                        name: "알림 목록", req: "NT-001", method: "GET", path: "/api/notifications",
+                        note: "최신 20개. before에 마지막 id를 넣으면 그 이전",
+                        fields: [
+                            f("type", "종류", "select", { in: "query", options: NOTI_TYPES }),
+                            f("unread", "안 읽은 것만", "bool", { in: "query" }),
+                            f("before", "before", "number", { in: "query" }),
+                        ],
+                    },
+                    { name: "안 읽은 알림 수", req: "NT-002", method: "GET", path: "/api/notifications/unread-count", fields: [] },
+                    {
+                        name: "읽음 처리", req: "NT-002, 003", method: "PATCH", path: "/api/notifications/:notificationId/read",
+                        fields: [path("notificationId")],
+                    },
+                    {
+                        name: "모두 읽음", req: "NT-002", method: "PATCH", path: "/api/notifications/read-all",
+                        fields: [f("type", "종류만", "select", { in: "query", options: NOTI_TYPES })],
+                    },
+                    { name: "알림 설정 조회", req: "NT-004", method: "GET", path: "/api/notifications/settings", fields: [] },
+                    {
+                        name: "알림 설정 변경", req: "NT-004", method: "PATCH", path: "/api/notifications/settings", fields: [
+                            f("notice", "공지", "bool"), f("schedule", "일정·To Do", "bool"), f("study_room", "공부방", "bool"),
+                        ],
+                    },
+                    {
+                        name: "전체 공지 발송", req: "NT-005", method: "POST", path: "/api/notifications/notice",
+                        note: "관리자만 가능. DB에서 auth.role을 'admin'으로 바꾼 뒤 다시 로그인하세요.",
+                        fields: [f("title", "제목"), f("descript", "내용")],
                     },
                 ],
             },
@@ -625,6 +659,10 @@
                 addLog({ kind: "in", title: event, detail: payload });
                 if (event === "study:session") showSession(payload.session);
                 if (event === "study:check") showCheck(payload.deadline);
+                if (event === "notification:new") {
+                    setShared("notificationId", payload.id);
+                    if (payload.targetType === "room_invite") setShared("inviteId", payload.targetId);
+                }
             });
         }
 
