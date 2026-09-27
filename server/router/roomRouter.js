@@ -1,20 +1,30 @@
 const express = require("express");
+const controller = require("../controllers/roomController");
+const chatController = require("../controllers/chatController");
 
 const router = express.Router();
 
-// :roomId가 붙은 API는 모두 참가자인지 먼저 확인해야 한다. (NF-005)
-// SR-001 POST   /                       방 생성 → 6자리 방 코드 발급
-//        GET    /                       내가 참여한 방 목록
-// SR-002 POST   /join                   방 코드로 참여 (1인당 방 개수 제한)
-// SR-003 GET    /:roomId                방 정보와 참가자 공부 현황
-// SR-005 DELETE /:roomId                방 폭파 (방장만)
-// SR-006 PATCH  /:roomId/owner          방장 위임
-// SR-007 DELETE /:roomId/members/me     나가기 (방장은 위임 후)
-// SR-009 DELETE /:roomId/members/:userId  내보내기 (방장만)
-// SR-008 POST   /:roomId/invites        초대 (방장만)
-// SR-008 PATCH  /invites/:inviteId      초대 수락·거절 (초대받은 사람)
-// CL-002 GET    /:roomId/chats?before=  채팅 이전 기록 (새 메시지는 소켓)
-// CL-003 PUT    /:roomId/chats/read     읽음 위치 갱신
-// CL-004 POST   /:roomId/chats/:chatId/report  채팅 신고
+// 반 메인도 type='class'인 공부방이라 현황 조회(GET /:roomId)를 함께 쓴다.
+// 방 안에서 일어난 변화는 소켓 room:updated, 방에서 빠지면 room:removed로 알린다.
+router.post("/", controller.createRoom); //                       SR-001 → { id, roomCode }
+router.get("/", controller.getMyRooms); //                        내가 참여한 방 목록 (반 메인이 맨 위)
+router.post("/join", controller.joinByCode); //                   SR-002 { roomCode }
+
+// /:roomId보다 먼저 등록해야 "invites"가 roomId로 잡히지 않는다.
+router.get("/invites", controller.getMyInvites); //               SR-008 받은 초대 목록
+router.patch("/invites/:inviteId", controller.answerInvite); //   SR-008 { accept }
+router.get("/unread", chatController.getUnreadCounts); //         CL-003, SR-011 { roomId: 안 읽은 수 }
+
+router.get("/:roomId", controller.getRoom); //                    SR-003, CL-001 방 정보와 참가자 현황
+router.delete("/:roomId", controller.deleteRoom); //              SR-005 방장만
+router.patch("/:roomId/owner", controller.changeOwner); //        SR-006 { userId } 방장만
+router.delete("/:roomId/members/me", controller.leaveRoom); //    SR-007
+router.delete("/:roomId/members/:userId", controller.kickMember); // SR-009 방장만
+router.post("/:roomId/invites", controller.inviteUser); //        SR-008 { userId } 방장만
+
+// ----- 채팅 (보내기는 소켓 chat:send) -----
+router.get("/:roomId/chats", chatController.getChats); //         CL-002 ?before= 이전 기록 30개씩
+router.put("/:roomId/chats/read", chatController.markRead); //    CL-003 { chatId } 여기까지 읽음
+router.post("/:roomId/chats/:chatId/report", chatController.reportChat); // CL-004 { reason }
 
 module.exports = router;

@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한울 API 테스트</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <style>
+        /* 개발용 페이지: 서버를 통해 열어야 한다. http://localhost:3000/html/test.html */
+        :root {
+            --bg: #f3f4f7;
+            --panel: #fff;
+            --text: #1d1f24;
+            --muted: #6b7080;
+            --border: #d7d8de;
+            --brand: #1a68d7;
+            --brand-soft: #e8f0fc;
+            --ok: #1f8a4c;
+            --ok-soft: #e4f4ea;
+            --err: #cf5353;
+            --err-soft: #fbeaea;
+            --warn: #b7791f;
+            --code-bg: #f6f7f9;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg: #14161a;
+                --panel: #1d2026;
+                --text: #e7e9ee;
+                --muted: #9aa0ad;
+                --border: #333842;
+                --brand: #5b9bf0;
+                --brand-soft: #1f2d42;
+                --ok: #4cc47f;
+                --ok-soft: #1b3326;
+                --err: #ef7b7b;
+                --err-soft: #3a2020;
+                --warn: #e0a84a;
+                --code-bg: #16181d;
+            }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            font-size: 14px;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        button, input, select, textarea { font: inherit; color: inherit; }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 { font-size: 18px; color: var(--brand); }
+        header .spacer { flex: 1; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            font-size: 13px;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+        .dot.on { background: var(--ok); }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
+            gap: 16px;
+            padding: 16px 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 1000px) {
+            .layout { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; }
+        }
+
+        .side { position: sticky; top: 72px; display: flex; flex-direction: column; gap: 16px; }
+        @media (max-width: 1000px) { .side { position: static; } }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        details.group { margin-bottom: 12px; }
+        details.group > summary {
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+        }
+        details.group > summary::before { content: "▸ "; color: var(--muted); }
+        details.group[open] > summary::before { content: "▾ "; }
+
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+            padding: 0 12px 12px;
+        }
+
+        form.endpoint {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .endpoint__head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+        .endpoint__name { font-weight: 600; }
+        .endpoint__req { font-size: 12px; color: var(--muted); }
+        .endpoint__path { font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--muted); word-break: break-all; }
+
+        .method {
+            padding: 1px 6px;
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 4px;
+            color: #fff;
+            background: var(--muted);
+        }
+        .method--GET { background: var(--ok); }
+        .method--POST { background: var(--brand); }
+        .method--PATCH, .method--PUT { background: var(--warn); }
+        .method--DELETE { background: var(--err); }
+
+        label.field { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 8px; }
+        label.field span { font-size: 12px; color: var(--muted); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 6px 8px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        input:focus, select:focus { outline: 2px solid var(--brand-soft); border-color: var(--brand); }
+
+        .btn {
+            padding: 7px 12px;
+            font-weight: 600;
+            color: #fff;
+            background: var(--brand);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn:disabled { opacity: 0.5; cursor: default; }
+        .btn--ghost { color: var(--text); background: transparent; border: 1px solid var(--border); }
+        .btn--danger { background: var(--err); }
+
+        .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .row > input, .row > select { flex: 1; min-width: 80px; width: auto; }
+
+        .socket { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+        .socket h2, .log h2 { font-size: 15px; }
+        .muted { color: var(--muted); font-size: 12px; }
+
+        .check-banner {
+            padding: 10px 12px;
+            color: var(--err);
+            background: var(--err-soft);
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .log { display: flex; flex-direction: column; gap: 8px; padding: 14px; }
+        .log__list { display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow: auto; }
+
+        .log__item { border: 1px solid var(--border); border-radius: 8px; }
+        .log__item > summary {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 10px;
+            cursor: pointer;
+            list-style: none;
+            font-size: 12px;
+        }
+        .log__time { color: var(--muted); font-family: ui-monospace, Consolas, monospace; }
+        .log__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, Consolas, monospace; }
+
+        .badge { padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .badge--ok { color: var(--ok); background: var(--ok-soft); }
+        .badge--err { color: var(--err); background: var(--err-soft); }
+        .badge--in { color: var(--brand); background: var(--brand-soft); }
+
+        pre {
+            margin: 0 10px 10px;
+            padding: 8px;
+            max-height: 320px;
+            overflow: auto;
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: 12px;
+            background: var(--code-bg);
+            border-radius: 6px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>한울 API 테스트</h1>
+        <span class="pill"><span class="dot" id="loginDot"></span><span id="loginText">확인 중…</span></span>
+        <span class="pill"><span class="dot" id="socketDot"></span><span id="socketText">소켓 연결 안 됨</span></span>
+        <span class="spacer"></span>
+        <span class="muted">다른 사용자로 동시에 테스트하려면 시크릿 창이나 다른 브라우저를 쓰세요.</span>
+    </header>
+
+    <div class="layout">
+        <main id="groups"></main>
+
+        <aside class="side">
+            <section class="panel socket">
+                <h2>실시간 (Socket.IO)</h2>
+                <div class="row">
+                    <button class="btn" id="connectBtn" type="button">연결</button>
+                    <span class="muted" id="sessionText">공부 중 아님</span>
+                </div>
+                <div class="row">
+                    <input type="number" placeholder="roomId" data-share="roomId" id="socketRoomId">
+                    <button class="btn btn--ghost" type="button" data-emit="room:enter">입장</button>
+                    <button class="btn btn--ghost" type="button" data-emit="room:leave">퇴장</button>
+                </div>
+                <div class="row">
+                    <select id="subjectSelect" aria-label="과목">
+                        <option value="">과목 불러오기 전</option>
+                    </select>
+                    <button class="btn" type="button" data-emit="study:start">공부 시작</button>
+                    <button class="btn btn--danger" type="button" data-emit="study:stop">종료</button>
+                </div>
+                <div class="row">
+                    <label class="row muted"><input type="checkbox" id="autoHeartbeat" checked style="width:auto;flex:none">
+                        30초마다 heartbeat 자동 전송</label>
+                    <button class="btn btn--ghost" type="button" data-emit="study:heartbeat">지금 전송</button>
+                </div>
+                <div class="row">
+                    <input type="text" id="chatMessage" placeholder="채팅 메시지 (위 roomId 방으로)" maxlength="1000">
+                    <button class="btn" type="button" data-emit="chat:send">채팅 보내기</button>
+                </div>
+                <div class="check-banner" id="checkBanner" hidden>
+                    <span id="checkText"></span>
+                    <button class="btn" type="button" data-emit="study:confirm" style="margin-left:8px">응답</button>
+                </div>
+                <p class="muted">방 화면처럼 입장한 방에서만 방별 기록이 쌓입니다. 3시간 확인을 빨리 보려면 DB에서
+                    study_session.start를 3시간 전으로 바꾸세요.</p>
+            </section>
+
+            <section class="panel log">
+                <div class="row">
+                    <h2 style="flex:1">요청·이벤트 기록</h2>
+                    <button class="btn btn--ghost" type="button" id="clearLog">지우기</button>
+                </div>
+                <div class="log__list" id="log"></div>
+            </section>
+        </aside>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // ===== API 정의 =====
+        // in: body(기본) | query | path. 빈 칸은 보내지 않는다. (PATCH는 보낸 값만 바뀜)
+        // type: text | email | password | number | date | bool | select | ids(쉼표로 구분한 숫자 → 배열)
+        // share: 같은 이름의 칸끼리 값이 함께 바뀐다. (roomId를 한 번만 입력하면 됨)
+        const f = (name, label, type = "text", extra = {}) => ({ name, label, type, in: "body", ...extra });
+        const path = (name, label = name) => f(name, label, "number", { in: "path", share: true });
+        const VIS = ["", "all", "class", "room", "private"];
+        const NOTI_TYPES = ["", "notice", "schedule", "study_room"];
+
+        const GROUPS = [
+            {
+                title: "계정", open: true, items: [
+                    {
+                        name: "회원가입", req: "UD-001, 003", method: "POST", path: "/api/users/signup", fields: [
+                            f("email", "이메일", "email", { placeholder: "test@example.com" }),
+                            f("password", "비밀번호", "password", { placeholder: "8~64자" }),
+                            f("identifier", "아이디", "text", { placeholder: "영문·숫자·_ 4~16자" }),
+                            f("name", "이름"),
+                            f("birth", "생년월일", "date"),
+                            f("gender", "성별", "select", { options: ["", "male", "female"] }),
+                            f("grade", "학년", "number"),
+                            f("classNo", "반", "number"),
+                            f("number", "번호", "number"),
+                            f("agreeTerms", "개인정보 동의", "bool", { value: "true" }),
+                        ],
+                    },
+                    {
+                        name: "중복 확인", req: "UD-002", method: "GET", path: "/api/users/check", fields: [
+                            f("email", "이메일", "email", { in: "query" }),
+                            f("identifier", "아이디", "text", { in: "query" }),
+                        ],
+                    },
+                    {
+                        name: "로그인", req: "UD-004", method: "POST", path: "/api/users/login", fields: [
+                            f("email", "이메일", "email"), f("password", "비밀번호", "password"),
+                        ],
+                    },
+                    { name: "로그아웃", req: "UD-005", method: "POST", path: "/api/users/logout", fields: [] },
+                    {
+                        name: "재설정 메일 요청", req: "UD-006", method: "POST", path: "/api/users/password-reset",
+                        note: "SMTP 설정이 없으면 서버 콘솔에 링크가 출력됩니다.", fields: [f("email", "이메일", "email")],
+                    },
+                    {
+                        name: "새 비밀번호 설정", req: "UD-006", method: "PUT", path: "/api/users/password-reset", fields: [
+                            f("token", "토큰", "text", { placeholder: "메일 링크의 token 값" }),
+                            f("password", "새 비밀번호", "password"),
+                        ],
+                    },
+                    { name: "내 정보", req: "UD-007", method: "GET", path: "/api/users/me", fields: [] },
+                    {
+                        name: "프로필 수정", req: "UD-007", method: "PATCH", path: "/api/users/me", fields: [
+                            f("comment", "한 마디"),
+                            f("subjectIds", "관심 과목", "ids", { placeholder: "예: 2,3,5 (최대 5개)" }),
+                        ],
+                    },
+                    {
+                        name: "공개 범위", req: "UD-008", method: "PATCH", path: "/api/users/me/visibility", fields: [
+                            f("statusVisibility", "공부 상태", "select", { options: VIS }),
+                            f("timeVisibility", "공부 시간", "select", { options: VIS }),
+                        ],
+                    },
+                    {
+                        name: "랭킹 숨기기", req: "ST-008", method: "PATCH", path: "/api/users/me/ranking", fields: [
+                            f("hideRanking", "내 랭킹 숨김", "bool"), f("hideRankingView", "랭킹 화면 끔", "bool"),
+                        ],
+                    },
+                    {
+                        name: "새 학년도 반 등록", req: "UD-010", method: "POST", path: "/api/users/me/class", fields: [
+                            f("grade", "학년", "number"), f("classNo", "반", "number"), f("number", "번호", "number"),
+                        ],
+                    },
+                    {
+                        name: "아이디 검색", req: "SR-008", method: "GET", path: "/api/users/search", fields: [
+                            f("identifier", "아이디 앞부분", "text", { in: "query", placeholder: "2자 이상" }),
+                        ],
+                    },
+                    {
+                        name: "회원 탈퇴", req: "UD-009", method: "DELETE", path: "/api/users/me", danger: true,
+                        fields: [f("password", "비밀번호 확인", "password")],
+                    },
+                ],
+            },
+            {
+                title: "공통 조회", open: true, items: [
+                    { name: "서버 상태", method: "GET", path: "/api/health", fields: [] },
+                    { name: "과목 목록", method: "GET", path: "/api/subjects", fields: [] },
+                    { name: "내 반", req: "CL-001", method: "GET", path: "/api/classes/me", fields: [] },
+                    { name: "지금 공부 중인 세션", method: "GET", path: "/api/study/current", fields: [] },
+                ],
+            },
+            {
+                title: "공부방", open: true, items: [
+                    {
+                        name: "방 만들기", req: "SR-001", method: "POST", path: "/api/rooms", fields: [
+                            f("title", "제목", "text", { placeholder: "1~30자" }),
+                            f("comment", "설명"),
+                            f("subjectIds", "키워드", "ids", { placeholder: "과목 id, 최대 3개" }),
+                            f("maxMembers", "최대 인원", "number", { placeholder: "2~30" }),
+                        ],
+                    },
+                    { name: "내 방 목록", method: "GET", path: "/api/rooms", fields: [] },
+                    {
+                        name: "코드로 참여", req: "SR-002", method: "POST", path: "/api/rooms/join",
+                        fields: [f("roomCode", "방 코드", "text", { placeholder: "6자리" })],
+                    },
+                    { name: "방 정보·참가자 현황", req: "SR-003", method: "GET", path: "/api/rooms/:roomId", fields: [path("roomId")] },
+                    {
+                        name: "방장 위임", req: "SR-006", method: "PATCH", path: "/api/rooms/:roomId/owner",
+                        fields: [path("roomId"), f("userId", "받을 사람 id", "number", { share: true })],
+                    },
+                    { name: "나가기", req: "SR-007", method: "DELETE", path: "/api/rooms/:roomId/members/me", fields: [path("roomId")] },
+                    {
+                        name: "내보내기", req: "SR-009", method: "DELETE", path: "/api/rooms/:roomId/members/:userId",
+                        fields: [path("roomId"), path("userId", "내보낼 사람 id")],
+                    },
+                    {
+                        name: "초대하기", req: "SR-008", method: "POST", path: "/api/rooms/:roomId/invites",
+                        fields: [path("roomId"), f("userId", "초대할 사람 id", "number", { share: true })],
+                    },
+                    { name: "받은 초대", req: "SR-008", method: "GET", path: "/api/rooms/invites", fields: [] },
+                    {
+                        name: "초대 응답", req: "SR-008", method: "PATCH", path: "/api/rooms/invites/:inviteId",
+                        fields: [path("inviteId"), f("accept", "수락", "bool", { value: "true" })],
+                    },
+                    { name: "방 삭제", req: "SR-005", method: "DELETE", path: "/api/rooms/:roomId", danger: true, fields: [path("roomId")] },
+                ],
+            },
+            {
+                title: "채팅 (보내기는 오른쪽 실시간 패널)", open: true, items: [
+                    {
+                        name: "채팅 기록", req: "CL-002", method: "GET", path: "/api/rooms/:roomId/chats",
+                        note: "최근 30개. before에 가장 오래된 id를 넣으면 그 이전 30개",
+                        fields: [path("roomId"), f("before", "before", "number", { in: "query" })],
+                    },
+                    {
+                        name: "읽음 처리", req: "CL-003", method: "PUT", path: "/api/rooms/:roomId/chats/read",
+                        fields: [path("roomId"), f("chatId", "여기까지 읽음", "number", { share: true })],
+                    },
+                    { name: "방별 안 읽은 수", req: "CL-003, SR-011", method: "GET", path: "/api/rooms/unread", fields: [] },
+                    {
+                        name: "채팅 신고", req: "CL-004", method: "POST", path: "/api/rooms/:roomId/chats/:chatId/report",
+                        fields: [path("roomId"), path("chatId"), f("reason", "사유")],
+                    },
+                ],
+            },
+            {
+                title: "알림", open: true, items: [
+                    {
+                        name: "알림 목록", req: "NT-001", method: "GET", path: "/api/notifications",
+                        note: "최신 20개. before에 마지막 id를 넣으면 그 이전",
+                        fields: [
+                            f("type", "종류", "select", { in: "query", options: NOTI_TYPES }),
+                            f("unread", "안 읽은 것만", "bool", { in: "query" }),
+                            f("before", "before", "number", { in: "query" }),
+                        ],
+                    },
+                    { name: "안 읽은 알림 수", req: "NT-002", method: "GET", path: "/api/notifications/unread-count", fields: [] },
+                    {
+                        name: "읽음 처리", req: "NT-002, 003", method: "PATCH", path: "/api/notifications/:notificationId/read",
+                        fields: [path("notificationId")],
+                    },
+                    {
+                        name: "모두 읽음", req: "NT-002", method: "PATCH", path: "/api/notifications/read-all",
+                        fields: [f("type", "종류만", "select", { in: "query", options: NOTI_TYPES })],
+                    },
+                    { name: "알림 설정 조회", req: "NT-004", method: "GET", path: "/api/notifications/settings", fields: [] },
+                    {
+                        name: "알림 설정 변경", req: "NT-004", method: "PATCH", path: "/api/notifications/settings", fields: [
+                            f("notice", "공지", "bool"), f("schedule", "일정·To Do", "bool"), f("study_room", "공부방", "bool"),
+                        ],
+                    },
+                    {
+                        name: "전체 공지 발송", req: "NT-005", method: "POST", path: "/api/notifications/notice",
+                        note: "관리자만 가능. DB에서 auth.role을 'admin'으로 바꾼 뒤 다시 로그인하세요.",
+                        fields: [f("title", "제목"), f("descript", "내용")],
+                    },
+                ],
+            },
+        ];
+
+        // ===== 공통 =====
+        const $ = (id) => document.getElementById(id);
+
+        function el(tag, props = {}, ...children) {
+            const node = Object.assign(document.createElement(tag), props);
+            node.append(...children.filter((c) => c !== null && c !== undefined));
+            return node;
+        }
+
+        // 같은 data-share 이름의 칸 값을 맞춘다.
+        function setShared(name, value) {
+            document.querySelectorAll(`[data-share="${name}"]`).forEach((input) => (input.value = value));
+        }
+        document.addEventListener("input", (event) => {
+            const name = event.target.dataset?.share;
+            if (name) setShared(name, event.target.value);
+        });
+
+        function addLog({ kind, title, ok, detail }) {
+            const time = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+            const badgeClass = kind === "in" ? "badge--in" : ok ? "badge--ok" : "badge--err";
+            const badgeText = kind === "in" ? "수신" : ok ? "성공" : "실패";
+            const item = el("details", { className: "log__item" },
+                el("summary", {},
+                    el("span", { className: "log__time", textContent: time }),
+                    el("span", { className: `badge ${badgeClass}`, textContent: badgeText }),
+                    el("span", { className: "log__title", textContent: title })),
+                el("pre", { textContent: JSON.stringify(detail, null, 2) }));
+            if (!ok && kind !== "in") item.open = true;
+            $("log").prepend(item);
+        }
+        $("clearLog").addEventListener("click", () => $("log").replaceChildren());
+
+        // ===== REST =====
+        function toValue(field, raw) {
+            if (field.type === "number") return Number(raw);
+            if (field.type === "bool") return raw === "true";
+            if (field.type === "ids") return raw.split(",").map((s) => s.trim()).filter(Boolean).map(Number);
+            return raw;
+        }
+
+        async function callApi(def, form) {
+            let url = def.path;
+            const query = new URLSearchParams();
+            const body = {};
+
+            for (const field of def.fields) {
+                const raw = form.elements[field.name].value.trim();
+                if (field.in === "path") {
+                    if (!raw) throw new Error(`${field.label}를 입력해 주세요.`);
+                    url = url.replace(`:${field.name}`, encodeURIComponent(raw));
+                } else if (raw !== "") {
+                    if (field.in === "query") query.set(field.name, raw);
+                    else body[field.name] = toValue(field, raw);
+                }
+            }
+            if ([...query].length) url += `?${query}`;
+
+            const hasBody = !["GET"].includes(def.method) && Object.keys(body).length > 0;
+            const res = await fetch(url, {
+                method: def.method,
+                headers: hasBody ? { "Content-Type": "application/json" } : {},
+                body: hasBody ? JSON.stringify(body) : undefined,
+            });
+            const text = await res.text();
+            let data = text;
+            try { data = text ? JSON.parse(text) : null; } catch { /* JSON이 아니면 그대로 */ }
+
+            addLog({
+                kind: "rest",
+                ok: res.ok,
+                title: `${def.method} ${url} → ${res.status}`,
+                detail: { status: res.status, request: hasBody ? body : undefined, response: data },
+            });
+            return { ok: res.ok, data };
+        }
+
+        // 응답에서 다음 요청에 쓸 id를 자동으로 채운다.
+        function afterSuccess(def, data) {
+            if (def.path === "/api/rooms" && def.method === "POST") setShared("roomId", data.id);
+            if (def.path === "/api/rooms/join") setShared("roomId", data.roomId);
+            if (def.path.endsWith("/invites") && def.method === "POST") setShared("inviteId", data.id);
+            if (def.path === "/api/classes/me") setShared("roomId", data.roomId);
+            // 가입·로그인·로그아웃·탈퇴로 사용자가 바뀌면 상단 표시와 소켓을 새로 맞춘다.
+            if (def.path.startsWith("/api/users/") && def.method !== "GET") {
+                const before = me?.id;
+                refreshLogin().then(() => me?.id !== before && reconnectSocket());
+            }
+        }
+
+        function fieldInput(field) {
+            const common = { name: field.name, placeholder: field.placeholder ?? "" };
+            let input;
+            if (field.type === "select" || field.type === "bool") {
+                const options = field.type === "bool" ? ["", "true", "false"] : field.options;
+                input = el("select", { name: field.name },
+                    ...options.map((o) => el("option", { value: o, textContent: o === "" ? "(보내지 않음)" : o })));
+            } else {
+                const type = ["ids", "text"].includes(field.type) ? "text" : field.type;
+                input = el("input", { ...common, type });
+            }
+            if (field.value !== undefined) input.value = field.value;
+            if (field.share) input.dataset.share = field.name;
+            return el("label", { className: "field" }, el("span", { textContent: field.label }), input);
+        }
+
+        function renderGroups() {
+            for (const group of GROUPS) {
+                const list = el("div", { className: "endpoints" });
+                for (const def of group.items) {
+                    const button = el("button", {
+                        className: `btn${def.danger ? " btn--danger" : ""}`, type: "submit", textContent: "보내기",
+                    });
+                    const form = el("form", { className: "endpoint" },
+                        el("div", { className: "endpoint__head" },
+                            el("span", { className: `method method--${def.method}`, textContent: def.method }),
+                            el("span", { className: "endpoint__name", textContent: def.name }),
+                            def.req ? el("span", { className: "endpoint__req", textContent: def.req }) : null),
+                        el("div", { className: "endpoint__path", textContent: def.path }),
+                        def.note ? el("div", { className: "muted", textContent: def.note }) : null,
+                        ...def.fields.map(fieldInput),
+                        button);
+
+                    form.addEventListener("submit", async (event) => {
+                        event.preventDefault();
+                        if (def.danger && !confirm(`${def.name}을(를) 실행할까요?`)) return;
+                        button.disabled = true;
+                        try {
+                            const { ok, data } = await callApi(def, form);
+                            if (ok) afterSuccess(def, data);
+                        } catch (err) {
+                            addLog({ kind: "rest", ok: false, title: `${def.method} ${def.path}`, detail: { error: err.message } });
+                        } finally {
+                            button.disabled = false;
+                        }
+                    });
+                    list.append(form);
+                }
+                $("groups").append(el("details", { className: "panel group", open: group.open },
+                    el("summary", { textContent: group.title }), list));
+            }
+        }
+
+        // ===== 로그인 상태 =====
+        let me = null;
+        async function refreshLogin() {
+            const res = await fetch("/api/users/me");
+            me = res.ok ? await res.json() : null;
+            $("loginDot").classList.toggle("on", Boolean(me));
+            $("loginText").textContent = me
+                ? `${me.name} (${me.identifier}, id ${me.id})${me.class ? ` · ${me.class.grade}-${me.class.classNo}-${me.class.number}` : ""}`
+                : "로그인 안 됨";
+            if (me) loadSubjects();
+        }
+
+        async function loadSubjects() {
+            const res = await fetch("/api/subjects");
+            if (!res.ok) return;
+            const subjects = await res.json();
+            const select = $("subjectSelect");
+            const previous = select.value;
+            select.replaceChildren(...subjects.map((s) => el("option", { value: s.id, textContent: `${s.id} · ${s.name}` })));
+            if (previous) select.value = previous;
+        }
+
+        // ===== Socket.IO =====
+        let socket = null;
+        let heartbeatTimer = null;
+        let checkTimer = null;
+
+        function setSocketState(connected, text) {
+            $("socketDot").classList.toggle("on", connected);
+            $("socketText").textContent = text;
+            $("connectBtn").textContent = connected ? "연결 끊기" : "연결";
+        }
+
+        function connectSocket() {
+            socket = io({ reconnection: false });
+            socket.on("connect", () => setSocketState(true, `소켓 연결됨 (${socket.id})`));
+            socket.on("connect_error", (err) => {
+                setSocketState(false, "소켓 연결 실패");
+                addLog({ kind: "socket", ok: false, title: "connect_error", detail: { message: err.message } });
+            });
+            socket.on("disconnect", (reason) => {
+                setSocketState(false, "소켓 연결 안 됨");
+                addLog({ kind: "in", title: "disconnect", detail: { reason } });
+            });
+            // 서버가 보내는 모든 이벤트 기록
+            socket.onAny((event, payload) => {
+                addLog({ kind: "in", title: event, detail: payload });
+                if (event === "study:session") showSession(payload.session);
+                if (event === "study:check") showCheck(payload.deadline);
+                if (event === "notification:new") {
+                    setShared("notificationId", payload.id);
+                    if (payload.targetType === "room_invite") setShared("inviteId", payload.targetId);
+                }
+            });
+        }
+
+        function disconnectSocket() {
+            socket?.disconnect();
+            socket = null;
+            setSocketState(false, "소켓 연결 안 됨");
+        }
+
+        // 로그인한 사용자가 바뀌면 쿠키도 바뀌므로 다시 연결한다.
+        function reconnectSocket() {
+            disconnectSocket();
+            showSession(null);
+            if (me) connectSocket();
+        }
+
+        $("connectBtn").addEventListener("click", () => (socket?.connected ? disconnectSocket() : connectSocket()));
+
+        function emit(event, payload = {}) {
+            if (!socket?.connected) {
+                addLog({ kind: "socket", ok: false, title: event, detail: { error: "소켓을 먼저 연결하세요." } });
+                return Promise.resolve(null);
+            }
+            return new Promise((resolve) => {
+                socket.emit(event, payload, (res) => {
+                    addLog({ kind: "socket", ok: res.ok, title: `emit ${event}`, detail: { request: payload, response: res } });
+                    resolve(res);
+                });
+            });
+        }
+
+        document.querySelectorAll("[data-emit]").forEach((button) => {
+            button.addEventListener("click", async () => {
+                const event = button.dataset.emit;
+                const payload = {};
+                if (event.startsWith("room:") || event === "chat:send") payload.roomId = Number($("socketRoomId").value);
+                if (event === "study:start") payload.subjectId = Number($("subjectSelect").value);
+                if (event === "chat:send") payload.message = $("chatMessage").value;
+                const res = await emit(event, payload);
+                if (res?.ok && event === "chat:send") {
+                    $("chatMessage").value = "";
+                    setShared("chatId", res.chat.id);
+                }
+                if (res?.ok && event === "study:confirm") hideCheck();
+                if (res?.ok && event === "study:start") showSession(res.session);
+            });
+        });
+
+        function showSession(session) {
+            $("sessionText").textContent = session
+                ? `공부 중 · 세션 ${session.id} · 과목 ${session.subjectId} · ${new Date(session.start).toLocaleTimeString("ko-KR")} 시작`
+                : "공부 중 아님";
+            if (!session) hideCheck();
+        }
+
+        // 30초마다 heartbeat (체크를 끄면 2분 뒤 '연결 끊김'으로 자동 종료되는지 볼 수 있다)
+        heartbeatTimer = setInterval(() => {
+            if ($("autoHeartbeat").checked && socket?.connected) socket.emit("study:heartbeat", {}, () => { });
+        }, 30 * 1000);
+
+        function showCheck(deadline) {
+            const end = new Date(deadline).getTime();
+            $("checkBanner").hidden = false;
+            clearInterval(checkTimer);
+            const tick = () => {
+                const left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+                $("checkText").textContent = `응답 확인: ${left}초 안에 응답하지 않으면 종료`;
+            };
+            tick();
+            checkTimer = setInterval(tick, 250);
+        }
+
+        function hideCheck() {
+            $("checkBanner").hidden = true;
+            clearInterval(checkTimer);
+        }
+
+        // ===== 시작 =====
+        renderGroups();
+        refreshLogin().then(async () => {
+            if (!me) return;
+            connectSocket();
+            const res = await fetch("/api/study/current");
+            if (res.ok) {
+                const { session } = await res.json();
+                showSession(session);
+                if (session?.checkDeadline && new Date(session.checkDeadline) > new Date()) showCheck(session.checkDeadline);
+            }
+        });
+    </script>
+</body>
+
+</html>

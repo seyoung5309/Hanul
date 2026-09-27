@@ -131,67 +131,7 @@
                 <div class="card__actions card__actions--end">
                     <a href="study-room.html" class="link-blue">더보러 가기</a>
                 </div>
-                <ul class="list joined__list">
-                    <li class="list__item">
-                        <a href="room.html" class="joined__item">
-                            <div class="item-text">
-                                <p class="item-title">스터디룸 이름</p>
-                                <p class="item-sub">방 설명</p>
-                            </div>
-                            <div class="joined__time">
-                                <p class="item-sub">총합 공부 시간</p>
-                                <p class="joined__num">99:99:99</p>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="list__item">
-                        <a href="room.html" class="joined__item">
-                            <div class="item-text">
-                                <p class="item-title">스터디룸 이름</p>
-                                <p class="item-sub">방 설명</p>
-                            </div>
-                            <div class="joined__time">
-                                <p class="item-sub">총합 공부 시간</p>
-                                <p class="joined__num">99:99:99</p>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="list__item">
-                        <a href="room.html" class="joined__item">
-                            <div class="item-text">
-                                <p class="item-title">스터디룸 이름</p>
-                                <p class="item-sub">방 설명</p>
-                            </div>
-                            <div class="joined__time">
-                                <p class="item-sub">총합 공부 시간</p>
-                                <p class="joined__num">99:99:99</p>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="list__item">
-                        <a href="room.html" class="joined__item">
-                            <div class="item-text">
-                                <p class="item-title">스터디룸 이름</p>
-                                <p class="item-sub">방 설명</p>
-                            </div>
-                            <div class="joined__time">
-                                <p class="item-sub">총합 공부 시간</p>
-                                <p class="joined__num">99:99:99</p>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="list__item">
-                        <a href="room.html" class="joined__item">
-                            <div class="item-text">
-                                <p class="item-title">스터디룸 이름</p>
-                                <p class="item-sub">방 설명</p>
-                            </div>
-                            <div class="joined__time">
-                                <p class="item-sub">총합 공부 시간</p>
-                                <p class="joined__num">99:99:99</p>
-                            </div>
-                        </a>
-                    </li>
+                <ul class="list joined__list"><!-- js/pages/main.js가 채움 -->
                 </ul>
             </div>
         </section>
@@ -242,31 +182,7 @@
                                 <button class="chip chip--active">공지사항</button>
                             </div>
                         </div>
-                        <ul class="list">
-                            <li class="list__item">
-                                <div class="item-text">
-                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
-                                    <p class="item-sub">공지사항</p>
-                                </div>
-                            </li>
-                            <li class="list__item">
-                                <div class="item-text">
-                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
-                                    <p class="item-sub">공지사항</p>
-                                </div>
-                            </li>
-                            <li class="list__item">
-                                <div class="item-text">
-                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
-                                    <p class="item-sub">공지사항</p>
-                                </div>
-                            </li>
-                            <li class="list__item">
-                                <div class="item-text">
-                                    <p class="item-title">데이터베이스 이전을 위한 일시<br>서버 다운 일정</p>
-                                    <p class="item-sub">공지사항</p>
-                                </div>
-                            </li>
+                        <ul class="list"><!-- js/notice-card.js가 채움 -->
                         </ul>
                     </div>
                 </div>
@@ -465,6 +381,12 @@
 
     <!-- Component 불러오기-->
     <script src="../js/include.js"></script>
+
+    <!-- API 연동 -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/notice-card.js"></script>
+    <script src="../js/pages/main.js"></script>
 </body>
 
 </html>

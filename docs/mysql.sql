@@ -54,7 +54,7 @@ CREATE TABLE user (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- 학년/반 (학년도별로 미리 생성)
+-- 학년/반 (해당 학년도 반에 처음 가입하는 학생이 있을 때 서버가 생성)
 CREATE TABLE class (
   id    INT  PRIMARY KEY AUTO_INCREMENT,
   year  YEAR NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE class_user (
 
 CREATE TABLE subject (
   id   INT          PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL
+  name VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE subject_like (                           -- 서버 로직상 최대 5개
@@ -191,6 +191,8 @@ CREATE TABLE study_session (
   end               DATETIME NULL,
   status            ENUM('공부중','종료','자동종료') NOT NULL DEFAULT '공부중',
   last_heartbeat_at DATETIME NULL,                    -- 응답 없는 세션 자동 종료용
+  confirmed_at      DATETIME NULL,                    -- 마지막으로 '응답'을 누른 시각 (3시간 확인 기준)
+  check_deadline    DATETIME NULL,                    -- 응답 확인 중이면 마감 시각, 아니면 NULL
   -- 공부중이면 1, 종료면 NULL. UNIQUE는 NULL 중복을 허용하므로
   -- 종료된 세션은 얼마든지 쌓이고, 공부중 세션만 사람당 1개로 제한된다.
   is_active         TINYINT AS (IF(status = '공부중', 1, NULL)) STORED,

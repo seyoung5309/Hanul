@@ -12,18 +12,31 @@ if (missing.length > 0) {
   throw new Error(`환경변수가 없습니다: ${missing.join(", ")} (.env.example 참고)`);
 }
 
+const port = Number(process.env.PORT) || 3000;
+
 module.exports = {
-  port: Number(process.env.PORT) || 3000,
+  port,
   isProd: process.env.NODE_ENV === "production",
+  appUrl: process.env.APP_URL || `http://localhost:${port}`, // 메일 속 링크의 주소
   db: {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT) || 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    // AWS RDS는 SSL로 연결한다. (mysql2에 내장된 RDS 인증서 사용)
+    ssl: process.env.DB_SSL === "rds" ? "Amazon RDS" : undefined,
   },
   jwt: {
     secret: process.env.JWT_SECRET,
-    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    expiresDays: Number(process.env.JWT_EXPIRES_DAYS) || 7,
+  },
+  // SMTP_HOST가 없으면 메일을 보내지 않고 콘솔에 출력한다. (개발용)
+  mail: {
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT) || 587,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+    from: process.env.MAIL_FROM || process.env.SMTP_USER,
   },
 };
