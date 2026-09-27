@@ -54,7 +54,7 @@ CREATE TABLE user (
     ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- 학년/반 (학년도별로 미리 생성)
+-- 학년/반 (해당 학년도 반에 처음 가입하는 학생이 있을 때 서버가 생성)
 CREATE TABLE class (
   id    INT  PRIMARY KEY AUTO_INCREMENT,
   year  YEAR NOT NULL,

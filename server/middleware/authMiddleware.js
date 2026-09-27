@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { jwt: jwtConfig } = require("../config/env");
+const { isProd, jwt: jwtConfig } = require("../config/env");
 const HttpError = require("../utils/httpError");
 
 // 토큰은 httpOnly 쿠키에 담는다. (JS에서 읽을 수 없어 XSS로 탈취되지 않음)
@@ -7,11 +7,28 @@ const TOKEN_COOKIE = "token";
 
 // payload: { id, role }
 function signToken(payload) {
-  return jwt.sign(payload, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
+  return jwt.sign(payload, jwtConfig.secret, { expiresIn: `${jwtConfig.expiresDays}d` });
 }
 
 function verifyToken(token) {
   return jwt.verify(token, jwtConfig.secret);
+}
+
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: isProd, // 배포(HTTPS)에서만 secure
+};
+
+function setTokenCookie(res, payload) {
+  res.cookie(TOKEN_COOKIE, signToken(payload), {
+    ...cookieOptions,
+    maxAge: jwtConfig.expiresDays * 24 * 60 * 60 * 1000,
+  });
+}
+
+function clearTokenCookie(res) {
+  res.clearCookie(TOKEN_COOKIE, cookieOptions);
 }
 
 // NF-001: 로그인하지 않았거나 만료된 사용자 차단
@@ -33,4 +50,11 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { TOKEN_COOKIE, signToken, verifyToken, requireAuth, requireAdmin };
+module.exports = {
+  TOKEN_COOKIE,
+  verifyToken,
+  setTokenCookie,
+  clearTokenCookie,
+  requireAuth,
+  requireAdmin,
+};

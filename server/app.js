@@ -7,6 +7,10 @@ const { notFound, errorHandler } = require("./middleware/errorHandler");
 const app = express();
 
 app.use(express.json({ limit: "1mb" }));
+app.use((req, res, next) => {
+  req.body ??= {}; // Express 5는 본문이 없으면 undefined라서 빈 객체로 맞춘다.
+  next();
+});
 app.use(cookieParser());
 
 // 프론트엔드(client 폴더)를 같은 서버에서 제공 → 쿠키·CORS 설정이 단순해진다.
