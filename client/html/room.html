@@ -34,14 +34,13 @@
             </div>
 
             <div class="chat">
-                <!-- 채팅은 다음 작업에서 연동 -->
                 <ul class="chat__messages"></ul>
-                <form class="chat__form" onsubmit="return false;">
+                <form class="chat__form">
                     <div class="chat__input">
-                        <input type="text" placeholder="채팅은 준비 중입니다" disabled>
+                        <input type="text" name="message" placeholder="메시지를 입력하세요" maxlength="1000" autocomplete="off">
                         <div class="chat__buttons">
-                            <button type="button" disabled><img src="../assets/plus.svg" alt="첨부"></button>
-                            <button type="submit" disabled><img src="../assets/send.svg" alt="전송"></button>
+                            <button type="button" disabled title="첨부는 준비 중입니다"><img src="../assets/plus.svg" alt="첨부"></button>
+                            <button type="submit"><img src="../assets/send.svg" alt="전송"></button>
                         </div>
                     </div>
                 </form>

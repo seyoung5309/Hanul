@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const roomModel = require("../models/roomModel");
+const chatModel = require("../models/chatModel");
 const userModel = require("../models/userModel");
 const roomService = require("../services/roomService");
 const notificationService = require("../services/notificationService");
@@ -93,11 +94,17 @@ async function createRoom(req, res) {
 async function getMyRooms(req, res) {
   const rooms = await roomModel.findMyRooms(req.user.id);
   const roomIds = rooms.map((room) => room.id);
-  const [subjects, times] = await Promise.all([
+  const [subjects, times, unread] = await Promise.all([
     roomModel.findSubjectsByRooms(roomIds),
     roomModel.findRoomTimes(roomIds, req.user.id),
+    chatModel.countUnread(req.user.id),
   ]);
-  res.json(rooms.map((room) => ({ ...room, ...times[room.id], subjects: subjects[room.id] })));
+  res.json(rooms.map((room) => ({
+    ...room,
+    ...times[room.id],
+    unreadCount: unread[room.id] ?? 0, // CL-003, SR-011
+    subjects: subjects[room.id],
+  })));
 }
 
 // SR-002
@@ -261,4 +268,7 @@ module.exports = {
   inviteUser,
   getMyInvites,
   answerInvite,
+  // chatController에서 같은 방 접근 확인을 쓴다.
+  parseId,
+  loadMemberRoom,
 };

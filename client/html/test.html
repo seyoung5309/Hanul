@@ -263,6 +263,10 @@
                         30초마다 heartbeat 자동 전송</label>
                     <button class="btn btn--ghost" type="button" data-emit="study:heartbeat">지금 전송</button>
                 </div>
+                <div class="row">
+                    <input type="text" id="chatMessage" placeholder="채팅 메시지 (위 roomId 방으로)" maxlength="1000">
+                    <button class="btn" type="button" data-emit="chat:send">채팅 보내기</button>
+                </div>
                 <div class="check-banner" id="checkBanner" hidden>
                     <span id="checkText"></span>
                     <button class="btn" type="button" data-emit="study:confirm" style="margin-left:8px">응답</button>
@@ -407,6 +411,24 @@
                         fields: [path("inviteId"), f("accept", "수락", "bool", { value: "true" })],
                     },
                     { name: "방 삭제", req: "SR-005", method: "DELETE", path: "/api/rooms/:roomId", danger: true, fields: [path("roomId")] },
+                ],
+            },
+            {
+                title: "채팅 (보내기는 오른쪽 실시간 패널)", open: true, items: [
+                    {
+                        name: "채팅 기록", req: "CL-002", method: "GET", path: "/api/rooms/:roomId/chats",
+                        note: "최근 30개. before에 가장 오래된 id를 넣으면 그 이전 30개",
+                        fields: [path("roomId"), f("before", "before", "number", { in: "query" })],
+                    },
+                    {
+                        name: "읽음 처리", req: "CL-003", method: "PUT", path: "/api/rooms/:roomId/chats/read",
+                        fields: [path("roomId"), f("chatId", "여기까지 읽음", "number", { share: true })],
+                    },
+                    { name: "방별 안 읽은 수", req: "CL-003, SR-011", method: "GET", path: "/api/rooms/unread", fields: [] },
+                    {
+                        name: "채팅 신고", req: "CL-004", method: "POST", path: "/api/rooms/:roomId/chats/:chatId/report",
+                        fields: [path("roomId"), path("chatId"), f("reason", "사유")],
+                    },
                 ],
             },
         ];
@@ -638,9 +660,14 @@
             button.addEventListener("click", async () => {
                 const event = button.dataset.emit;
                 const payload = {};
-                if (event.startsWith("room:")) payload.roomId = Number($("socketRoomId").value);
+                if (event.startsWith("room:") || event === "chat:send") payload.roomId = Number($("socketRoomId").value);
                 if (event === "study:start") payload.subjectId = Number($("subjectSelect").value);
+                if (event === "chat:send") payload.message = $("chatMessage").value;
                 const res = await emit(event, payload);
+                if (res?.ok && event === "chat:send") {
+                    $("chatMessage").value = "";
+                    setShared("chatId", res.chat.id);
+                }
                 if (res?.ok && event === "study:confirm") hideCheck();
                 if (res?.ok && event === "study:start") showSession(res.session);
             });

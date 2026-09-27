@@ -1,4 +1,4 @@
-// 스터디룸 내부: 방 정보, 공부 시작·종료, 실시간 공부 시간, 3시간 응답 확인
+// 스터디룸 내부: 방 정보, 공부 시작·종료, 실시간 공부 시간, 3시간 응답 확인, 채팅
 (() => {
   const { api, formatHMS, el } = Hanul;
   const HEARTBEAT_MS = 30 * 1000;
@@ -80,6 +80,106 @@
     }));
   }
 
+  // ----- 채팅 (CL-002, CL-003, SR-004) -----
+  const chatList = $(".chat__messages");
+  const chatForm = $(".chat__form");
+  let oldestChatId = null; // 위로 스크롤할 때 이 id 이전을 불러온다
+  let hasMoreChats = false;
+  let loadingChats = false;
+  let lastReadSent = 0;
+
+  function formatChatTime(time) {
+    const d = new Date(time);
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function chatItem(chat) {
+    const meta = el("p", "message__meta");
+    meta.append(el("span", null, chat.name), el("span", null, formatChatTime(chat.time)));
+    const body = el("div", "message__body");
+    body.append(meta, el("p", "message__text", chat.message)); // textContent로 출력 (XSS 방지)
+
+    const item = el("li", "message");
+    item.dataset.id = chat.id;
+    item.append(el("div", "message__avatar"), body);
+    return item;
+  }
+
+  const isNearBottom = () => chatList.scrollHeight - chatList.scrollTop - chatList.clientHeight < 80;
+  const scrollToBottom = () => (chatList.scrollTop = chatList.scrollHeight);
+
+  // 화면을 보고 있을 때만 읽음 처리 (다른 탭에 있으면 돌아왔을 때 처리)
+  function markRead(chatId) {
+    if (document.hidden || chatId <= lastReadSent) return;
+    lastReadSent = chatId;
+    api("PUT", `/rooms/${roomId}/chats/read`, { chatId }).catch((err) => console.error(err));
+  }
+
+  async function loadChats({ reset = false } = {}) {
+    if (loadingChats) return;
+    loadingChats = true;
+    try {
+      if (reset) {
+        oldestChatId = null;
+        chatList.replaceChildren();
+      }
+      const query = oldestChatId ? `?before=${oldestChatId}` : "";
+      const { chats, hasMore } = await api("GET", `/rooms/${roomId}/chats${query}`);
+      hasMoreChats = hasMore;
+      if (chats.length === 0) return;
+
+      const isFirstPage = oldestChatId === null;
+      const previousHeight = chatList.scrollHeight;
+      chatList.prepend(...chats.map(chatItem));
+      oldestChatId = chats[0].id;
+
+      if (isFirstPage) {
+        scrollToBottom();
+        markRead(chats.at(-1).id);
+      } else {
+        chatList.scrollTop += chatList.scrollHeight - previousHeight; // 보던 위치 유지
+      }
+    } finally {
+      loadingChats = false;
+    }
+    // 채팅이 화면을 다 채우지 못하면 스크롤이 생기지 않으므로 이전 기록을 이어서 불러온다.
+    if (hasMoreChats && chatList.scrollHeight <= chatList.clientHeight) await loadChats();
+  }
+
+  chatList.addEventListener("scroll", () => {
+    if (chatList.scrollTop < 40 && hasMoreChats) loadChats().catch((err) => console.error(err));
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    const last = chatList.lastElementChild;
+    if (last) markRead(Number(last.dataset.id));
+  });
+
+  chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const input = chatForm.elements.message;
+    const message = input.value.trim();
+    if (!message) return;
+
+    try {
+      await request("chat:send", { roomId, message });
+      input.value = "";
+      scrollToBottom();
+    } catch (err) {
+      alert(err.message);
+    }
+    input.focus();
+  });
+
+  socket.on("chat:new", (chat) => {
+    if (chat.roomId !== roomId) return;
+    const stick = isNearBottom();
+    chatList.append(chatItem(chat));
+    if (stick) scrollToBottom();
+    markRead(chat.id);
+  });
+
   // ----- 이벤트 -----
 
   studyButton.addEventListener("click", async () => {
@@ -104,11 +204,17 @@
   });
 
   // 연결(재연결 포함)될 때마다 방에 다시 들어간다.
-  socket.on("connect", () => {
-    request("room:enter", { roomId }).catch((err) => {
+  // 재연결이면 끊긴 동안 놓친 채팅이 있을 수 있어 채팅을 다시 불러온다.
+  let connectedBefore = false;
+  socket.on("connect", async () => {
+    try {
+      await request("room:enter", { roomId });
+      if (connectedBefore) await loadChats({ reset: true });
+      connectedBefore = true;
+    } catch (err) {
       alert(err.message);
       location.href = "study-room.html";
-    });
+    }
   });
 
   // 내 세션 변화 (다른 탭에서 시작·종료한 것도 온다)
@@ -134,7 +240,7 @@
   });
 
   async function init() {
-    await Promise.all([loadRoom(), loadSubjects()]);
+    await Promise.all([loadRoom(), loadSubjects(), loadChats()]);
     ({ session } = await api("GET", "/study/current"));
     renderStudyState();
     renderTimers();
