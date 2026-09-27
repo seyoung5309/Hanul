@@ -1,22 +1,28 @@
 <style>
     nav {
         box-sizing: border-box;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+
+        width: 150px;
+        height: 100vh;
+        padding: 40px 20px;
+
         display: flex;
         flex-direction: column;
         align-items: center;
 
-        display: flex;
-        width: 150px;
-        height: 100%;
-        flex-direction: column;
-        justify-content: space-between;
-
-        padding: 40px 0 40px 0;
         border-right: 1px solid #D7D8DE;
+        background: #fff;
+    }
 
-        position: fixed;
-        top: 0;
-        left: 0;
+    /* a, svg, img가 inline이면 아래에 몇 px 여백이 생겨서 간격이 20/12/80px보다 커짐 */
+    nav a,
+    nav svg,
+    .logo {
+        display: block;
     }
 
     .logo {
@@ -41,10 +47,11 @@
     }
 
     .icons {
+        flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        flex: 1;
+        align-items: center;
     }
 
     .page {
@@ -114,6 +121,6 @@
                     </a>
                 </div>
             </div>
+        </nav>
     </div>
-    </nav>
 </body>
