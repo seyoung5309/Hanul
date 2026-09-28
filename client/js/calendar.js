@@ -1,6 +1,6 @@
 // 메인 달력 (main.html의 .card.calendar)
 // 다른 스크립트와 이름이 겹치지 않도록 HanulCalendar 하나만 전역에 둔다.
-// 일정 API가 생기면 HanulCalendar.setEvents([...])로 실제 일정을 넣는다. (TD-003)
+// 달이 바뀔 때마다 onMonthChange로 알려 주고, 받은 일정은 setEvents로 넣는다. (TD-003)
 const HanulCalendar = (() => {
   const card = document.querySelector(".card.calendar");
   if (!card) return null; // 달력이 없는 페이지에서는 아무것도 하지 않는다.
@@ -11,12 +11,8 @@ const HanulCalendar = (() => {
   const [prevButton, nextButton] = card.querySelectorAll(".calendar__arrows button");
 
   // 일정: { title, start: "YYYY-MM-DD", end?: "YYYY-MM-DD" } (end가 없으면 하루 일정)
-  // 일정 API 연동 전 예시 데이터
-  let events = [
-    { title: "개학식", start: "2026-08-10" },
-    { title: "스기나미스고고교 교류", start: "2026-08-09", end: "2026-08-19" },
-    { title: "학생회 인수인계 수련회", start: "2026-08-28" },
-  ];
+  let events = [];
+  let monthChangeListener = null;
 
   const today = new Date();
   const shown = new Date(today.getFullYear(), today.getMonth(), 1); // 보고 있는 달 (항상 1일)
@@ -113,9 +109,23 @@ const HanulCalendar = (() => {
     renderEvents();
   }
 
+  // "YYYY-MM-DD" (브라우저 시간대 기준)
+  function toDateString(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  }
+
+  // 보고 있는 달의 1일~말일
+  function shownRange() {
+    const last = new Date(shown.getFullYear(), shown.getMonth() + 1, 0);
+    return { from: toDateString(shown), to: toDateString(last) };
+  }
+
   function moveMonth(delta) {
     shown.setMonth(shown.getMonth() + delta); // 항상 1일이라 31일 → 2월 같은 날짜 넘침이 없다
+    events = []; // 이전 달 일정이 잠깐 보이지 않도록
     render();
+    monthChangeListener?.(shownRange());
   }
 
   prevButton.addEventListener("click", () => moveMonth(-1));
@@ -127,5 +137,15 @@ const HanulCalendar = (() => {
       events = list;
       renderEvents();
     },
+    // 달이 바뀔 때마다 { from, to }로 불린다. 등록하자마자 지금 달로 한 번 불린다.
+    onMonthChange(listener) {
+      monthChangeListener = listener;
+      listener(shownRange());
+    },
+    // 일정을 추가·수정한 뒤 지금 달을 다시 불러올 때
+    reload() {
+      monthChangeListener?.(shownRange());
+    },
+    toDateString,
   };
 })();

@@ -433,6 +433,47 @@
                 ],
             },
             {
+                title: "일정·To Do", open: true, items: [
+                    {
+                        name: "일정 등록", req: "TD-001", method: "POST", path: "/api/schedules",
+                        note: "날짜: 2026-10-01 또는 2026-10-01T14:30. 24시간 전에 알림",
+                        fields: [f("title", "제목"), f("date", "날짜"), f("descript", "내용"),
+                            f("subjectIds", "과목", "ids", { placeholder: "과목 id, 최대 3개" })],
+                    },
+                    {
+                        name: "일정 조회", req: "TD-003", method: "GET", path: "/api/schedules",
+                        fields: [f("from", "from", "date", { in: "query" }), f("to", "to (포함)", "date", { in: "query" }),
+                            f("limit", "limit", "number", { in: "query" })],
+                    },
+                    {
+                        name: "일정 수정", req: "TD-002", method: "PATCH", path: "/api/schedules/:scheduleId",
+                        fields: [path("scheduleId"), f("title", "제목"), f("date", "날짜"), f("descript", "내용"),
+                            f("subjectIds", "과목", "ids")],
+                    },
+                    { name: "일정 삭제", req: "TD-002", method: "DELETE", path: "/api/schedules/:scheduleId", danger: true, fields: [path("scheduleId")] },
+                    {
+                        name: "To Do 등록", req: "TD-004", method: "POST", path: "/api/todos",
+                        fields: [f("title", "제목"), f("dueDate", "마감일", "text", { placeholder: "선택. 2026-10-01T18:00" }),
+                            f("descript", "내용"), f("subjectIds", "과목", "ids")],
+                    },
+                    {
+                        name: "To Do 목록", method: "GET", path: "/api/todos",
+                        fields: [f("done", "완료 여부", "bool", { in: "query" })],
+                    },
+                    {
+                        name: "To Do 수정", req: "TD-005", method: "PATCH", path: "/api/todos/:todoId",
+                        fields: [path("todoId"), f("title", "제목"), f("dueDate", "마감일"), f("descript", "내용"),
+                            f("subjectIds", "과목", "ids")],
+                    },
+                    {
+                        name: "완료 체크", req: "TD-006", method: "PATCH", path: "/api/todos/:todoId/done",
+                        fields: [path("todoId"), f("isDone", "완료", "bool", { value: "true" })],
+                    },
+                    { name: "전체 완료", method: "PATCH", path: "/api/todos/done-all", fields: [] },
+                    { name: "To Do 삭제", req: "TD-005", method: "DELETE", path: "/api/todos/:todoId", danger: true, fields: [path("todoId")] },
+                ],
+            },
+            {
                 title: "알림", open: true, items: [
                     {
                         name: "알림 목록", req: "NT-001", method: "GET", path: "/api/notifications",
@@ -550,6 +591,8 @@
             if (def.path === "/api/rooms/join") setShared("roomId", data.roomId);
             if (def.path.endsWith("/invites") && def.method === "POST") setShared("inviteId", data.id);
             if (def.path === "/api/classes/me") setShared("roomId", data.roomId);
+            if (def.path === "/api/schedules" && def.method === "POST") setShared("scheduleId", data.id);
+            if (def.path === "/api/todos" && def.method === "POST") setShared("todoId", data.id);
             // 가입·로그인·로그아웃·탈퇴로 사용자가 바뀌면 상단 표시와 소켓을 새로 맞춘다.
             if (def.path.startsWith("/api/users/") && def.method !== "GET") {
                 const before = me?.id;

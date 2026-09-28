@@ -3,9 +3,14 @@ const studyModel = require("../models/studyModel");
 const studyService = require("../services/studyService");
 const roomModel = require("../models/roomModel");
 const roomService = require("../services/roomService");
+const scheduleModel = require("../models/scheduleModel");
+const todoModel = require("../models/todoModel");
+const notificationService = require("../services/notificationService");
+const { formatKst } = require("../utils/date");
 const { getIO } = require("../socket");
 
 const INACTIVE_ROOM_DAYS = 30; // SR-010: 마지막 활동(참가·공부·채팅) 후 이 기간이 지나면 삭제
+const DUE_NOTICE_HOURS = 24; // TD-007: 일정·마감 이 시간 전에 알림
 
 const {
   CHECK_INTERVAL_SECONDS,
@@ -33,7 +38,7 @@ function startJobs() {
   // ST-003 10초마다: 3시간 응답 확인, 창이 닫혀 연결이 끊긴 공부 종료
   schedule("*/10 * * * * *", "study-check", checkStudySessions);
 
-  // TD-007 매분: 곧 다가오는 일정·To Do 마감 알림
+  // TD-007 매분: 24시간 안에 다가오는 일정·To Do 마감 알림
   schedule("* * * * *", "due-notifications", sendDueNotifications);
 
   // SR-010 매일 04:00: 마지막 활동 후 30일 지난 공부방 삭제
@@ -68,8 +73,33 @@ async function checkStudySessions() {
   await studyModel.endDisconnectedLogs(HEARTBEAT_TIMEOUT_SECONDS);
 }
 
+// 일정 시각·마감 24시간 전부터 한 번만 알린다. (알림을 꺼 둔 사용자도 보낸 것으로 처리해 다시 묻지 않음)
 async function sendDueNotifications() {
-  // TODO
+  const io = getIO();
+
+  const schedules = await scheduleModel.findDueSoon(DUE_NOTICE_HOURS);
+  for (const s of schedules) {
+    await notificationService.notify(io, [s.userId], {
+      title: "다가오는 일정",
+      descript: `'${s.title}' 일정이 ${formatKst(s.date)}에 있습니다.`,
+      type: "schedule",
+      targetType: "schedule",
+      targetId: s.id,
+    });
+  }
+  await scheduleModel.markNotified(schedules.map((s) => s.id));
+
+  const todos = await todoModel.findDueSoon(DUE_NOTICE_HOURS);
+  for (const t of todos) {
+    await notificationService.notify(io, [t.userId], {
+      title: "To Do 마감 임박",
+      descript: `'${t.title}' 마감이 ${formatKst(t.dueDate)}입니다.`,
+      type: "schedule",
+      targetType: "todo",
+      targetId: t.id,
+    });
+  }
+  await todoModel.markNotified(todos.map((t) => t.id));
 }
 
 async function deleteInactiveRooms() {

@@ -606,3 +606,93 @@ img {
 .popup__item--danger {
     color: #cf5353;
 }
+
+/* ===== 일정·To Do 추가/수정 창 (전용 디자인이 나오면 교체) ===== */
+.item-dialog {
+    margin: auto;
+    padding: 0;
+    border: 1px solid #d7d8de;
+    border-radius: 16px;
+}
+
+.item-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.item-dialog__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 480px;
+    padding: 32px;
+}
+
+.item-dialog__title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.item-dialog__row {
+    display: flex;
+    gap: 12px;
+}
+
+.item-dialog__row .item-dialog__field {
+    flex: 1;
+}
+
+.item-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: #666;
+}
+
+.item-dialog__field input,
+.item-dialog__field select,
+.item-dialog__field textarea {
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 16px;
+    color: #222;
+    border: 1px solid #d7d8de;
+    border-radius: 8px;
+    resize: vertical;
+}
+
+.item-dialog__field input:focus,
+.item-dialog__field select:focus,
+.item-dialog__field textarea:focus {
+    outline: none;
+    border-color: #1a68d7;
+}
+
+.item-dialog__error {
+    min-height: 1em;
+    font-size: 14px;
+    color: #cf5353;
+}
+
+.item-dialog__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.item-dialog__buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.item-dialog__cancel {
+    color: #444;
+    border: 1px solid #d7d8de;
+}
+
+.item-dialog__submit {
+    color: #fff;
+    background: #1a68d7;
+}
