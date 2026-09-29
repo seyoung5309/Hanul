@@ -182,3 +182,254 @@ img {
     width: 24px;
     height: 24px;
 }
+
+/* ===== 대화 (API 연동) ===== */
+.ai [hidden] {
+    display: none !important;
+}
+
+.history__list {
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+}
+
+.history__new {
+    width: 100%;
+    padding: 6px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a68d7;
+    text-align: left;
+}
+
+.history__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history__open {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 28px;
+    text-align: left;
+}
+
+.history__item--active .history__open {
+    color: #1a68d7;
+    font-weight: 600;
+}
+
+.history__delete {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+    color: #929292;
+}
+
+.history__delete:hover {
+    color: #cf5353;
+}
+
+.ai__messages {
+    position: absolute;
+    top: 30px;
+    bottom: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1043px;
+    padding: 0 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+}
+
+.ai__messages > :first-child {
+    margin-top: auto;
+}
+
+.bubble {
+    max-width: 760px;
+    padding: 14px 20px;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #222;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 16px;
+    align-self: flex-start;
+}
+
+.bubble--user {
+    color: #fff;
+    background: #1a68d7;
+    border-color: #1a68d7;
+    align-self: flex-end;
+}
+
+.bubble--loading {
+    color: #929292;
+}
+
+.bubble--error {
+    color: #cf5353;
+    border-color: #cf5353;
+}
+
+.ai__usage {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 400;
+    color: #929292;
+}
+
+/* ===== 학습 계획 카드 (AI-002, AI-004) ===== */
+.plan-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #d7d8de;
+    white-space: normal;
+}
+
+.plan-card__heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #444;
+}
+
+.plan-card__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.plan-card__item input {
+    width: 18px;
+    height: 18px;
+    accent-color: #1a68d7;
+}
+
+.plan-card__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.plan-card__buttons button {
+    padding: 8px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border: 1px solid #d7d8de;
+    border-radius: 8px;
+}
+
+.plan-card__buttons .plan-card__save {
+    color: #fff;
+    background: #1a68d7;
+    border-color: #1a68d7;
+}
+
+.plan-card__buttons button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+/* ===== 학습 계획 만들기 창 ===== */
+.plan-dialog {
+    margin: auto;
+    padding: 0;
+    border: 1px solid #d7d8de;
+    border-radius: 16px;
+}
+
+.plan-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.plan-dialog__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 520px;
+    padding: 32px;
+}
+
+.plan-dialog__title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.plan-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: #666;
+}
+
+.plan-dialog__field textarea {
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 16px;
+    color: #222;
+    border: 1px solid #d7d8de;
+    border-radius: 8px;
+    resize: vertical;
+}
+
+.plan-dialog__field textarea:focus {
+    outline: none;
+    border-color: #1a68d7;
+}
+
+.plan-dialog__error {
+    min-height: 1em;
+    font-size: 14px;
+    color: #cf5353;
+}
+
+.plan-dialog__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.plan-dialog__buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.plan-dialog__cancel {
+    color: #444;
+    border: 1px solid #d7d8de !important;
+}
+
+.plan-dialog__submit {
+    color: #fff;
+    background: #1a68d7 !important;
+}
+
+.plan-dialog__submit:disabled {
+    opacity: 0.6;
+}

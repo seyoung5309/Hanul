@@ -474,6 +474,24 @@
                 ],
             },
             {
+                title: "AI 도우미 (Gemini)", open: true, items: [
+                    { name: "오늘 사용량", req: "AI-003", method: "GET", path: "/api/ai/usage", fields: [] },
+                    { name: "대화방 목록", req: "AI-006", method: "GET", path: "/api/ai/rooms", fields: [] },
+                    { name: "대화방 만들기", req: "AI-006", method: "POST", path: "/api/ai/rooms", fields: [f("title", "제목")] },
+                    { name: "대화 기록", req: "AI-006", method: "GET", path: "/api/ai/rooms/:aiRoomId", fields: [path("aiRoomId")] },
+                    {
+                        name: "질문하기", req: "AI-005", method: "POST", path: "/api/ai/rooms/:aiRoomId/chats",
+                        fields: [path("aiRoomId"), f("message", "질문")],
+                    },
+                    {
+                        name: "학습 계획 만들기", req: "AI-001", method: "POST", path: "/api/ai/plans",
+                        note: "roomId를 비우면 새 대화방. 응답의 plan으로 다시 만들기·저장을 테스트하려면 화면(ai-assistant.html)이 편해요",
+                        fields: [f("roomId", "roomId", "number"), f("exams", "시험 일정"), f("availableTime", "공부 가능 시간"), f("tasks", "할 일")],
+                    },
+                    { name: "대화방 삭제", req: "AI-006", method: "DELETE", path: "/api/ai/rooms/:aiRoomId", danger: true, fields: [path("aiRoomId")] },
+                ],
+            },
+            {
                 title: "알림", open: true, items: [
                     {
                         name: "알림 목록", req: "NT-001", method: "GET", path: "/api/notifications",
@@ -593,6 +611,8 @@
             if (def.path === "/api/classes/me") setShared("roomId", data.roomId);
             if (def.path === "/api/schedules" && def.method === "POST") setShared("scheduleId", data.id);
             if (def.path === "/api/todos" && def.method === "POST") setShared("todoId", data.id);
+            if (def.path === "/api/ai/rooms" && def.method === "POST") setShared("aiRoomId", data.id);
+            if (def.path === "/api/ai/plans") setShared("aiRoomId", data.roomId);
             // 가입·로그인·로그아웃·탈퇴로 사용자가 바뀌면 상단 표시와 소켓을 새로 맞춘다.
             if (def.path.startsWith("/api/users/") && def.method !== "GET") {
                 const before = me?.id;

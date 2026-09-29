@@ -1,16 +1,17 @@
 const express = require("express");
+const controller = require("../controllers/aiController");
 
 const router = express.Router();
 
-// AI 호출 전 ai_usage로 일일 사용량을 확인한다. (AI-003)
-// AI-006 GET    /rooms                  대화방 목록
-// AI-006 POST   /rooms                  대화방 생성
-// AI-006 GET    /rooms/:aiRoomId        대화 기록
-// AI-006 DELETE /rooms/:aiRoomId        대화방 삭제
-// AI-005 POST   /rooms/:aiRoomId/chats  질문 → 답변
-// AI-001 POST   /plans                  학습 계획 생성
-// AI-004 POST   /plans/regenerate       강도 조정 후 재생성
-// AI-002 POST   /plans/apply            계획을 일정·To Do로 저장
-//        GET    /usage                  오늘 남은 사용량
+// Google Gemini 사용. AI를 부르는 요청은 하루 사용 횟수에 포함된다. (AI-003)
+router.get("/usage", controller.getUsage); //                          AI-003 오늘 남은 사용량
+router.get("/rooms", controller.getRooms); //                          AI-006 대화방 목록
+router.post("/rooms", controller.createRoom); //                       AI-006 { title? }
+router.get("/rooms/:aiRoomId", controller.getRoom); //                 AI-006 대화 기록
+router.delete("/rooms/:aiRoomId", controller.deleteRoom); //           AI-006
+router.post("/rooms/:aiRoomId/chats", controller.chat); //             AI-005 { message } 질문 → 답변
+router.post("/plans", controller.createPlan); //                       AI-001 { roomId?, exams, availableTime, tasks }
+router.post("/plans/regenerate", controller.regeneratePlan); //        AI-004 { roomId, plan, feedback }
+router.post("/plans/apply", controller.applyPlan); //                  AI-002 { schedules, todos } → 일정·To Do 저장
 
 module.exports = router;
