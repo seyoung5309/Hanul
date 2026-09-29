@@ -32,8 +32,26 @@ function toDateTime(v) {
   return `${date} ${hh}:${mm}:00`;
 }
 
-const isIntBetween =(v, min, max) => Number.isInteger(v) && v >= min && v <= max;
+// 학번 "2105" → { grade: 2, classNo: 1, number: 5 } (학년 1자리 + 반 1자리 + 번호 2자리). 형식이 틀리면 null
+function parseStudentNumber(v) {
+  const match = /^([1-6])([1-9])(\d{2})$/.exec(String(v ?? "").trim());
+  if (!match || match[3] === "00") return null;
+  return { grade: Number(match[1]), classNo: Number(match[2]), number: Number(match[3]) };
+}
+
+const isIntBetween = (v, min, max) => Number.isInteger(v) && v >= min && v <= max;
 
 const isBoolean = (v) => typeof v === "boolean";
 
-module.exports = { check, isEmail, isPassword, isIdentifier, isName, isDate, toDateTime, isIntBetween, isBoolean };
+module.exports = {
+  check,
+  isEmail,
+  isPassword,
+  isIdentifier,
+  isName,
+  isDate,
+  toDateTime,
+  parseStudentNumber,
+  isIntBetween,
+  isBoolean,
+};

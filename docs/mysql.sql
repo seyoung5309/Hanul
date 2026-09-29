@@ -40,7 +40,7 @@ CREATE TABLE user (
   id                INT         PRIMARY KEY,
   identifier        VARCHAR(16) NOT NULL UNIQUE,
   name              VARCHAR(16) NOT NULL,
-  birth             DATE        NOT NULL,
+  birth             DATE        NULL,                 -- 선택 항목 (회원가입에서는 받지 않음)
   gender            BOOLEAN     NULL,                 -- 선택 항목. 0=남, 1=여, NULL=미입력
   img               VARCHAR(255),                     -- Cloudinary URL
   comment           VARCHAR(255),

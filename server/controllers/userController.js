@@ -29,11 +29,14 @@ function toDuplicateError(err) {
   return err;
 }
 
-function checkClassInput({ grade, classNo, number }) {
-  v.check(v.isIntBetween(grade, 1, 6), "학년을 확인해 주세요.");
-  v.check(v.isIntBetween(classNo, 1, 30), "반을 확인해 주세요.");
-  v.check(v.isIntBetween(number, 1, 99), "번호를 확인해 주세요.");
+// 학번 "2105" → 2학년 1반 5번 (UD-003)
+function parseClassInput(studentNumber) {
+  const parsed = v.parseStudentNumber(studentNumber);
+  v.check(parsed, "학번은 학년·반·번호 4자리로 입력해 주세요. (예: 2105 → 2학년 1반 5번)");
+  return parsed;
 }
+
+const toStudentNumber = ({ grade, classNo, number }) => `${grade}${classNo}${String(number).padStart(2, "0")}`;
 
 // UD-003, UD-010: 올해 학년도 반에 소속시키고, 이전 반 메인에서 나와 새 반 메인에 참여시킨다.
 // 반과 반 메인은 처음 가입하는 학생이 있을 때 만들어진다.
@@ -47,18 +50,27 @@ async function enrollClass(conn, userId, { grade, classNo, number }) {
 }
 
 // UD-001, UD-003: 회원가입 후 바로 로그인 상태가 된다.
+// { email, password, identifier, name, studentNumber, admissionYear?, gender?, birth?, agreeTerms }
 async function signup(req, res) {
-  const { password, identifier, name, birth, gender = null, grade, classNo, number, agreeTerms } = req.body;
+  const { password, identifier, name, gender = null, agreeTerms } = req.body;
   const email = normalizeEmail(req.body.email);
+  const birth = req.body.birth || null; // 생년월일은 선택 (나중에 받을 수도 있음)
 
   v.check(agreeTerms === true, "개인정보 수집·이용에 동의해 주세요.");
   v.check(v.isEmail(email), "이메일 형식을 확인해 주세요.");
   v.check(v.isPassword(password), "비밀번호는 8~64자로 입력해 주세요.");
   v.check(v.isIdentifier(identifier), "아이디는 영문, 숫자, _ 조합 4~16자로 입력해 주세요.");
   v.check(v.isName(name), "이름은 1~16자로 입력해 주세요.");
-  v.check(v.isDate(birth), "생년월일을 확인해 주세요.");
+  v.check(birth === null || v.isDate(birth), "생년월일을 확인해 주세요.");
   v.check(gender === null || Object.hasOwn(GENDERS, gender), "성별 값을 확인해 주세요.");
-  checkClassInput({ grade, classNo, number });
+  const { grade, classNo, number } = parseClassInput(req.body.studentNumber);
+
+  // 입학년도: 보내면 그 값, 없으면 올해 학년도와 학년으로 계산
+  const schoolYear = currentSchoolYear();
+  const admissionYear = req.body.admissionYear === undefined || req.body.admissionYear === ""
+    ? schoolYear - grade + 1
+    : Number(req.body.admissionYear);
+  v.check(v.isIntBetween(admissionYear, schoolYear - 6, schoolYear), "입학년도를 확인해 주세요.");
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
@@ -70,7 +82,7 @@ async function signup(req, res) {
       name: name.trim(),
       birth,
       gender: gender === null ? null : GENDERS[gender],
-      startYear: currentSchoolYear() - grade + 1,
+      startYear: admissionYear,
     });
     await enrollClass(conn, id, { grade, classNo, number });
     return id;
@@ -178,7 +190,7 @@ async function getMe(req, res) {
     gender: genderName,
     hideRanking: Boolean(profile.hideRanking),
     hideRankingView: Boolean(profile.hideRankingView),
-    class: currentClass,
+    class: currentClass && { ...currentClass, studentNumber: toStudentNumber(currentClass) },
     subjects,
   });
 }
@@ -241,15 +253,15 @@ async function updateRankingSetting(req, res) {
   res.status(204).end();
 }
 
-// UD-010: 새 학년도 반 등록 (같은 학년도에 다시 부르면 잘못 입력한 반을 고친다)
+// UD-010: { studentNumber } 새 학년도 반 등록 (같은 학년도에 다시 부르면 잘못 입력한 반을 고친다)
 async function changeClass(req, res) {
-  const { grade, classNo, number } = req.body;
-  checkClassInput({ grade, classNo, number });
+  const classInput = parseClassInput(req.body.studentNumber);
 
-  await withTransaction((conn) => enrollClass(conn, req.user.id, { grade, classNo, number })).catch((err) => {
+  await withTransaction((conn) => enrollClass(conn, req.user.id, classInput)).catch((err) => {
     throw toDuplicateError(err);
   });
-  res.json(await classModel.findUserClass(req.user.id, currentSchoolYear()));
+  const current = await classModel.findUserClass(req.user.id, currentSchoolYear());
+  res.json({ ...current, studentNumber: toStudentNumber(current) });
 }
 
 // UD-009: 비밀번호를 한 번 더 확인한다.

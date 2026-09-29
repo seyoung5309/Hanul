@@ -305,11 +305,10 @@
                             f("password", "비밀번호", "password", { placeholder: "8~64자" }),
                             f("identifier", "아이디", "text", { placeholder: "영문·숫자·_ 4~16자" }),
                             f("name", "이름"),
-                            f("birth", "생년월일", "date"),
+                            f("studentNumber", "학번", "text", { placeholder: "예: 2105 → 2학년 1반 5번" }),
+                            f("admissionYear", "입학년도", "number", { placeholder: "선택. 비우면 자동 계산" }),
                             f("gender", "성별", "select", { options: ["", "male", "female"] }),
-                            f("grade", "학년", "number"),
-                            f("classNo", "반", "number"),
-                            f("number", "번호", "number"),
+                            f("birth", "생년월일", "date", { placeholder: "선택" }),
                             f("agreeTerms", "개인정보 동의", "bool", { value: "true" }),
                         ],
                     },
@@ -355,7 +354,7 @@
                     },
                     {
                         name: "새 학년도 반 등록", req: "UD-010", method: "POST", path: "/api/users/me/class", fields: [
-                            f("grade", "학년", "number"), f("classNo", "반", "number"), f("number", "번호", "number"),
+                            f("studentNumber", "학번", "text", { placeholder: "예: 3107" }),
                         ],
                     },
                     {

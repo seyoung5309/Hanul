@@ -222,38 +222,30 @@
         </section>
     </main>
 
-    <!-- 일정·To Do 추가/수정 (전용 디자인이 나오면 교체) -->
+    <!-- 할일·일정 추가/수정하기 (Figma: 할일 추가하기, 할일 수정하기, 일정 추가하기) -->
     <dialog class="item-dialog">
         <form class="item-dialog__form" method="dialog">
             <h2 class="item-dialog__title"></h2>
-            <label class="item-dialog__field">
-                <span>제목</span>
-                <input type="text" name="title" maxlength="100" required>
-            </label>
-            <div class="item-dialog__row">
+            <div class="item-dialog__fields">
                 <label class="item-dialog__field">
-                    <span class="item-dialog__date-label">날짜</span>
+                    <span class="item-dialog__label item-dialog__title-label"></span>
+                    <input type="text" name="title" maxlength="100" required>
+                </label>
+                <!-- 일정일 때만 -->
+                <label class="item-dialog__field item-dialog__field--date">
+                    <span class="item-dialog__label">날짜</span>
                     <input type="date" name="date">
                 </label>
-                <label class="item-dialog__field">
-                    <span>시간 (선택)</span>
-                    <input type="time" name="time">
+                <!-- 할일일 때만 -->
+                <label class="item-dialog__field item-dialog__field--descript">
+                    <span class="item-dialog__label">세부 정보</span>
+                    <textarea name="descript" maxlength="1000" placeholder="세부 정보를 입력해 주세요."></textarea>
                 </label>
             </div>
-            <label class="item-dialog__field">
-                <span>과목 (선택)</span>
-                <select name="subjectId">
-                    <option value="">없음</option>
-                </select>
-            </label>
-            <label class="item-dialog__field">
-                <span>내용 (선택)</span>
-                <textarea name="descript" rows="3" maxlength="1000"></textarea>
-            </label>
             <p class="item-dialog__error" role="alert"></p>
             <div class="item-dialog__buttons">
-                <button type="button" class="item-dialog__cancel">취소</button>
-                <button type="submit" class="item-dialog__submit">저장</button>
+                <button type="button" class="item-dialog__cancel">취소하기</button>
+                <button type="submit" class="item-dialog__submit">저장하기</button>
             </div>
         </form>
     </dialog>

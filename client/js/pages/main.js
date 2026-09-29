@@ -238,36 +238,30 @@
     openDialog("todo");
   });
 
-  // ----- 추가/수정 창 -----
+  // ----- 할일·일정 추가/수정하기 창 (Figma 디자인) -----
+  // 할일: 할일 + 세부 정보 / 일정: 일정 + 날짜
+  // 디자인에 없는 값(할일 마감일·과목, 일정 시각·과목·내용)은 수정할 때 보내지 않아 그대로 유지된다.
 
   const dialog = $(".item-dialog");
   const form = dialog.querySelector("form");
   const errorText = dialog.querySelector(".item-dialog__error");
   let editing = null; // { kind: "schedule" | "todo", item? }
 
-  async function loadSubjects() {
-    const subjects = await api("GET", "/subjects");
-    form.elements.subjectId.append(...subjects.map((subject) => {
-      const option = el("option", null, subject.name);
-      option.value = subject.id;
-      return option;
-    }));
-  }
-
   function openDialog(kind, item = null) {
     editing = { kind, item };
     const isSchedule = kind === "schedule";
-    const name = isSchedule ? "일정" : "할 일";
-    dialog.querySelector(".item-dialog__title").textContent = item ? `${name} 수정` : `${name} 추가`;
-    dialog.querySelector(".item-dialog__date-label").textContent = isSchedule ? "날짜" : "마감일 (선택)";
+    const name = isSchedule ? "일정" : "할일";
+    dialog.querySelector(".item-dialog__title").textContent = `${name} ${item ? "수정하기" : "추가하기"}`;
+    dialog.querySelector(".item-dialog__title-label").textContent = name;
+    form.elements.title.placeholder = `${name}을 입력해 주세요.`;
+    dialog.querySelector(".item-dialog__field--date").hidden = !isSchedule;
+    dialog.querySelector(".item-dialog__field--descript").hidden = isSchedule;
     form.elements.date.required = isSchedule;
 
-    const when = item && (isSchedule ? item.date : item.dueDate);
-    const inputs = when ? toInputs(when) : { date: isSchedule ? HanulCalendar.toDateString(new Date()) : "", time: "" };
     form.elements.title.value = item?.title ?? "";
-    form.elements.date.value = inputs.date;
-    form.elements.time.value = inputs.time;
-    form.elements.subjectId.value = item?.subjects[0]?.id ?? "";
+    form.elements.date.value = isSchedule
+      ? (item ? toInputs(item.date).date : HanulCalendar.toDateString(new Date()))
+      : "";
     form.elements.descript.value = item?.descript ?? "";
     errorText.textContent = "";
     dialog.showModal();
@@ -279,19 +273,16 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const { kind, item } = editing;
-    const { title, date, time, subjectId, descript } = form.elements;
-    if (time.value && !date.value) {
-      errorText.textContent = "시간을 넣으려면 날짜도 선택해 주세요.";
-      return;
-    }
+    const { title, date, descript } = form.elements;
 
-    const when = date.value ? (time.value ? `${date.value}T${time.value}` : date.value) : null;
-    const body = {
-      title: title.value,
-      descript: descript.value.trim() || null,
-      subjectIds: subjectId.value ? [Number(subjectId.value)] : [],
-      ...(kind === "schedule" ? { date: when } : { dueDate: when }),
-    };
+    let body;
+    if (kind === "schedule") {
+      // AI 계획처럼 시각이 있던 일정은 날짜만 바꿔도 시각을 유지한다.
+      const time = item ? toInputs(item.date).time : "";
+      body = { title: title.value, date: time ? `${date.value}T${time}` : date.value };
+    } else {
+      body = { title: title.value, descript: descript.value.trim() || null };
+    }
     const base = kind === "schedule" ? "/schedules" : "/todos";
 
     try {
@@ -313,7 +304,7 @@
     renderJoinedRooms(rooms.filter((room) => room.type === "custom").slice(0, MAX_JOINED));
     Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
     connectCalendar();
-    await Promise.all([loadSchedules(), loadTodos(), loadSubjects()]);
+    await Promise.all([loadSchedules(), loadTodos()]);
   }
 
   init().catch((err) => console.error(err));

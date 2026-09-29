@@ -607,92 +607,121 @@ img {
     color: #cf5353;
 }
 
-/* ===== 일정·To Do 추가/수정 창 (전용 디자인이 나오면 교체) ===== */
+/* ===== 할일·일정 추가/수정하기 (Figma: 화면 아래에서 올라오는 창) ===== */
 .item-dialog {
-    margin: auto;
-    padding: 0;
+    width: 1180px;
+    max-width: none;
+    max-height: none;
+    margin: auto auto 0;
+    padding: 40px 10px 120px;
+    background: #f8f9fd;
     border: 1px solid #d7d8de;
-    border-radius: 16px;
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
 }
 
 .item-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .item-dialog__form {
+    width: 980px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    width: 480px;
-    padding: 32px;
+    gap: 40px;
 }
 
 .item-dialog__title {
-    font-size: 24px;
+    font-size: 32px;
     font-weight: 600;
+    color: #1a68d7;
 }
 
-.item-dialog__row {
+.item-dialog__fields {
     display: flex;
-    gap: 12px;
-}
-
-.item-dialog__row .item-dialog__field {
-    flex: 1;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .item-dialog__field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 14px;
+    gap: 18px;
+}
+
+.item-dialog__field[hidden] {
+    display: none;
+}
+
+.item-dialog__label {
+    font-size: 24px;
+    font-weight: 500;
     color: #666;
 }
 
 .item-dialog__field input,
-.item-dialog__field select,
 .item-dialog__field textarea {
-    padding: 10px 12px;
+    width: 100%;
+    padding: 20px;
     font: inherit;
-    font-size: 16px;
+    font-size: 24px;
+    font-weight: 500;
     color: #222;
+    background: #fff;
     border: 1px solid #d7d8de;
     border-radius: 8px;
-    resize: vertical;
+}
+
+.item-dialog__field textarea {
+    height: 180px;
+    resize: none;
+}
+
+.item-dialog__field input::placeholder,
+.item-dialog__field textarea::placeholder {
+    color: #d7d8de;
 }
 
 .item-dialog__field input:focus,
-.item-dialog__field select:focus,
 .item-dialog__field textarea:focus {
     outline: none;
     border-color: #1a68d7;
 }
 
+/* 서버 검증 안내 (디자인에는 없음, 필요할 때만 보임) */
 .item-dialog__error {
-    min-height: 1em;
-    font-size: 14px;
+    margin: -20px 0;
+    font-size: 16px;
     color: #cf5353;
 }
 
+.item-dialog__error:empty {
+    display: none;
+}
+
 .item-dialog__buttons {
+    margin-top: 40px;
     display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+    gap: 20px;
 }
 
 .item-dialog__buttons button {
-    padding: 10px 20px;
-    font-size: 16px;
+    flex: 1;
+    padding: 20px 10px;
+    font-size: 24px;
     font-weight: 600;
     border-radius: 8px;
 }
 
 .item-dialog__cancel {
-    color: #444;
-    border: 1px solid #d7d8de;
+    color: #1a68d7;
+    background: #f8f9fd;
+    border: 1px solid #1a68d7;
 }
 
 .item-dialog__submit {
     color: #fff;
     background: #1a68d7;
+    border: 1px solid #1a68d7; /* 취소하기와 너비를 맞추기 위해 같은 두께의 테두리 */
 }
