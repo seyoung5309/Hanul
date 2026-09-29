@@ -79,21 +79,14 @@
                 <div class="meal__head">
                     <h2 class="card__title">오늘의 급식</h2>
                     <div class="chips">
-                        <button class="chip">조식</button>
-                        <button class="chip chip--active">중식</button>
-                        <button class="chip">석식</button>
+                        <button type="button" class="chip" data-meal="breakfast">조식</button>
+                        <button type="button" class="chip" data-meal="lunch">중식</button>
+                        <button type="button" class="chip" data-meal="dinner">석식</button>
                     </div>
                 </div>
                 <div class="meal__menu">
-                    <p class="meal__date">8월 27일 중식</p>
-                    <ul>
-                        <li>비빔 물 냉면</li>
-                        <li>수제 닭봉 튀김</li>
-                        <li>갈비 만두</li>
-                        <li>미숫가루 두유</li>
-                        <li>배추김치</li>
-                        <li>흰 쌀밥</li>
-                    </ul>
+                    <p class="meal__date"></p>
+                    <ul><!-- js/pages/main.js가 채움 (NEIS 급식) --></ul>
                 </div>
             </div>
 

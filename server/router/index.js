@@ -17,5 +17,6 @@ router.use("/todos", requireAuth, require("./todoRouter"));
 router.use("/schedules", requireAuth, require("./scheduleRouter"));
 router.use("/ai", requireAuth, require("./aiRouter"));
 router.use("/notifications", requireAuth, require("./notificationRouter"));
+router.use("/meals", requireAuth, require("./mealRouter")); // 오늘의 급식 (NEIS)
 
 module.exports = router;

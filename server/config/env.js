@@ -39,6 +39,13 @@ module.exports = {
     pass: process.env.SMTP_PASS,
     from: process.env.MAIL_FROM || process.env.SMTP_USER,
   },
+  // 오늘의 급식 (NEIS 교육정보 개방 포털). 학교 코드를 비워 두면 학교 이름으로 찾는다.
+  nice: {
+    apiKey: process.env.NICE_API_KEY,
+    officeCode: process.env.NICE_OFFICE_CODE || null, // 시도교육청코드 (예: 서울 B10)
+    schoolCode: process.env.NICE_SCHOOL_CODE || null, // 표준학교코드
+    schoolName: process.env.NICE_SCHOOL_NAME || "미림마이스터고등학교",
+  },
   // AI 도우미 (Google Gemini). 키가 없으면 AI 기능만 503으로 응답한다.
   ai: {
     apiKey: process.env.GEMINI_API_KEY,

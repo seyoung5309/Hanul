@@ -100,6 +100,51 @@
     }));
   }
 
+  // ----- 오늘의 급식 (NEIS) -----
+
+  const MEAL_NAMES = { breakfast: "조식", lunch: "중식", dinner: "석식" };
+  let meals = {};
+  let mealError = null; // 불러오기 실패 안내
+  let selectedMeal = null;
+
+  // 지금 시각에 맞는 식사를 먼저 보여준다. (9시 전 조식, 14시 전 중식, 그 뒤 석식)
+  function defaultMeal() {
+    const hour = new Date().getHours();
+    const preferred = hour < 9 ? "breakfast" : hour < 14 ? "lunch" : "dinner";
+    return meals[preferred] ? preferred : Object.keys(MEAL_NAMES).find((type) => meals[type]) ?? preferred;
+  }
+
+  function renderMeal() {
+    const now = new Date();
+    const menu = meals[selectedMeal]?.menu ?? [];
+    $(".meal__date").textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${MEAL_NAMES[selectedMeal]}`;
+    const empty = mealError ?? "급식 정보가 없습니다.";
+    $(".meal__menu ul").replaceChildren(...(menu.length ? menu : [empty]).map((dish) => el("li", null, dish)));
+
+    document.querySelectorAll(".meal .chip").forEach((chip) => {
+      chip.classList.toggle("chip--active", chip.dataset.meal === selectedMeal);
+    });
+  }
+
+  async function loadMeals() {
+    try {
+      meals = (await api("GET", "/meals")).meals;
+      mealError = null;
+    } catch (err) {
+      meals = {};
+      mealError = err.message; // 예: 급식 API 키가 설정되지 않았습니다.
+    }
+    selectedMeal = defaultMeal();
+    renderMeal();
+  }
+
+  document.querySelectorAll(".meal .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      selectedMeal = chip.dataset.meal;
+      renderMeal();
+    });
+  });
+
   // ----- 달력 (TD-003) -----
 
   let calendarRequest = 0; // 달을 빠르게 넘길 때 늦게 온 이전 달 응답은 버린다
@@ -304,7 +349,7 @@
     renderJoinedRooms(rooms.filter((room) => room.type === "custom").slice(0, MAX_JOINED));
     Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
     connectCalendar();
-    await Promise.all([loadSchedules(), loadTodos()]);
+    await Promise.all([loadSchedules(), loadTodos(), loadMeals()]);
   }
 
   init().catch((err) => console.error(err));
