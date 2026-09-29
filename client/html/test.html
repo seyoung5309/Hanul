@@ -374,6 +374,10 @@
                     { name: "과목 목록", method: "GET", path: "/api/subjects", fields: [] },
                     { name: "내 반", req: "CL-001", method: "GET", path: "/api/classes/me", fields: [] },
                     { name: "지금 공부 중인 세션", method: "GET", path: "/api/study/current", fields: [] },
+                    {
+                        name: "오늘의 급식", method: "GET", path: "/api/meals", note: "NEIS 급식. 날짜를 비우면 오늘",
+                        fields: [f("date", "날짜", "date", { in: "query" })],
+                    },
                 ],
             },
             {
@@ -444,6 +448,7 @@
                         fields: [f("from", "from", "date", { in: "query" }), f("to", "to (포함)", "date", { in: "query" }),
                             f("limit", "limit", "number", { in: "query" })],
                     },
+                    { name: "일정 하나 조회", method: "GET", path: "/api/schedules/:scheduleId", fields: [path("scheduleId")] },
                     {
                         name: "일정 수정", req: "TD-002", method: "PATCH", path: "/api/schedules/:scheduleId",
                         fields: [path("scheduleId"), f("title", "제목"), f("date", "날짜"), f("descript", "내용"),
@@ -484,8 +489,22 @@
                     },
                     {
                         name: "학습 계획 만들기", req: "AI-001", method: "POST", path: "/api/ai/plans",
-                        note: "roomId를 비우면 새 대화방. 응답의 plan으로 다시 만들기·저장을 테스트하려면 화면(ai-assistant.html)이 편해요",
-                        fields: [f("roomId", "roomId", "number"), f("exams", "시험 일정"), f("availableTime", "공부 가능 시간"), f("tasks", "할 일")],
+                        note: "roomId를 비우면 새 대화방. 성공하면 아래 '다시 만들기'와 '저장' 칸이 자동으로 채워져요",
+                        fields: [f("roomId", "roomId", "number", { share: "aiRoomId" }), f("exams", "시험 일정"),
+                            f("availableTime", "공부 가능 시간"), f("tasks", "할 일")],
+                    },
+                    {
+                        name: "학습 계획 다시 만들기", req: "AI-004", method: "POST", path: "/api/ai/plans/regenerate",
+                        note: "feedback: tight(너무 빡빡해요) / loose(너무 느슨해요) / 자유 입력",
+                        fields: [f("roomId", "roomId", "number", { share: "aiRoomId" }),
+                            f("plan", "이전 계획", "json", { share: "plan", placeholder: "학습 계획을 만들면 자동으로 채워져요" }),
+                            f("feedback", "요청", "text", { value: "tight" })],
+                    },
+                    {
+                        name: "학습 계획 저장", req: "AI-002", method: "POST", path: "/api/ai/plans/apply",
+                        note: "저장할 항목만 남기고 보내세요. 일정·할일로 실제 저장돼요",
+                        fields: [f("schedules", "일정 (배열)", "json", { share: "planSchedules", placeholder: "[{\"title\":\"...\",\"date\":\"2026-10-01\",\"time\":\"19:00\",\"subject\":\"수학\"}]" }),
+                            f("todos", "할일 (배열)", "json", { share: "planTodos", placeholder: "[{\"title\":\"...\",\"dueDate\":\"2026-10-03\",\"subject\":\"수학\"}]" })],
                     },
                     { name: "대화방 삭제", req: "AI-006", method: "DELETE", path: "/api/ai/rooms/:aiRoomId", danger: true, fields: [path("aiRoomId")] },
                 ],
@@ -563,6 +582,13 @@
             if (field.type === "number") return Number(raw);
             if (field.type === "bool") return raw === "true";
             if (field.type === "ids") return raw.split(",").map((s) => s.trim()).filter(Boolean).map(Number);
+            if (field.type === "json") {
+                try {
+                    return JSON.parse(raw);
+                } catch {
+                    throw new Error(`${field.label}: JSON 형식이 올바르지 않습니다.`);
+                }
+            }
             return raw;
         }
 
@@ -611,7 +637,13 @@
             if (def.path === "/api/schedules" && def.method === "POST") setShared("scheduleId", data.id);
             if (def.path === "/api/todos" && def.method === "POST") setShared("todoId", data.id);
             if (def.path === "/api/ai/rooms" && def.method === "POST") setShared("aiRoomId", data.id);
-            if (def.path === "/api/ai/plans") setShared("aiRoomId", data.roomId);
+            // 학습 계획을 만들면 다시 만들기·저장 칸을 응답 값으로 채운다.
+            if (def.path === "/api/ai/plans" || def.path === "/api/ai/plans/regenerate") {
+                setShared("aiRoomId", data.roomId);
+                setShared("plan", JSON.stringify(data.plan, null, 2));
+                setShared("planSchedules", JSON.stringify(data.plan.schedules, null, 2));
+                setShared("planTodos", JSON.stringify(data.plan.todos, null, 2));
+            }
             // 가입·로그인·로그아웃·탈퇴로 사용자가 바뀌면 상단 표시와 소켓을 새로 맞춘다.
             if (def.path.startsWith("/api/users/") && def.method !== "GET") {
                 const before = me?.id;
@@ -626,12 +658,18 @@
                 const options = field.type === "bool" ? ["", "true", "false"] : field.options;
                 input = el("select", { name: field.name },
                     ...options.map((o) => el("option", { value: o, textContent: o === "" ? "(보내지 않음)" : o })));
+            } else if (field.type === "json") {
+                input = el("textarea", { ...common, rows: 5, spellcheck: false });
+                input.style.fontFamily = "ui-monospace, Consolas, monospace";
+                input.style.fontSize = "12px";
+                input.style.resize = "vertical";
             } else {
                 const type = ["ids", "text"].includes(field.type) ? "text" : field.type;
                 input = el("input", { ...common, type });
             }
             if (field.value !== undefined) input.value = field.value;
-            if (field.share) input.dataset.share = field.name;
+            // share: true면 같은 이름끼리, 문자열이면 그 이름으로 값을 공유한다.
+            if (field.share) input.dataset.share = typeof field.share === "string" ? field.share : field.name;
             return el("label", { className: "field" }, el("span", { textContent: field.label }), input);
         }
 
