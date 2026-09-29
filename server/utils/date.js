@@ -35,4 +35,14 @@ function splitByKstDate(start, end) {
   return result;
 }
 
-module.exports = { kstNow, currentSchoolYear, splitByKstDate };
+// 알림 문구용: "10월 1일 14:30" (0시 정각이면 날짜만)
+function formatKst(date) {
+  const kst = new Date(date.getTime() + KST_OFFSET_MS);
+  const day = `${kst.getUTCMonth() + 1}월 ${kst.getUTCDate()}일`;
+  const hh = kst.getUTCHours();
+  const mm = kst.getUTCMinutes();
+  if (hh === 0 && mm === 0) return day;
+  return `${day} ${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+module.exports = { kstNow, currentSchoolYear, splitByKstDate, formatKst };

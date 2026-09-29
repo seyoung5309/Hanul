@@ -305,11 +305,10 @@
                             f("password", "비밀번호", "password", { placeholder: "8~64자" }),
                             f("identifier", "아이디", "text", { placeholder: "영문·숫자·_ 4~16자" }),
                             f("name", "이름"),
-                            f("birth", "생년월일", "date"),
+                            f("studentNumber", "학번", "text", { placeholder: "예: 2105 → 2학년 1반 5번" }),
+                            f("admissionYear", "입학년도", "number", { placeholder: "선택. 비우면 자동 계산" }),
                             f("gender", "성별", "select", { options: ["", "male", "female"] }),
-                            f("grade", "학년", "number"),
-                            f("classNo", "반", "number"),
-                            f("number", "번호", "number"),
+                            f("birth", "생년월일", "date", { placeholder: "선택" }),
                             f("agreeTerms", "개인정보 동의", "bool", { value: "true" }),
                         ],
                     },
@@ -355,7 +354,7 @@
                     },
                     {
                         name: "새 학년도 반 등록", req: "UD-010", method: "POST", path: "/api/users/me/class", fields: [
-                            f("grade", "학년", "number"), f("classNo", "반", "number"), f("number", "번호", "number"),
+                            f("studentNumber", "학번", "text", { placeholder: "예: 3107" }),
                         ],
                     },
                     {
@@ -430,6 +429,65 @@
                         name: "채팅 신고", req: "CL-004", method: "POST", path: "/api/rooms/:roomId/chats/:chatId/report",
                         fields: [path("roomId"), path("chatId"), f("reason", "사유")],
                     },
+                ],
+            },
+            {
+                title: "일정·To Do", open: true, items: [
+                    {
+                        name: "일정 등록", req: "TD-001", method: "POST", path: "/api/schedules",
+                        note: "날짜: 2026-10-01 또는 2026-10-01T14:30. 24시간 전에 알림",
+                        fields: [f("title", "제목"), f("date", "날짜"), f("descript", "내용"),
+                            f("subjectIds", "과목", "ids", { placeholder: "과목 id, 최대 3개" })],
+                    },
+                    {
+                        name: "일정 조회", req: "TD-003", method: "GET", path: "/api/schedules",
+                        fields: [f("from", "from", "date", { in: "query" }), f("to", "to (포함)", "date", { in: "query" }),
+                            f("limit", "limit", "number", { in: "query" })],
+                    },
+                    {
+                        name: "일정 수정", req: "TD-002", method: "PATCH", path: "/api/schedules/:scheduleId",
+                        fields: [path("scheduleId"), f("title", "제목"), f("date", "날짜"), f("descript", "내용"),
+                            f("subjectIds", "과목", "ids")],
+                    },
+                    { name: "일정 삭제", req: "TD-002", method: "DELETE", path: "/api/schedules/:scheduleId", danger: true, fields: [path("scheduleId")] },
+                    {
+                        name: "To Do 등록", req: "TD-004", method: "POST", path: "/api/todos",
+                        fields: [f("title", "제목"), f("dueDate", "마감일", "text", { placeholder: "선택. 2026-10-01T18:00" }),
+                            f("descript", "내용"), f("subjectIds", "과목", "ids")],
+                    },
+                    {
+                        name: "To Do 목록", method: "GET", path: "/api/todos",
+                        fields: [f("done", "완료 여부", "bool", { in: "query" })],
+                    },
+                    {
+                        name: "To Do 수정", req: "TD-005", method: "PATCH", path: "/api/todos/:todoId",
+                        fields: [path("todoId"), f("title", "제목"), f("dueDate", "마감일"), f("descript", "내용"),
+                            f("subjectIds", "과목", "ids")],
+                    },
+                    {
+                        name: "완료 체크", req: "TD-006", method: "PATCH", path: "/api/todos/:todoId/done",
+                        fields: [path("todoId"), f("isDone", "완료", "bool", { value: "true" })],
+                    },
+                    { name: "전체 완료", method: "PATCH", path: "/api/todos/done-all", fields: [] },
+                    { name: "To Do 삭제", req: "TD-005", method: "DELETE", path: "/api/todos/:todoId", danger: true, fields: [path("todoId")] },
+                ],
+            },
+            {
+                title: "AI 도우미 (Gemini)", open: true, items: [
+                    { name: "오늘 사용량", req: "AI-003", method: "GET", path: "/api/ai/usage", fields: [] },
+                    { name: "대화방 목록", req: "AI-006", method: "GET", path: "/api/ai/rooms", fields: [] },
+                    { name: "대화방 만들기", req: "AI-006", method: "POST", path: "/api/ai/rooms", fields: [f("title", "제목")] },
+                    { name: "대화 기록", req: "AI-006", method: "GET", path: "/api/ai/rooms/:aiRoomId", fields: [path("aiRoomId")] },
+                    {
+                        name: "질문하기", req: "AI-005", method: "POST", path: "/api/ai/rooms/:aiRoomId/chats",
+                        fields: [path("aiRoomId"), f("message", "질문")],
+                    },
+                    {
+                        name: "학습 계획 만들기", req: "AI-001", method: "POST", path: "/api/ai/plans",
+                        note: "roomId를 비우면 새 대화방. 응답의 plan으로 다시 만들기·저장을 테스트하려면 화면(ai-assistant.html)이 편해요",
+                        fields: [f("roomId", "roomId", "number"), f("exams", "시험 일정"), f("availableTime", "공부 가능 시간"), f("tasks", "할 일")],
+                    },
+                    { name: "대화방 삭제", req: "AI-006", method: "DELETE", path: "/api/ai/rooms/:aiRoomId", danger: true, fields: [path("aiRoomId")] },
                 ],
             },
             {
@@ -550,6 +608,10 @@
             if (def.path === "/api/rooms/join") setShared("roomId", data.roomId);
             if (def.path.endsWith("/invites") && def.method === "POST") setShared("inviteId", data.id);
             if (def.path === "/api/classes/me") setShared("roomId", data.roomId);
+            if (def.path === "/api/schedules" && def.method === "POST") setShared("scheduleId", data.id);
+            if (def.path === "/api/todos" && def.method === "POST") setShared("todoId", data.id);
+            if (def.path === "/api/ai/rooms" && def.method === "POST") setShared("aiRoomId", data.id);
+            if (def.path === "/api/ai/plans") setShared("aiRoomId", data.roomId);
             // 가입·로그인·로그아웃·탈퇴로 사용자가 바뀌면 상단 표시와 소켓을 새로 맞춘다.
             if (def.path.startsWith("/api/users/") && def.method !== "GET") {
                 const before = me?.id;

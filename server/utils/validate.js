@@ -21,8 +21,37 @@ function isDate(v) {
   return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v);
 }
 
+// "2026-10-01" 또는 "2026-10-01T14:30" → DB에 넣을 "2026-10-01 14:30:00" (KST 그대로). 형식이 틀리면 null
+// 날짜만 오면 그날 00:00으로 본다.
+function toDateTime(v) {
+  if (typeof v !== "string") return null;
+  const match = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(v.trim());
+  if (!match || !isDate(match[1])) return null;
+  const [, date, hh = "00", mm = "00"] = match;
+  if (Number(hh) > 23 || Number(mm) > 59) return null;
+  return `${date} ${hh}:${mm}:00`;
+}
+
+// 학번 "2105" → { grade: 2, classNo: 1, number: 5 } (학년 1자리 + 반 1자리 + 번호 2자리). 형식이 틀리면 null
+function parseStudentNumber(v) {
+  const match = /^([1-6])([1-9])(\d{2})$/.exec(String(v ?? "").trim());
+  if (!match || match[3] === "00") return null;
+  return { grade: Number(match[1]), classNo: Number(match[2]), number: Number(match[3]) };
+}
+
 const isIntBetween = (v, min, max) => Number.isInteger(v) && v >= min && v <= max;
 
 const isBoolean = (v) => typeof v === "boolean";
 
-module.exports = { check, isEmail, isPassword, isIdentifier, isName, isDate, isIntBetween, isBoolean };
+module.exports = {
+  check,
+  isEmail,
+  isPassword,
+  isIdentifier,
+  isName,
+  isDate,
+  toDateTime,
+  parseStudentNumber,
+  isIntBetween,
+  isBoolean,
+};

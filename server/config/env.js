@@ -39,4 +39,11 @@ module.exports = {
     pass: process.env.SMTP_PASS,
     from: process.env.MAIL_FROM || process.env.SMTP_USER,
   },
+  // AI 도우미 (Google Gemini). 키가 없으면 AI 기능만 503으로 응답한다.
+  ai: {
+    apiKey: process.env.GEMINI_API_KEY,
+    model: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
+    dailyLimit: Number(process.env.AI_DAILY_LIMIT) || 20, // AI-003: 1인 하루 요청 수
+    monthlyTokenLimit: Number(process.env.AI_MONTHLY_TOKEN_LIMIT) || 0, // NF-010: 전체 월 토큰 상한 (0이면 제한 없음)
+  },
 };

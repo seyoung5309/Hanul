@@ -17,11 +17,13 @@ function toHttpError(err) {
 function errorHandler(err, req, res, next) {
   const httpError = toHttpError(err);
   const status = httpError.status || 500;
-  if (status >= 500) console.error(err);
+  const expected = httpError instanceof HttpError; // 우리가 안내 문구를 정해서 던진 에러
+  if (!expected && status >= 500) console.error(err);
 
-  // 500 에러는 내부 정보가 새지 않도록 메시지를 감춘다.
+  // 예상하지 못한 500대 에러는 내부 정보가 새지 않도록 메시지를 감춘다.
+  // HttpError는 503("AI 사용자가 많아요")처럼 5xx여도 정해 둔 안내 문구를 그대로 보여준다.
   res.status(status).json({
-    message: status >= 500 ? "서버 오류가 발생했습니다." : httpError.message,
+    message: !expected && status >= 500 ? "서버 오류가 발생했습니다." : httpError.message,
   });
 }
 

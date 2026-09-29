@@ -40,7 +40,7 @@ CREATE TABLE user (
   id                INT         PRIMARY KEY,
   identifier        VARCHAR(16) NOT NULL UNIQUE,
   name              VARCHAR(16) NOT NULL,
-  birth             DATE        NOT NULL,
+  birth             DATE        NULL,                 -- 선택 항목 (회원가입에서는 받지 않음)
   gender            BOOLEAN     NULL,                 -- 선택 항목. 0=남, 1=여, NULL=미입력
   img               VARCHAR(255),                     -- Cloudinary URL
   comment           VARCHAR(255),
@@ -339,7 +339,8 @@ CREATE TABLE ai_room (
   id         INT          PRIMARY KEY AUTO_INCREMENT,
   title      VARCHAR(255) NOT NULL,
   user_id    INT          NOT NULL,
-  summary    TEXT,
+  summary    TEXT,                                    -- 긴 대화 앞부분 요약 (AI-007)
+  summary_chat_id INT NULL,                           -- 요약에 포함된 마지막 ai_chat.id
   created_at DATETIME     DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 목록 정렬용
   INDEX (user_id, updated_at),
