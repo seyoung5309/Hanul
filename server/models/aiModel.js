@@ -18,10 +18,13 @@ async function findRoom(userId, roomId) {
   return rows[0] ?? null;
 }
 
-// AI-006: 최근 대화한 순
+// AI-006: 최근 대화한 순. updated_at은 초 단위라 같은 초면 마지막 채팅이 최근인 방을 먼저 둔다.
 async function findRooms(userId) {
   const [rows] = await pool.query(
-    "SELECT id, title, created_at AS createdAt, updated_at AS updatedAt FROM ai_room WHERE user_id = ? ORDER BY updated_at DESC, id DESC",
+    `SELECT r.id, r.title, r.created_at AS createdAt, r.updated_at AS updatedAt
+     FROM ai_room r
+     WHERE r.user_id = ?
+     ORDER BY r.updated_at DESC, (SELECT MAX(c.id) FROM ai_chat c WHERE c.ai_room_id = r.id) DESC, r.id DESC`,
     [userId],
   );
   return rows;
