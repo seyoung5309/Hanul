@@ -1,5 +1,4 @@
 -- 초기 데이터. 이미 있는 과목은 건너뛴다.
-USE hanul;
 
 INSERT IGNORE INTO subject (name) VALUES
   ('국어'),

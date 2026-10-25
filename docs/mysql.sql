@@ -1,13 +1,11 @@
 
 SET NAMES utf8mb4;
 
-CREATE DATABASE IF NOT EXISTS hanul
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_0900_ai_ci;
-USE hanul;
+-- 접속한 DB에 테이블을 만든다. (Railway 기본 DB: railway)
+--   mysql -h <호스트> -P <포트> -u root -p railway < docs/mysql.sql
 
 -- 시간 기준: 모든 DATETIME은 한국 시간(KST)으로 저장한다.
---   MySQL 서버 --default-time-zone='+09:00', Node 드라이버 timezone '+09:00'으로 맞춘다.
+--   서버가 연결마다 세션 time_zone을 '+09:00'으로, Node 드라이버 timezone도 '+09:00'으로 맞춘다.
 --   (일·주·월 집계를 KST 자정·월요일·1일 기준으로 나누기 위함)
 
 -- ---------------------------------------------------------------------
