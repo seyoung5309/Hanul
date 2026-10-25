@@ -122,6 +122,7 @@ img {
     background: #1a68d7;
     color: #f8f9fd;
     font-size: 16px;
+    font-weight: 400;
 }
 
 /* 리스트 공통 */
@@ -178,12 +179,13 @@ img {
     flex-direction: column;
 }
 
+/* Figma: 오른쪽 열은 왼쪽 첫 제목보다 51px 위에서 시작한다. */
 .col-right {
     width: 380px;
-    margin-top: 49px;
+    margin-top: -53px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 37px;
 }
 
 .room-section {
@@ -213,6 +215,7 @@ img {
 }
 
 .room-card {
+    position: relative;
     display: flex;
     gap: 20px;
     padding: 12px 8px;
@@ -249,6 +252,51 @@ img {
 
 .room-card__name {
     font-size: 24px;
+}
+
+/* 방 이름 링크를 카드 전체로 넓힌다. ⋮ 메뉴는 그 위에 올린다. */
+.room-card__name::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.room-card .more-wrap {
+    z-index: 1;
+}
+
+/* ⋮ 더보기 + 나가기/삭제 팝업 (main.css와 같은 모양). 팝업은 CSS :focus-within으로 열린다. */
+.more-wrap {
+    position: relative;
+}
+
+.popup {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 8px;
+    width: 260px;
+    padding: 20px;
+    flex-direction: column;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 16px;
+    z-index: 5;
+}
+
+.more-wrap:focus-within .popup {
+    display: flex;
+}
+
+.popup__item {
+    padding: 4px 0;
+    font-size: 20px;
+    text-align: left;
+}
+
+.popup__item--danger {
+    color: #cf5353;
 }
 
 .room-card__sub {
@@ -312,6 +360,7 @@ img {
 
 .profile__class {
     font-size: 16px;
+    font-weight: 400;
     color: #444;
 }
 

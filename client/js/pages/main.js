@@ -314,6 +314,8 @@
   }
 
   dialog.querySelector(".item-dialog__cancel").addEventListener("click", () => dialog.close());
+  // 달력 아이콘을 숨겼으므로 칸을 누르면 달력을 연다.
+  form.elements.date.addEventListener("click", () => form.elements.date.showPicker?.());
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
