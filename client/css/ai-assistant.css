@@ -88,12 +88,11 @@ img {
 .history__arrow {
     width: 24px;
     height: 12px;
-    transform: rotate(180deg);
     transition: transform .2s;
 }
 
 .history[open] .history__arrow {
-    transform: none;
+    transform: rotate(180deg);
 }
 
 .history__list {

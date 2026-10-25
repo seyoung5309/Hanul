@@ -11,4 +11,9 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
+// NOW()·CURDATE()도 KST로 계산되게 연결마다 세션 시간대를 맞춘다. (Railway MySQL 기본값은 UTC)
+pool.pool.on("connection", (conn) => {
+  conn.query("SET time_zone = '+09:00'");
+});
+
 module.exports = pool;

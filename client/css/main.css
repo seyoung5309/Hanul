@@ -127,6 +127,7 @@ img {
     background: #1a68d7;
     color: #f8f9fd;
     font-size: 16px;
+    font-weight: 400;
 }
 
 /* 리스트 공통 */
@@ -237,6 +238,7 @@ img {
 
 .profile__class {
     font-size: 16px;
+    font-weight: 400;
     color: #444;
 }
 
@@ -466,6 +468,7 @@ img {
     width: 92px;
     background: #1a68d7;
     color: #fff;
+    font-weight: 400;
     padding: 8px 12px 12px;
     display: flex;
     flex-direction: column;
@@ -569,11 +572,12 @@ img {
     position: relative;
 }
 
+/* ⋮ 버튼을 덮고 위쪽으로 열린다 (Figma) */
 .popup {
     display: none;
     position: absolute;
-    top: 0;
-    left: calc(100% + 8px);
+    bottom: 0;
+    left: 8px;
     width: 260px;
     padding: 20px;
     flex-direction: column;
@@ -687,6 +691,11 @@ img {
 .item-dialog__field textarea:focus {
     outline: none;
     border-color: #1a68d7;
+}
+
+/* 날짜 칸은 아이콘 없이 글자만 보이고, 칸을 누르면 달력이 열린다 (main.js) */
+.item-dialog__field input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
 }
 
 /* 서버 검증 안내 (디자인에는 없음, 필요할 때만 보임) */
