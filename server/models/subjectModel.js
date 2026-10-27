@@ -5,7 +5,7 @@ async function findAll() {
   return rows;
 }
 
-// 일정·To Do처럼 과목을 연결하는 테이블 (코드에서 정한 이름만 쓴다)
+// 일정, To Do처럼 과목을 연결하는 테이블
 const LINK_TABLES = {
   schedule: { table: "schedule_subject", column: "schedule_id" },
   todo: { table: "todo_subject", column: "todo_id" },

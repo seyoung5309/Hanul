@@ -5,9 +5,12 @@ const pool = require("../config/db");
 const ROOM_COLUMNS = `id, type, class_id AS classId, title, comment, room_code AS roomCode,
   owner_id AS ownerId, max_members AS maxMembers, created_at AS createdAt`;
 
-// NF-005: 방 데이터에 접근하기 전에 참가자인지 확인
+// 방 데이터에 접근하기 전에 참가자인지 확인
 async function isMember(userId, roomId, conn = pool) {
-  const [rows] = await conn.query("SELECT 1 FROM study_user WHERE user_id = ? AND room_id = ?", [userId, roomId]);
+  const [rows] = await conn.query(
+    "SELECT 1 FROM study_user WHERE user_id = ? AND room_id = ?",
+    [userId, roomId],
+  );
   return rows.length > 0;
 }
 
@@ -23,19 +26,26 @@ async function findUserRooms(userId) {
 
 // forUpdate: 인원 확인 후 참여처럼 동시에 바뀌면 안 되는 경우 행을 잠근다.
 async function findById(roomId, { conn = pool, forUpdate = false } = {}) {
-  const [rows] = await conn.query(`SELECT ${ROOM_COLUMNS} FROM study_room WHERE id = ?${forUpdate ? " FOR UPDATE" : ""}`, [
-    roomId,
-  ]);
+  const [rows] = await conn.query(
+    `SELECT ${ROOM_COLUMNS} FROM study_room WHERE id = ?${forUpdate ? " FOR UPDATE" : ""}`,
+    [roomId],
+  );
   return rows[0] ?? null;
 }
 
 async function findByCode(conn, roomCode) {
-  const [rows] = await conn.query(`SELECT ${ROOM_COLUMNS} FROM study_room WHERE room_code = ? FOR UPDATE`, [roomCode]);
+  const [rows] = await conn.query(
+    `SELECT ${ROOM_COLUMNS} FROM study_room WHERE room_code = ? FOR UPDATE`,
+    [roomCode],
+  );
   return rows[0] ?? null;
 }
 
 // 방 코드가 겹치면 ER_DUP_ENTRY
-async function createRoom(conn, { title, comment, roomCode, ownerId, maxMembers }) {
+async function createRoom(
+  conn,
+  { title, comment, roomCode, ownerId, maxMembers },
+) {
   const [result] = await conn.query(
     `INSERT INTO study_room (type, title, comment, room_code, owner_id, max_members)
      VALUES ('custom', ?, ?, ?, ?, ?)`,
@@ -52,11 +62,14 @@ async function setSubjects(conn, roomId, subjectIds) {
 }
 
 async function countMembers(conn, roomId) {
-  const [[row]] = await conn.query("SELECT COUNT(*) AS count FROM study_user WHERE room_id = ?", [roomId]);
+  const [[row]] = await conn.query(
+    "SELECT COUNT(*) AS count FROM study_user WHERE room_id = ?",
+    [roomId],
+  );
   return row.count;
 }
 
-// 반 메인을 뺀 참여 방 수 (SR-002)
+// 반 메인을 뺀 참여 방 수
 async function countJoinedCustomRooms(conn, userId) {
   const [[row]] = await conn.query(
     `SELECT COUNT(*) AS count FROM study_user su JOIN study_room r ON r.id = su.room_id
@@ -67,27 +80,39 @@ async function countJoinedCustomRooms(conn, userId) {
 }
 
 async function addMember(conn, userId, roomId) {
-  await conn.query("INSERT INTO study_user (user_id, room_id) VALUES (?, ?)", [userId, roomId]);
+  await conn.query("INSERT INTO study_user (user_id, room_id) VALUES (?, ?)", [
+    userId,
+    roomId,
+  ]);
   await touchActivity([roomId], conn);
 }
 
 async function removeMember(userId, roomId) {
-  await pool.query("DELETE FROM study_user WHERE user_id = ? AND room_id = ?", [userId, roomId]);
+  await pool.query("DELETE FROM study_user WHERE user_id = ? AND room_id = ?", [
+    userId,
+    roomId,
+  ]);
 }
 
 async function setOwner(roomId, userId) {
-  await pool.query("UPDATE study_room SET owner_id = ? WHERE id = ?", [userId, roomId]);
+  await pool.query("UPDATE study_room SET owner_id = ? WHERE id = ?", [
+    userId,
+    roomId,
+  ]);
 }
 
-// 채팅·참가 기록·키워드·초대는 FK로 함께 삭제된다. (SR-005)
+// 채팅,참가 / 기록,키워드,초대는 FK로 함께 삭제.
 async function deleteRoom(roomId) {
   await pool.query("DELETE FROM study_room WHERE id = ?", [roomId]);
 }
 
-// 비활성 방 자동 삭제 기준 갱신 (SR-010)
+// 비활성 방 자동 삭제 기준 갱신
 async function touchActivity(roomIds, conn = pool) {
   if (roomIds.length === 0) return;
-  await conn.query("UPDATE study_room SET last_active_at = NOW() WHERE id IN (?)", [roomIds]);
+  await conn.query(
+    "UPDATE study_room SET last_active_at = NOW() WHERE id IN (?)",
+    [roomIds],
+  );
 }
 
 async function findInactiveRoomIds(days) {
@@ -99,7 +124,10 @@ async function findInactiveRoomIds(days) {
 }
 
 async function findMemberIds(roomId) {
-  const [rows] = await pool.query("SELECT user_id AS userId FROM study_user WHERE room_id = ?", [roomId]);
+  const [rows] = await pool.query(
+    "SELECT user_id AS userId FROM study_user WHERE room_id = ?",
+    [roomId],
+  );
   return rows.map((row) => row.userId);
 }
 
@@ -135,7 +163,12 @@ async function findSubjectsByRooms(roomIds) {
 //   mySeconds: 이 방에서 내가 공부한 시간
 //   activeCount: 지금 이 방에서 공부 중인 기록 수 (화면에서 총합 시간을 1초마다 늘릴 때 사용)
 async function findRoomTimes(roomIds, userId) {
-  const result = Object.fromEntries(roomIds.map((id) => [id, { totalSeconds: 0, mySeconds: 0, activeCount: 0 }]));
+  const result = Object.fromEntries(
+    roomIds.map((id) => [
+      id,
+      { totalSeconds: 0, mySeconds: 0, activeCount: 0 },
+    ]),
+  );
   if (roomIds.length === 0) return result;
 
   const [rows] = await pool.query(
@@ -148,7 +181,7 @@ async function findRoomTimes(roomIds, userId) {
      GROUP BY l.room_id`,
     [userId, roomIds],
   );
-  // SUM 결과는 DECIMAL이라 문자열로 오므로 숫자로 바꾼다.
+  // SUM 결과는 DECIMAL이라 문자열로 오므로 숫자로 바꿈.
   for (const row of rows) {
     result[row.roomId] = {
       totalSeconds: Number(row.totalSeconds),
@@ -159,7 +192,7 @@ async function findRoomTimes(roomIds, userId) {
   return result;
 }
 
-// 참가자와 공부 현황. 공개 범위 적용은 컨트롤러에서 한다.
+// 참가자와 공부 현황. 공개 범위 적용은 컨트롤러.
 // todaySeconds: 오늘(KST) 이 방에서 공부한 시간 (SR-012 방별 공부 시간)
 async function findMembers(roomId) {
   const [rows] = await pool.query(
@@ -186,15 +219,14 @@ async function findMembers(roomId) {
   return rows;
 }
 
-// ----- 초대 (room_invite) -----
+// 초대
 
 // 대기 중인 초대가 이미 있으면 ER_DUP_ENTRY
 async function createInvite({ roomId, inviterId, inviteeId }) {
-  const [result] = await pool.query("INSERT INTO room_invite (room_id, inviter_id, invitee_id) VALUES (?, ?, ?)", [
-    roomId,
-    inviterId,
-    inviteeId,
-  ]);
+  const [result] = await pool.query(
+    "INSERT INTO room_invite (room_id, inviter_id, invitee_id) VALUES (?, ?, ?)",
+    [roomId, inviterId, inviteeId],
+  );
   return result.insertId;
 }
 
@@ -208,7 +240,10 @@ async function findInviteForUpdate(conn, inviteId) {
 }
 
 async function answerInvite(conn, inviteId, status) {
-  await conn.query("UPDATE room_invite SET status = ?, answered_at = NOW() WHERE id = ?", [status, inviteId]);
+  await conn.query(
+    "UPDATE room_invite SET status = ?, answered_at = NOW() WHERE id = ?",
+    [status, inviteId],
+  );
 }
 
 async function findPendingInvites(userId) {
