@@ -6,7 +6,13 @@ const TYPES = ["notice", "schedule", "study_room"];
 const NOTIFICATION_COLUMNS = `n.id, n.title, n.descript, n.type, n.target_type AS targetType,
   n.target_id AS targetId, n.created_at AS createdAt, nu.is_read AS isRead`;
 
-async function insertNotification({ title, descript, type, targetType = null, targetId = null }) {
+async function insertNotification({
+  title,
+  descript,
+  type,
+  targetType = null,
+  targetId = null,
+}) {
   if (!TYPES.includes(type)) throw new Error(`알 수 없는 알림 종류: ${type}`);
   const [result] = await pool.query(
     "INSERT INTO notification (title, descript, type, target_type, target_id) VALUES (?, ?, ?, ?, ?)",
@@ -16,9 +22,10 @@ async function insertNotification({ title, descript, type, targetType = null, ta
 }
 
 // 알림을 만들고, 해당 카테고리 알림을 켜 둔 사용자에게만 보낸다.
-// userIds가 null이면 전체 사용자 (공지, NT-005). 실제로 받은 사용자 id 목록을 돌려준다.
+// userIds가 null이면 전체 사용자 (공지, NT-005). 실제로 받은 사용자 id 목록을 돌려줌.
 async function create(payload, userIds = null) {
-  if (userIds !== null && userIds.length === 0) return { id: null, userIds: [] };
+  if (userIds !== null && userIds.length === 0)
+    return { id: null, userIds: [] };
 
   const column = payload.type; // TYPES와 컬럼 이름이 같다. (insertNotification에서 검증)
   const where = userIds === null ? "" : "AND id IN (?)";
@@ -29,14 +36,18 @@ async function create(payload, userIds = null) {
   if (receivers.length === 0) return { id: null, userIds: [] };
 
   const id = await insertNotification(payload);
-  await pool.query("INSERT INTO notification_user (user_id, notification_id) VALUES ?", [
-    receivers.map((row) => [row.id, id]),
-  ]);
+  await pool.query(
+    "INSERT INTO notification_user (user_id, notification_id) VALUES ?",
+    [receivers.map((row) => [row.id, id])],
+  );
   return { id, userIds: receivers.map((row) => row.id) };
 }
 
 // NT-001: 최신순. before보다 오래된 것을 limit개. type·unreadOnly로 거를 수 있다.
-async function findForUser(userId, { before = null, limit, type = null, unreadOnly = false }) {
+async function findForUser(
+  userId,
+  { before = null, limit, type = null, unreadOnly = false },
+) {
   const conditions = ["nu.user_id = ?"];
   const params = [userId];
   if (before) {
@@ -104,9 +115,10 @@ async function markReadByTarget(userId, targetType, targetId) {
 // ----- 알림 설정 (NT-004) -----
 
 async function findSettings(userId) {
-  const [rows] = await pool.query("SELECT notice, schedule, study_room FROM notification_setting WHERE id = ?", [
-    userId,
-  ]);
+  const [rows] = await pool.query(
+    "SELECT notice, schedule, study_room FROM notification_setting WHERE id = ?",
+    [userId],
+  );
   const row = rows[0] ?? { notice: 1, schedule: 1, study_room: 1 };
   return Object.fromEntries(TYPES.map((type) => [type, Boolean(row[type])]));
 }
