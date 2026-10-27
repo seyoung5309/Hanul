@@ -1,434 +1,434 @@
 /* ===== 공통 ===== */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    font-family: 'Pretendard', sans-serif;
-    font-weight: 500;
-    color: #000;
-    background: #fff;
-    min-width: 1920px;
-    height: 100vh;
-    overflow: hidden;
+  font-family: "Pretendard", sans-serif;
+  font-weight: 500;
+  color: #000;
+  background: #fff;
+  min-width: 1920px;
+  height: 100vh;
+  overflow: hidden;
 }
 
 a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 ul {
-    list-style: none;
+  list-style: none;
 }
 
 button {
-    font: inherit;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: inherit;
+  font: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
 }
 
 img {
-    display: block;
+  display: block;
 }
 
 /* ===== AI 채팅 ===== */
 .ai {
-    position: absolute;
-    top: 0;
-    left: 170px;
-    width: 1580px;
-    height: 100vh;
-    background: #f3f3f3;
-    overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 170px;
+  width: 1750px;
+  height: 100vh;
+  background: #f3f3f3;
+  overflow: hidden;
 }
 
 .history {
-    position: absolute;
-    top: 30px;
-    left: 17px;
-    width: 260px;
-    padding: 20px;
-    background: #fff;
-    border: 1px solid #d7d8de;
-    border-radius: 16px;
-    z-index: 2;
+  position: absolute;
+  top: 30px;
+  left: 17px;
+  width: 260px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #d7d8de;
+  border-radius: 16px;
+  z-index: 2;
 }
 
 .history__head {
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
 .history__head::-webkit-details-marker {
-    display: none;
+  display: none;
 }
 
 .history__title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 20px;
-    font-weight: 600;
-    color: #222;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
 }
 
 .history__title img {
-    width: 32px;
-    height: 32px;
+  width: 32px;
+  height: 32px;
 }
 
 .history__arrow {
-    width: 24px;
-    height: 12px;
-    transition: transform .2s;
+  width: 24px;
+  height: 12px;
+  transition: transform 0.2s;
 }
 
 .history[open] .history__arrow {
-    transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .history__list {
-    margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .history__list li {
-    padding: 4px 0;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 28px;
+  padding: 4px 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 28px;
 }
 
 .history__list li:first-child,
 .history__list li:nth-child(2) {
-    padding: 0;
+  padding: 0;
 }
 
 .ai__title {
-    position: absolute;
-    top: calc(50% - 109px);
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 40px;
-    font-weight: 500;
-    color: #1a68d7;
-    white-space: nowrap;
+  position: absolute;
+  top: calc(50% - 109px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  font-weight: 500;
+  color: #1a68d7;
+  white-space: nowrap;
 }
 
 .ai__info {
-    position: absolute;
-    bottom: 169px;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: center;
-    color: #dbdbdb;
-    font-size: 24px;
+  position: absolute;
+  bottom: 169px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+  color: #dbdbdb;
+  font-size: 24px;
 }
 
 .ai__info .small {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .chat__input {
-    position: absolute;
-    bottom: 75px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1043px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 24px;
-    background: #fff;
-    border: 1px solid #1a68d7;
-    border-radius: 100px;
+  position: absolute;
+  bottom: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1043px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: #fff;
+  border: 1px solid #1a68d7;
+  border-radius: 100px;
 }
 
 .chat__input input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font: inherit;
-    font-size: 20px;
-    line-height: 20px;
-    color: #222;
+  flex: 1;
+  border: none;
+  outline: none;
+  font: inherit;
+  font-size: 20px;
+  line-height: 20px;
+  color: #222;
 }
 
 .chat__input input::placeholder {
-    color: #929292;
+  color: #929292;
 }
 
 .chat__buttons {
-    display: flex;
-    gap: 16px;
+  display: flex;
+  gap: 16px;
 }
 
 .chat__buttons img {
-    width: 24px;
-    height: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 /* ===== 대화 (API 연동) ===== */
 .ai [hidden] {
-    display: none !important;
+  display: none !important;
 }
 
 .history__list {
-    max-height: calc(100vh - 160px);
-    overflow-y: auto;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
 }
 
 .history__new {
-    width: 100%;
-    padding: 6px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a68d7;
-    text-align: left;
+  width: 100%;
+  padding: 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a68d7;
+  text-align: left;
 }
 
 .history__item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .history__open {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 28px;
-    text-align: left;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 28px;
+  text-align: left;
 }
 
 .history__item--active .history__open {
-    color: #1a68d7;
-    font-weight: 600;
+  color: #1a68d7;
+  font-weight: 600;
 }
 
 .history__delete {
-    flex-shrink: 0;
-    width: 24px;
-    height: 24px;
-    font-size: 18px;
-    color: #929292;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  color: #929292;
 }
 
 .history__delete:hover {
-    color: #cf5353;
+  color: #cf5353;
 }
 
 .ai__messages {
-    position: absolute;
-    top: 30px;
-    bottom: 150px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1043px;
-    padding: 0 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    overflow-y: auto;
+  position: absolute;
+  top: 30px;
+  bottom: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1043px;
+  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
 }
 
 .ai__messages > :first-child {
-    margin-top: auto;
+  margin-top: auto;
 }
 
 .bubble {
-    max-width: 760px;
-    padding: 14px 20px;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 1.6;
-    color: #222;
-    white-space: pre-wrap;
-    word-break: break-word;
-    background: #fff;
-    border: 1px solid #d7d8de;
-    border-radius: 16px;
-    align-self: flex-start;
+  max-width: 760px;
+  padding: 14px 20px;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #222;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #fff;
+  border: 1px solid #d7d8de;
+  border-radius: 16px;
+  align-self: flex-start;
 }
 
 .bubble--user {
-    color: #fff;
-    background: #1a68d7;
-    border-color: #1a68d7;
-    align-self: flex-end;
+  color: #fff;
+  background: #1a68d7;
+  border-color: #1a68d7;
+  align-self: flex-end;
 }
 
 .bubble--loading {
-    color: #929292;
+  color: #929292;
 }
 
 .bubble--error {
-    color: #cf5353;
-    border-color: #cf5353;
+  color: #cf5353;
+  border-color: #cf5353;
 }
 
 .ai__usage {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 14px;
-    font-weight: 400;
-    color: #929292;
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 400;
+  color: #929292;
 }
 
 /* ===== 학습 계획 카드 (AI-002, AI-004) ===== */
 .plan-card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #d7d8de;
-    white-space: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #d7d8de;
+  white-space: normal;
 }
 
 .plan-card__heading {
-    font-size: 16px;
-    font-weight: 600;
-    color: #444;
+  font-size: 16px;
+  font-weight: 600;
+  color: #444;
 }
 
 .plan-card__item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-    cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .plan-card__item input {
-    width: 18px;
-    height: 18px;
-    accent-color: #1a68d7;
+  width: 18px;
+  height: 18px;
+  accent-color: #1a68d7;
 }
 
 .plan-card__buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .plan-card__buttons button {
-    padding: 8px 16px;
-    font-size: 15px;
-    font-weight: 600;
-    border: 1px solid #d7d8de;
-    border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid #d7d8de;
+  border-radius: 8px;
 }
 
 .plan-card__buttons .plan-card__save {
-    color: #fff;
-    background: #1a68d7;
-    border-color: #1a68d7;
+  color: #fff;
+  background: #1a68d7;
+  border-color: #1a68d7;
 }
 
 .plan-card__buttons button:disabled {
-    opacity: 0.5;
-    cursor: default;
+  opacity: 0.5;
+  cursor: default;
 }
 
 /* ===== 학습 계획 만들기 창 ===== */
 .plan-dialog {
-    margin: auto;
-    padding: 0;
-    border: 1px solid #d7d8de;
-    border-radius: 16px;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #d7d8de;
+  border-radius: 16px;
 }
 
 .plan-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .plan-dialog__form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 520px;
-    padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 520px;
+  padding: 32px;
 }
 
 .plan-dialog__title {
-    font-size: 24px;
-    font-weight: 600;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .plan-dialog__field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 14px;
-    color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: #666;
 }
 
 .plan-dialog__field textarea {
-    padding: 10px 12px;
-    font: inherit;
-    font-size: 16px;
-    color: #222;
-    border: 1px solid #d7d8de;
-    border-radius: 8px;
-    resize: vertical;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 16px;
+  color: #222;
+  border: 1px solid #d7d8de;
+  border-radius: 8px;
+  resize: vertical;
 }
 
 .plan-dialog__field textarea:focus {
-    outline: none;
-    border-color: #1a68d7;
+  outline: none;
+  border-color: #1a68d7;
 }
 
 .plan-dialog__error {
-    min-height: 1em;
-    font-size: 14px;
-    color: #cf5353;
+  min-height: 1em;
+  font-size: 14px;
+  color: #cf5353;
 }
 
 .plan-dialog__buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .plan-dialog__buttons button {
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
 }
 
 .plan-dialog__cancel {
-    color: #444;
-    border: 1px solid #d7d8de !important;
+  color: #444;
+  border: 1px solid #d7d8de !important;
 }
 
 .plan-dialog__submit {
-    color: #fff;
-    background: #1a68d7 !important;
+  color: #fff;
+  background: #1a68d7 !important;
 }
 
 .plan-dialog__submit:disabled {
-    opacity: 0.6;
+  opacity: 0.6;
 }
