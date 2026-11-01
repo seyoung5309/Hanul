@@ -1,0 +1,8 @@
+{
+  "name": "hanul",
+  "private": true,
+  "scripts": {
+    "build": "cd server && npm ci",
+    "start": "cd server && npm start"
+  }
+}
