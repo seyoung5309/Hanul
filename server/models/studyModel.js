@@ -23,7 +23,7 @@ async function createSession(userId, subjectId) {
   return result.insertId;
 }
 
-// 방별 기록 시작. 이미 진행 중인 방은 UNIQUE에 걸려 건너뛴다.
+// 방별 기록 시작. 이미 진행 중인 방은 UNIQUE에 걸려 건너뜀.
 async function startLogs(sessionId, roomIds) {
   if (roomIds.length === 0) return;
   const values = roomIds.map(() => "(?, ?, NOW())").join(", ");
@@ -44,9 +44,10 @@ async function endLogs(sessionId, roomIds) {
 }
 
 async function touchHeartbeat(sessionId, roomIds) {
-  await pool.query("UPDATE study_session SET last_heartbeat_at = NOW() WHERE id = ? AND status = '공부중'", [
-    sessionId,
-  ]);
+  await pool.query(
+    "UPDATE study_session SET last_heartbeat_at = NOW() WHERE id = ? AND status = '공부중'",
+    [sessionId],
+  );
   if (roomIds.length === 0) return;
   await pool.query(
     `UPDATE study_log SET last_heartbeat_at = NOW()
@@ -63,8 +64,8 @@ async function confirmCheck(sessionId) {
   );
 }
 
-// 세션과 방별 기록을 끝내고, 공부 시간을 날짜별로 나눠 study_daily에 더한다.
-// endAt이 null이면 지금 시각. 이미 끝난 세션이면 null을 돌려준다. (종료 버튼과 자동 종료가 겹친 경우)
+// 세션과 방별 기록을 끝내고, 공부 시간을 날짜별로 나눠 study_daily에 더함.
+// endAt이 null이면 지금 시각. 이미 끝난 세션이면 null을 돌려줌 (종료 버튼과 자동 종료가 겹친 경우)
 async function endSession(sessionId, { status, endAt = null }) {
   return withTransaction(async (conn) => {
     const [[session]] = await conn.query(
@@ -79,7 +80,10 @@ async function endSession(sessionId, { status, endAt = null }) {
        WHERE id = ?`,
       [status, endAt, sessionId],
     );
-    const [[{ start, end }]] = await conn.query("SELECT start, end FROM study_session WHERE id = ?", [sessionId]);
+    const [[{ start, end }]] = await conn.query(
+      "SELECT start, end FROM study_session WHERE id = ?",
+      [sessionId],
+    );
 
     await conn.query(
       `UPDATE study_log SET status = ?, end = GREATEST(start, ?)
@@ -99,7 +103,7 @@ async function endSession(sessionId, { status, endAt = null }) {
   });
 }
 
-// 공부 상태·시간을 어디까지 보여줄지 (UD-008)
+// 공부 상태, 시간을 어디까지 보여줄지
 async function findVisibility(userId) {
   const [rows] = await pool.query(
     "SELECT status_visibility AS status, time_visibility AS time FROM user WHERE id = ?",
@@ -108,9 +112,9 @@ async function findVisibility(userId) {
   return rows[0] ?? { status: "private", time: "private" };
 }
 
-// ----- 자동 종료 작업용 (jobs) -----
+// 자동 종료 작업용
 
-// heartbeat가 끊긴 세션. 마지막 응답 시각에 끝난 것으로 본다.
+// heartbeat가 끊긴 세션. 마지막 응답 시각에 끝난 것으로 봄.
 async function findDisconnectedSessions(timeoutSeconds) {
   const [rows] = await pool.query(
     `SELECT id, user_id AS userId, COALESCE(last_heartbeat_at, start) AS endAt
@@ -121,7 +125,7 @@ async function findDisconnectedSessions(timeoutSeconds) {
   return rows;
 }
 
-// 창이 닫혀 heartbeat가 끊긴 방별 기록을 끝낸다.
+// 창이 닫혀 heartbeat가 끊긴 방별 기록을 끝냄.
 async function endDisconnectedLogs(timeoutSeconds) {
   await pool.query(
     `UPDATE study_log SET status = '자동종료', end = GREATEST(start, COALESCE(last_heartbeat_at, start))
@@ -130,7 +134,7 @@ async function endDisconnectedLogs(timeoutSeconds) {
   );
 }
 
-// 마지막 응답 후 intervalSeconds가 지난 세션에 확인 마감 시각을 건다.
+// 마지막 응답 후 intervalSeconds가 지난 세션에 확인 마감 시각을 걺.
 async function startChecks(intervalSeconds, responseSeconds) {
   const [rows] = await pool.query(
     `SELECT id FROM study_session
@@ -154,7 +158,7 @@ async function startChecks(intervalSeconds, responseSeconds) {
   return started;
 }
 
-// 응답 마감이 지난 세션. 확인 창이 뜬 시각에 끝난 것으로 본다.
+// 응답 마감이 지난 세션. 확인 창이 뜬 시각에 끝난 것으로 봄.
 async function findExpiredChecks(responseSeconds) {
   const [rows] = await pool.query(
     `SELECT id, user_id AS userId, check_deadline - INTERVAL ? SECOND AS endAt
