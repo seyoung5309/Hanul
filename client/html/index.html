@@ -1,14 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>한울</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/index.css">
 </head>
 
 <body>
+    <div class="landing">
+        <header class="landing__header">
+            <a href="index.html"><img class="landing__logo" src="../assets/logo.svg" alt="한울"></a>
+        </header>
 
+        <!-- 배너 -->
+        <section class="hero">
+            <img class="hero__desk" src="../assets/landing-desk.png" alt="">
+            <img class="hero__notebook" src="../assets/landing-notebook.png" alt="">
+            <img class="hero__clock" src="../assets/landing-clock.png" alt="">
+            <div class="hero__text">
+                <h1><img class="hero__logo" src="../assets/logo-white.svg" alt="한울"></h1>
+                <p class="hero__slogan">친구와 함께 하는 자기 주도 학습</p>
+            </div>
+        </section>
+
+        <section class="landing__bottom">
+            <div class="developer">
+                <p class="developer__title">Developer</p>
+                <ul class="developer__list">
+                    <li><a href="https://github.com/seyoung5309" target="_blank">seyoung5309</a></li>
+                    <li><a href="https://github.com/mirim-jyd" target="_blank">mirim-jyd</a></li>
+                </ul>
+            </div>
+
+            <div class="auth">
+                <a href="login.html" class="auth__login">로그인하기</a>
+                <a href="signup.html" class="auth__signup">아직 회원이 아니라면?</a>
+            </div>
+        </section>
+    </div>
 </body>
 
 </html>
