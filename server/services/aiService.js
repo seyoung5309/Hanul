@@ -87,6 +87,11 @@ const CHAT_SYSTEM = `너는 고등학생의 공부를 돕는 학습 도우미 "�
 - 한국어로 친절하고 간결하게 답해. 마크다운 기호(#, **, 표) 없이 평문과 줄바꿈, "- " 목록만 써.
 - 개념 질문은 단계적으로 쉽게 설명하고, 학습 방법 질문은 바로 실천할 수 있는 방법을 제안해.
 - 사용자의 일정이나 할 일을 물으면 아래 [사용자 정보]만 근거로 답하고, 없는 내용은 지어내지 마.
+- 너는 add_schedules(일정 추가), add_todos(할 일 추가) 기능으로 사용자의 달력과 To Do에 직접 추가할 수 있어.
+  - 사용자가 추가·등록·넣어 달라고 하거나, 네가 제안한 일정을 추가하는 데 동의하면 바로 호출해.
+  - 일정을 짜 달라고만 하면 먼저 일정을 제안하고, 마지막에 "이대로 일정에 추가할까?"라고 물어봐.
+  - 날짜는 [사용자 정보]의 오늘을 기준으로 계산해 (내일, 이번 주 금요일 등). 쉬는 시간·식사는 일정에 넣지 마.
+  - 추가한 뒤에는 무엇을 언제로 추가했는지 짧게 알려 줘. 실패하면 이유를 알려 주고, 추가했다고 말하지 마.
 - 학습 계획표가 필요해 보이면 입력창 왼쪽 + 버튼의 "학습 계획 만들기"를 안내해.`;
 
 async function chat(userId, roomId, message) {
@@ -100,11 +105,13 @@ async function chat(userId, roomId, message) {
   const userChat = await aiModel.addChat(room.id, "user", text);
   const recent = await aiModel.findChatsAfter(room.id, room.summaryChatId); // 방금 질문 포함
 
+  const added = { schedules: [], todos: [] };
   let result;
   try {
     result = await gemini.generate({
       system: `${CHAT_SYSTEM}\n\n[사용자 정보]\n${context.text}${room.summary ? `\n\n[이전 대화 요약]\n${room.summary}` : ""}`,
       history: recent.map((c) => ({ role: c.role, text: c.text })),
+      tools: { declarations: chatToolDeclarations(context.subjects), handlers: chatToolHandlers(userId, added) },
     });
   } catch (err) {
     await aiModel.deleteChat(userChat.id);
@@ -116,7 +123,7 @@ async function chat(userId, roomId, message) {
   await aiModel.touchRoom(room.id);
   await summarizeIfLong(userId, room).catch((err) => console.error("[ai] 요약 실패", err));
 
-  return { userChat, aiChat, usage: await getUsage(userId) };
+  return { userChat, aiChat, added, usage: await getUsage(userId) };
 }
 
 // AI-007: 요약 안 된 채팅이 많아지면 최근 것만 남기고 앞부분을 요약에 합친다.
@@ -266,7 +273,11 @@ async function applyPlan(userId, body) {
   const todos = Array.isArray(body.todos) ? body.todos : [];
   check(schedules.length + todos.length > 0, "저장할 일정이나 할 일을 선택해 주세요.");
   check(schedules.length <= MAX_PLAN_SCHEDULES && todos.length <= MAX_PLAN_TODOS, "한 번에 저장할 수 있는 개수를 넘었습니다.");
+  return saveItems(userId, { schedules, todos });
+}
 
+// 일정 { title, descript?, date, time?, subject? }, 할 일 { title, descript?, dueDate?, subject? }을 검증해 한 번에 저장
+async function saveItems(userId, { schedules = [], todos = [] }) {
   const subjectIdByName = new Map((await subjectModel.findAll()).map((s) => [s.name, s.id]));
   const subjectIds = (name) => (subjectIdByName.has(name) ? [subjectIdByName.get(name)] : []);
 
@@ -292,6 +303,97 @@ async function applyPlan(userId, body) {
     }
   });
   return { schedules: scheduleRows.length, todos: todoRows.length };
+}
+
+// ----- 대화로 일정·할 일 추가 (AI 도구) -----
+// AI에게는 "추가해 달라는 요청"을 만드는 방법만 알려 준다. 실제 저장은 saveItems가
+// 로그인한 사용자(userId)로 검증한 뒤 한다. 조회·수정·삭제는 도구로 열지 않는다.
+
+const MAX_TOOL_ITEMS = 10;
+
+const subjectProp = (subjects) => ({
+  type: "STRING",
+  description: `과목. 다음 중 하나, 맞는 게 없으면 빈 문자열: ${subjects.map((s) => s.name).join(", ")}`,
+});
+
+function chatToolDeclarations(subjects) {
+  return [
+    {
+      name: "add_schedules",
+      description: "사용자의 일정(달력)에 일정을 추가한다. 특정 날짜·시각에 하는 일(공부 시간, 시험, 수행평가 등).",
+      parameters: {
+        type: "OBJECT",
+        properties: {
+          items: {
+            type: "ARRAY",
+            description: `추가할 일정 목록 (최대 ${MAX_TOOL_ITEMS}개)`,
+            items: {
+              type: "OBJECT",
+              properties: {
+                title: { type: "STRING", description: "일정 제목 (30자 이내, 예: DB 수행평가 준비)" },
+                date: { type: "STRING", description: "날짜 YYYY-MM-DD" },
+                time: { type: "STRING", description: "시작 시각 HH:mm (24시간). 시각이 없으면 빈 문자열" },
+                subject: subjectProp(subjects),
+              },
+              required: ["title", "date"],
+            },
+          },
+        },
+        required: ["items"],
+      },
+    },
+    {
+      name: "add_todos",
+      description: "사용자의 할 일(To Do) 목록에 할 일을 추가한다. 끝내야 하는 과제(문제집 풀기, 보고서 작성 등).",
+      parameters: {
+        type: "OBJECT",
+        properties: {
+          items: {
+            type: "ARRAY",
+            description: `추가할 할 일 목록 (최대 ${MAX_TOOL_ITEMS}개)`,
+            items: {
+              type: "OBJECT",
+              properties: {
+                title: { type: "STRING", description: "할 일 제목 (30자 이내)" },
+                descript: { type: "STRING", description: "세부 내용. 없으면 빈 문자열" },
+                dueDate: { type: "STRING", description: "마감 날짜 YYYY-MM-DD. 없으면 빈 문자열" },
+                subject: subjectProp(subjects),
+              },
+              required: ["title"],
+            },
+          },
+        },
+        required: ["items"],
+      },
+    },
+  ];
+}
+
+function toolItems(args) {
+  const items = Array.isArray(args.items) ? args.items : [];
+  check(items.length > 0, "추가할 항목이 없습니다.");
+  check(items.length <= MAX_TOOL_ITEMS, `한 번에 ${MAX_TOOL_ITEMS}개까지 추가할 수 있습니다.`);
+  return items.map((item) => Object.fromEntries(
+    Object.entries(item).map(([key, value]) => [key, typeof value === "string" ? value.trim() : value]),
+  ));
+}
+
+// added: 이번 대화에서 실제로 추가한 항목 (응답으로 화면에 알려 준다)
+function chatToolHandlers(userId, added) {
+  return {
+    async add_schedules(args) {
+      const schedules = toolItems(args).map((s) => ({ ...s, time: s.time || "", subject: s.subject || null }));
+      await saveItems(userId, { schedules });
+      added.schedules.push(...schedules.map(({ title, date, time }) => ({ title, date, time: time || null })));
+      return { result: `일정 ${schedules.length}개를 추가했습니다.` };
+    },
+    async add_todos(args) {
+      const todos = toolItems(args).map((t) => ({ ...t, dueDate: t.dueDate || null, subject: t.subject || null }));
+      await saveItems(userId, { todos });
+      added.todos.push(...todos.map(({ title, dueDate }) => ({ title, dueDate })));
+      return { result: `할 일 ${todos.length}개를 추가했습니다.` };
+    },
+  };
 }
 
 module.exports = { getUsage, findRoomOrThrow, chat, createPlan, regeneratePlan, applyPlan };
