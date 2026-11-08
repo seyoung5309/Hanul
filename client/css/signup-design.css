@@ -101,3 +101,13 @@ body {
     font-size: 22px;
     font-weight: 500;
 }
+
+/* 서버·입력 확인 안내 (디자인에는 없음, 필요할 때만 보임) */
+.form-error {
+    font-size: 18px;
+    color: #cf5353;
+}
+
+.form-error:empty {
+    display: none;
+}

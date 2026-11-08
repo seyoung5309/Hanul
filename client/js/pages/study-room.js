@@ -80,6 +80,7 @@
     const [me, rooms] = await Promise.all([api("GET", "/users/me"), api("GET", "/rooms")]);
     myId = me.id;
     fillProfileCard(me);
+    Hanul.fillProfileStats().catch((err) => console.error(err));
 
     const customRooms = rooms.filter((room) => room.type === "custom");
     // 자주 방문한 방: 내가 공부한 시간이 많은 순

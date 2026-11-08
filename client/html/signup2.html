@@ -35,8 +35,8 @@
         <div class="input-group">
             <label>성별</label>
             <div class="gender-group">
-                <button type="button" class="gender-btn" onclick="btnClick(this)">남성</button>
-                <button type="button" class="gender-btn" onclick="btnClick(this)">여성</button>
+                <button type="button" class="gender-btn" data-gender="male" onclick="btnClick(this)">남성</button>
+                <button type="button" class="gender-btn" data-gender="female" onclick="btnClick(this)">여성</button>
             </div>
         </div>
 
@@ -52,6 +52,11 @@
             </div>
         </div>
 
+        <label class="agree">
+            <input type="checkbox" id="agree-terms">
+            개인정보 수집·이용에 동의합니다. (필수)
+        </label>
+        <p class="form-error" role="alert"></p>
         <button type="submit" class="signup-btn">회원 가입</button>
     </form>
 
@@ -61,35 +66,88 @@
     </div>
 </div>
 <script>
+    // UD-001 2단계: 1단계 이메일·비밀번호와 함께 가입 → 메인으로
+    const step1 = JSON.parse(sessionStorage.getItem('signup') || 'null');
+    if (!step1) location.replace('signup.html');
+
+    const signup2Area = document.getElementById('signup2Area');
+    const errorText = signup2Area.querySelector('.form-error');
+    let checkedId = null; // 중복 확인을 통과한 아이디
+
     function btnClick(click_button) {
         const button = document.querySelectorAll('.gender-btn');
         button.forEach(btn => btn.classList.remove('active'));
         click_button.classList.add('active');
     }
 
-        const signup2Area = document.getElementById('signup2Area');
-        signup2Area.addEventListener('submit', async function(e) {
+    // UD-002 아이디 중복 확인
+    document.querySelector('.check-btn').addEventListener('click', async function() {
+        const idValue = document.getElementById('userid').value.trim();
+        errorText.textContent = '';
+        if (!/^[A-Za-z0-9_]{4,16}$/.test(idValue)) {
+            errorText.textContent = '아이디는 영문, 숫자, _ 조합 4~16자로 입력해 주세요.';
+            return;
+        }
+        const res = await fetch('/api/users/check?identifier=' + encodeURIComponent(idValue));
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.identifierAvailable) {
+            checkedId = idValue;
+            errorText.textContent = '';
+            this.textContent = '확인 완료';
+        } else {
+            checkedId = null;
+            errorText.textContent = data?.message ?? '이미 사용 중인 아이디입니다.';
+        }
+    });
+    document.getElementById('userid').addEventListener('input', function() {
+        checkedId = null;
+        document.querySelector('.check-btn').textContent = '중복 확인';
+    });
+
+    signup2Area.addEventListener('submit', async function(e) {
         e.preventDefault()
 
-        const nameValue = document.getElementById('username').value;
-        const idValue = document.getElementById('userid').value;
-        const enrollValue = document.getElementById('enroll-year').value;
-        const studentValue = document.getElementById('student-id').value;
+        const nameValue = document.getElementById('username').value.trim();
+        const idValue = document.getElementById('userid').value.trim();
+        const enrollValue = document.getElementById('enroll-year').value.trim();
+        const studentValue = document.getElementById('student-id').value.trim();
+        const genderValue = document.querySelector('.gender-btn.active')?.dataset.gender ?? null;
+
+        errorText.textContent = '';
+        if (idValue !== checkedId) {
+            errorText.textContent = '아이디 중복 확인을 해 주세요.';
+            return;
+        }
+        if (!document.getElementById('agree-terms').checked) {
+            errorText.textContent = '개인정보 수집·이용에 동의해 주세요.';
+            return;
+        }
 
         const giving = {
-        username: nameValue,
-        userid: idValue,
-        enroll: enrollValue,
-        student: studentValue,
-    };
+            email: step1.email,
+            password: step1.password,
+            name: nameValue,
+            identifier: idValue,
+            gender: genderValue,
+            admissionYear: enrollValue,
+            studentNumber: studentValue,
+            agreeTerms: true,
+        };
 
-        await fetch('/api/submit', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json'
-    },
-        body: JSON.stringify(giving)
-    });
+        const res = await fetch('/api/users/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(giving)
+        });
+        if (res.ok) {
+            sessionStorage.removeItem('signup');
+            location.href = 'main.html';
+            return;
+        }
+        const data = await res.json().catch(() => null);
+        errorText.textContent = data?.message ?? '회원가입에 실패했습니다.';
     });
 </script>
 </body>

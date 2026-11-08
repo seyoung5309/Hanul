@@ -345,9 +345,37 @@
 
   // ----- 시작 -----
 
+  // ----- 주간 랭킹 (ST-005): 1~7위 막대 -----
+  const RANKING_BARS = 7;
+
+  function rankingBar(item, index) {
+    const bar = el("div", index < 3 ? `bar bar--${index + 1}` : "bar");
+    const avatar = el("div", "bar__avatar");
+    if (item.img) avatar.style.background = `center / cover url("${item.img}")`;
+    const user = el("div", "bar__user");
+    user.append(
+      avatar,
+      el("p", "bar__id", item.studentNumber ?? ""),
+      el("p", "bar__name", item.name),
+      el("p", "bar__time", formatHMS(item.seconds)),
+    );
+    bar.append(el("p", "bar__rank", item.rank), user);
+    return bar;
+  }
+
+  async function loadRanking() {
+    const bars = $(".ranking__bars");
+    const ranking = await api("GET", `/study/ranking?scope=student&period=week&limit=${RANKING_BARS}`);
+    const message = ranking.hidden ? "랭킹 보기를 꺼 두었습니다." : "이번 주 공부 기록이 아직 없습니다.";
+    if (ranking.items.length === 0) bars.replaceChildren(el("p", "label", message));
+    else bars.replaceChildren(...ranking.items.map(rankingBar));
+  }
+
   async function init() {
     const [me, rooms] = await Promise.all([api("GET", "/users/me"), api("GET", "/rooms")]);
     fillProfileCard(me);
+    Hanul.fillProfileStats().catch((err) => console.error(err));
+    loadRanking().catch((err) => console.error(err));
     renderJoinedRooms(rooms.filter((room) => room.type === "custom").slice(0, MAX_JOINED));
     Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
     connectCalendar();

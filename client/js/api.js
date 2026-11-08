@@ -59,6 +59,22 @@ const Hanul = (() => {
     });
   }
 
+  // 프로필 카드 통계: 총 공부 시간, 가장 많이 공부한 과목 3개 (ST-004, ST-006)
+  const MAX_TOP_SUBJECTS = 3;
+  async function fillProfileStats() {
+    const card = document.querySelector(".card.profile");
+    if (!card) return;
+
+    const [summary, stats] = await Promise.all([api("GET", "/study/summary"), api("GET", "/study/stats")]);
+    const [h, m, s] = formatHMS(summary.total).split(":");
+    card.querySelector(".profile__time").textContent = `${h}시간 ${m}분 ${s}초`;
+
+    const tags = card.querySelector(".tags");
+    const top = stats.subjects.slice(0, MAX_TOP_SUBJECTS);
+    tags.replaceChildren(...top.map((subject) => el("span", "tag", subject.name)));
+    if (top.length === 0) tags.replaceChildren(el("p", "label", "아직 공부 기록이 없습니다."));
+  }
+
   // 프로필 사진 업로드: 서버에서 서명을 받아 Cloudinary에 바로 올린 뒤, 주소를 서버에 저장한다.
   // 사용: <input type="file" accept="image/*"> 의 change에서 await Hanul.uploadProfileImg(input.files[0])
   const MAX_IMG_MB = 5;
@@ -79,5 +95,5 @@ const Hanul = (() => {
     return data.secure_url;
   }
 
-  return { api, formatHMS, el, roomLink, fillProfileCard, uploadProfileImg };
+  return { api, formatHMS, el, roomLink, fillProfileCard, fillProfileStats, uploadProfileImg };
 })();

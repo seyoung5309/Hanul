@@ -15,10 +15,10 @@
         <h1 class="title">랭킹</h1>
 
         <div class="btns">
-            <button class="btn on" onclick="">일간랭킹</button>
-            <button class="btn" onclick="">월간랭킹</button>
-            <button class="btn" onclick="">주간랭킹</button>
-            <button class="btn" onclick="">종합 랭킹</button>
+            <button class="btn on" data-period="day">일간랭킹</button>
+            <button class="btn" data-period="month">월간랭킹</button>
+            <button class="btn" data-period="week">주간랭킹</button>
+            <button class="btn" data-period="all">종합 랭킹</button>
         </div>
 
         <div class="my-box">
@@ -59,80 +59,79 @@
     <!-- Component 불러오기-->
     <script src="../js/include.js"></script>
 
+    <!-- API 연동 -->
+    <script src="../js/api.js"></script>
     <script>
-        const url = "https://hanul-production.up.railway.app"; // 백엔드 주소 넣을 곳
+        // ST-005: 학생 랭킹(1~10위)과 내 순위, 우리 반 순위
+        const { api, formatHMS, el } = Hanul;
 
-        function setPage(data) {
-            if (ims) {
-                document.getElementById("txt1").textContent = "";
-                document.getElementById("t1").textContent = "";
-                document.getElementById("r1").textContent = "";
+        // 프로필 원: 사진이 있으면 사진으로
+        function circle(img) {
+            const node = el("div", "circle");
+            if (img) node.style.background = `center / cover url("${img}")`;
+            return node;
+        }
 
-                document.getElementById("txt2").textContent = "";
-                document.getElementById("t2").textContent = "";
-                document.getElementById("r2").textContent = "";
-            }
+        function setMyBox(n, label, me) {
+            document.getElementById("txt" + n).textContent = label;
+            document.getElementById("t" + n).textContent = formatHMS(me?.seconds ?? 0);
+            document.getElementById("r" + n).textContent = me?.rank ? `${me.rank}위` : "-";
+        }
 
-            const arr = "";
-            const c1 = document.getElementById("top1");
-            const c2 = document.getElementById("top2");
-            const c3 = document.getElementById("top3");
+        function setTopCard(card, rank, item) {
+            card.replaceChildren(el("span", "num", rank), circle(item?.img),
+                el("span", "s-id", item?.studentNumber ?? ""),
+                el("span", "s-name", item?.name ?? "-"),
+                el("span", "s-time", item ? formatHMS(item.seconds) : ""));
+        }
 
-            c1.innerHTML = `
-                <span class="num">1</span>
-                <div class="circle"></div>
-                <span class="s-id">${arr[0]}</span>
-                <span class="s-name">${arr[0]}</span>
-                <span class="s-time">${arr[0]}</span>
-            `;
+        function listItem(item) {
+            const info = el("div", "info");
+            info.append(el("span", "id-txt", item.studentNumber ?? ""), el("span", "name-txt", item.name));
+            const left = el("div", "left");
+            left.append(el("span", "n", item.rank), circle(item.img), info);
+            const row = el("div", "item");
+            row.append(left, el("span", "time-txt", formatHMS(item.seconds)));
+            return row;
+        }
 
-            c2.innerHTML = `
-                <span class="num">2</span>
-                <div class="circle"></div>
-                <span class="s-id">${arr[1]}</span>
-                <span class="s-name">${arr[1]}</span>
-                <span class="s-time">${arr[1]}</span>
-            `;
+        function setPage(students, classes) {
+            setMyBox(1, "나의 공부 시간", students.me);
+            setMyBox(2, "우리 반 공부 시간", classes.me);
 
-            c3.innerHTML = `
-                <span class="num">3</span>
-                <div class="circle"></div>
-                <span class="s-id">${arr[2]}</span>
-                <span class="s-name">${arr[2]}</span>
-                <span class="s-time">${arr[2]}</span>
-            `;
+            const arr = students.items;
+            setTopCard(document.getElementById("top1"), 1, arr[0]);
+            setTopCard(document.getElementById("top2"), 2, arr[1]);
+            setTopCard(document.getElementById("top3"), 3, arr[2]);
+            document.querySelector(".top-box").hidden = arr.length === 0;
 
             const list = document.getElementById("list");
-            list.innerHTML = "";
-
-            for (let i = 3; i < arr.length; i++) {
-                list.innerHTML += `
-                    <div class="item">
-                        <div class="left">
-                            <span class="n">${i + 1}</span>
-                            <div class="circle"></div>
-                            <div class="info">
-                                <span class="id-txt">${arr[i]}</span>
-                                <span class="name-txt">${arr[i]}</span>
-                            </div>
-                        </div>
-                        <span class="time-txt">${arr[i]}</span>
-                    </div>
-                `;
+            list.replaceChildren(...arr.slice(3).map(listItem));
+            if (arr.length === 0) {
+                list.append(el("p", "txt", students.hidden ? "랭킹 보기를 꺼 두었습니다." : "아직 공부 기록이 없습니다."));
             }
         }
 
-        async function loadData() {
+        async function loadData(period) {
             try {
-                const res = await fetch(url);
-                const data = await res.json();
-                setPage(data);
+                const [students, classes] = await Promise.all([
+                    api("GET", `/study/ranking?scope=student&period=${period}&limit=10`),
+                    api("GET", `/study/ranking?scope=class&period=${period}&limit=10`),
+                ]);
+                setPage(students, classes);
             } catch (e) {
                 console.log(e);
             }
         }
 
-        loadData();
+        document.querySelectorAll(".btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".btn").forEach((b) => b.classList.toggle("on", b === btn));
+                loadData(btn.dataset.period);
+            });
+        });
+
+        loadData("day");
     </script>
 </body>
 

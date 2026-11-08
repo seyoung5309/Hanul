@@ -24,6 +24,7 @@
             <label for="password">비밀번호</label>
             <input type="password" id="password" name="password" placeholder="비밀번호를 입력해 주세요.">
         </div>
+        <p class="form-error" role="alert"></p>
         <button type="submit" class="login-button">로그인</button>
     </form>
 
@@ -42,7 +43,10 @@
     </div> -->
 </div>
     <script>
+        // UD-004: 로그인 → 메인으로
         const loginArea = document.getElementById('loginArea');
+        const errorText = loginArea.querySelector('.form-error');
+
         loginArea.addEventListener('submit', async function(e) {
             e.preventDefault()
 
@@ -54,13 +58,20 @@
                 password: passwordValue,
             };
 
-            await fetch('/api/submit', {
+            errorText.textContent = '';
+            const res = await fetch('/api/users/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(giving)
             });
+            if (res.ok) {
+                location.href = 'main.html';
+                return;
+            }
+            const data = await res.json().catch(() => null);
+            errorText.textContent = data?.message ?? '로그인에 실패했습니다.';
         });
     </script>
 </body>

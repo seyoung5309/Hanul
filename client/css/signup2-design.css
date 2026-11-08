@@ -180,3 +180,30 @@ body {
     font-size: 22px;
     font-weight: 500;
 }
+
+/* 서버·입력 확인 안내 (디자인에는 없음, 필요할 때만 보임) */
+.form-error {
+    font-size: 18px;
+    color: #cf5353;
+}
+
+.form-error:empty {
+    display: none;
+}
+
+/* 개인정보 수집·이용 동의 (서버 필수 항목, 디자인에는 없음) */
+.agree {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: -8px; /* 학번 칸과 24px */
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+}
+
+.agree input {
+    width: 20px;
+    height: 20px;
+    accent-color: #1a68d7;
+}

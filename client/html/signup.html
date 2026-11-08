@@ -28,6 +28,7 @@
             <label for="password">비밀번호 재입력</label>
             <input type="password" id="re_password" name="re_password" placeholder="비밀번호를 입력해 주세요.">
         </div>
+        <p class="form-error" role="alert"></p>
         <button type="submit" class="next-button">다음으로</button>
     </form>
 
@@ -37,27 +38,41 @@
     </div>
 </div>
 <script>
+    // UD-001 1단계: 이메일·비밀번호를 확인하고 2단계로 넘긴다. (가입은 2단계에서)
     const signupArea = document.getElementById('signupArea');
+    const errorText = signupArea.querySelector('.form-error');
+
     signupArea.addEventListener('submit', async function(e) {
         e.preventDefault()
 
-        const emailValue = document.getElementById('email').value;
+        const emailValue = document.getElementById('email').value.trim();
         const passwordValue = document.getElementById('password').value;
         const rePasswordValue = document.getElementById('re_password').value;
 
-        const giving = {
-            email: emailValue,
-            password: passwordValue,
-            rePassword: rePasswordValue,
-        };
+        errorText.textContent = '';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue)) {
+            errorText.textContent = '이메일 형식을 확인해 주세요.';
+            return;
+        }
+        if (passwordValue.length < 8 || passwordValue.length > 64) {
+            errorText.textContent = '비밀번호는 8~64자로 입력해 주세요.';
+            return;
+        }
+        if (passwordValue !== rePasswordValue) {
+            errorText.textContent = '비밀번호가 서로 다릅니다.';
+            return;
+        }
 
-        await fetch('/api/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(giving)
-        });
+        const res = await fetch('/api/users/check?email=' + encodeURIComponent(emailValue));
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.emailAvailable) {
+            errorText.textContent = data?.message ?? '이미 사용 중인 이메일입니다.';
+            return;
+        }
+
+        // 2단계에서 함께 보낸다. (탭을 닫으면 사라짐)
+        sessionStorage.setItem('signup', JSON.stringify({ email: emailValue, password: passwordValue }));
+        location.href = 'signup2.html';
     });
 </script>
 </body>
