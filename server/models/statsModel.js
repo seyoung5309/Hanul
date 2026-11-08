@@ -85,6 +85,47 @@ async function findClassRanking(period, year) {
   return rows.map((row) => ({ ...row, seconds: Number(row.seconds) }));
 }
 
+// 프로필: 지금까지 가장 높았던 학생 랭킹 순위 { day, week, month, all } (기록이 없으면 null)
+//   일간·주간·월간은 지난 날·주·달마다 순위를 매겨 가장 높은 것,
+//   종합은 매일 그날까지의 누적 시간으로 순위를 매겨 가장 높은 것
+const BUCKET = {
+  day: "d.date",
+  week: "YEARWEEK(d.date, 3)", // 월요일 시작
+  month: "DATE_FORMAT(d.date, '%Y-%m')",
+};
+
+async function findBestRanks(userId) {
+  const best = {};
+  for (const [period, bucket] of Object.entries(BUCKET)) {
+    const [[row]] = await pool.query(
+      `SELECT MIN(r.rnk) AS best FROM (
+         SELECT t.user_id, RANK() OVER (PARTITION BY t.bucket ORDER BY t.seconds DESC) AS rnk
+         FROM (SELECT d.user_id, ${bucket} AS bucket, SUM(d.seconds) AS seconds
+               FROM study_daily d JOIN user u ON u.id = d.user_id AND u.hide_ranking = FALSE
+               GROUP BY d.user_id, bucket) t
+         WHERE t.seconds > 0
+       ) r WHERE r.user_id = ?`,
+      [userId],
+    );
+    best[period] = row.best ?? null;
+  }
+
+  const [[all]] = await pool.query(
+    `SELECT MIN(r.rnk) AS best FROM (
+       SELECT c.user_id, RANK() OVER (PARTITION BY c.date ORDER BY c.seconds DESC) AS rnk
+       FROM (SELECT days.date, d.user_id, SUM(d.seconds) AS seconds
+             FROM (SELECT DISTINCT date FROM study_daily) days
+             JOIN study_daily d ON d.date <= days.date
+             JOIN user u ON u.id = d.user_id AND u.hide_ranking = FALSE
+             GROUP BY days.date, d.user_id) c
+       WHERE c.seconds > 0
+     ) r WHERE r.user_id = ?`,
+    [userId],
+  );
+  best.all = all.best ?? null;
+  return best;
+}
+
 // 랭킹에서 빠졌어도 내 기록은 보여 주기 위한 내 공부 시간
 async function findUserSeconds(userId, period) {
   const [[row]] = await pool.query(
@@ -110,6 +151,7 @@ module.exports = {
   findSubjectTotals,
   findStudentRanking,
   findClassRanking,
+  findBestRanks,
   findUserSeconds,
   findClassId,
 };

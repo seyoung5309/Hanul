@@ -12,35 +12,160 @@
 
 <body data-page="settings">
     <main class="settings">
-        <ul class="settings__menu">
-            <li class="settings__menu-item settings__menu-item--active">마이페이지</li>
-        </ul>
+        <div class="settings__menu" role="navigation" aria-label="설정 메뉴">
+            <a href="#mypage" class="settings__menu-item settings__menu-item--active">마이페이지</a>
+            <a href="#security" class="settings__menu-item">개인 정보 및 보안</a>
+            <a href="#notification" class="settings__menu-item">알림</a>
+            <a href="#account" class="settings__menu-item">계정</a>
+        </div>
 
-        <section class="settings__card">
-            <h1 class="settings__title">마이페이지</h1>
+        <div class="settings__card">
+            <!-- ===== 마이페이지 ===== -->
+            <section id="mypage">
+                <h1 class="settings__title">마이페이지</h1>
 
-            <h2 class="settings__label">프로필</h2>
-            <div class="profile-edit">
-                <!-- 누르면 사진 고르기 → Cloudinary 업로드 (js/pages/settings.js) -->
-                <label class="avatar-upload" title="프로필 사진 바꾸기">
-                    <input type="file" class="avatar-upload__input" accept="image/jpeg,image/png,image/webp">
-                    <img class="avatar-upload__icon" src="../assets/camera-plus.svg" alt="프로필 사진 바꾸기">
-                </label>
+                <h2 class="settings__label">프로필</h2>
+                <div class="profile-edit">
+                    <!-- 누르면 사진 고르기 → Cloudinary 업로드 -->
+                    <label class="avatar-upload" title="프로필 사진 바꾸기">
+                        <input type="file" class="avatar-upload__input" accept="image/jpeg,image/png,image/webp">
+                        <img class="avatar-upload__icon" src="../assets/camera-plus.svg" alt="프로필 사진 바꾸기">
+                    </label>
 
-                <div class="profile-edit__fields">
-                    <div class="profile-edit__field">
-                        <p class="settings__label">이름</p>
-                        <p class="profile-edit__value profile-edit__name"></p>
+                    <div class="profile-edit__fields">
+                        <label class="profile-edit__field">
+                            <span class="settings__label">이름</span>
+                            <span class="edit-box">
+                                <input class="edit-box__input" name="name" maxlength="16" readonly>
+                                <button type="button" class="edit-box__btn" aria-label="이름·아이디 수정">
+                                    <img src="../assets/pencil.svg" alt="">
+                                </button>
+                            </span>
+                        </label>
+                        <label class="profile-edit__field">
+                            <span class="settings__label">아이디</span>
+                            <span class="edit-box">
+                                <input class="edit-box__input" name="identifier" maxlength="16" readonly>
+                                <button type="button" class="edit-box__btn" aria-label="이름·아이디 수정">
+                                    <img src="../assets/pencil.svg" alt="">
+                                </button>
+                            </span>
+                        </label>
                     </div>
-                    <div class="profile-edit__field">
-                        <p class="settings__label">아이디</p>
-                        <p class="profile-edit__value profile-edit__identifier"></p>
+                    <p class="settings__note profile-edit__note">이름과 아이디는 14일에 한 번 변경할 수 있습니다.</p>
+                </div>
+                <p class="settings__msg" data-msg="profile" role="alert"></p>
+            </section>
+
+            <!-- ===== 개인 정보 및 보안 ===== -->
+            <section id="security" class="settings__section">
+                <h1 class="settings__title">개인 정보 및 보안</h1>
+
+                <h2 class="settings__label">학생 정보</h2>
+                <div class="student-info">
+                    <div class="student-info__group">
+                        <label class="info-field">
+                            <span>입학 연도</span>
+                            <input class="info-field__box" name="admissionYear" inputmode="numeric" maxlength="4">
+                        </label>
+                        <label class="info-field">
+                            <span>학번</span>
+                            <input class="info-field__box" name="studentNumber" inputmode="numeric" maxlength="4">
+                        </label>
+                    </div>
+                    <div class="student-info__group">
+                        <div class="info-field">
+                            <span>학년</span>
+                            <output class="info-field__box" name="grade"></output>
+                        </div>
+                        <div class="info-field">
+                            <span>반</span>
+                            <output class="info-field__box" name="classNo"></output>
+                        </div>
+                        <div class="info-field">
+                            <span>번호</span>
+                            <output class="info-field__box" name="number"></output>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <p class="settings__error" role="alert"></p>
-        </section>
+                <p class="settings__note student-info__note">입학 연도와 학번을 입력하면 자동으로 학년/반/번호가 입력됩니다.</p>
+                <p class="settings__msg" data-msg="student" role="alert"></p>
+
+                <h2 class="settings__label settings__label--email">이메일</h2>
+                <p class="edit-box edit-box--wide edit-box__email"></p>
+
+                <h2 class="settings__label settings__label--password">비밀번호 재설정</h2>
+                <form class="password-form">
+                    <label class="password-form__field">
+                        <span>기존 비밀번호</span>
+                        <input type="password" class="edit-box edit-box--wide" name="currentPassword"
+                            placeholder="기존 비밀번호를 입력해 주세요." autocomplete="current-password">
+                    </label>
+                    <label class="password-form__field">
+                        <span>새 비밀번호 입력</span>
+                        <input type="password" class="edit-box edit-box--wide" name="newPassword"
+                            placeholder="새 비밀번호를 입력해 주세요." autocomplete="new-password">
+                    </label>
+                    <label class="password-form__field">
+                        <span>새 비밀번호 재입력</span>
+                        <input type="password" class="edit-box edit-box--wide" name="newPasswordCheck"
+                            placeholder="새 비밀번호를 다시 입력해 주세요." autocomplete="new-password">
+                    </label>
+                    <p class="settings__note password-form__note">비밀 번호는 14일에 한 번만 변경할 수 있습니다.</p>
+                    <button type="submit" class="password-form__submit">확인</button>
+                    <p class="settings__msg" data-msg="password" role="alert"></p>
+                </form>
+            </section>
+
+            <!-- ===== 알림 설정 ===== -->
+            <section id="notification" class="settings__section">
+                <h1 class="settings__title">알림 설정</h1>
+                <ul class="toggle-list">
+                    <li class="toggle-list__item">
+                        <span>공지사항 알림</span>
+                        <button type="button" class="toggle" role="switch" aria-checked="false" data-type="notice"
+                            aria-label="공지사항 알림"></button>
+                    </li>
+                    <li class="toggle-list__item">
+                        <span>일정 및 To Do 알림</span>
+                        <button type="button" class="toggle" role="switch" aria-checked="false" data-type="schedule"
+                            aria-label="일정 및 To Do 알림"></button>
+                    </li>
+                    <li class="toggle-list__item">
+                        <span>스터디룸 메시지 알림</span>
+                        <button type="button" class="toggle" role="switch" aria-checked="false" data-type="study_room"
+                            aria-label="스터디룸 메시지 알림"></button>
+                    </li>
+                </ul>
+                <p class="settings__msg" data-msg="notification" role="alert"></p>
+            </section>
+
+            <!-- ===== 계정 ===== -->
+            <section id="account" class="settings__section">
+                <h1 class="settings__title">계정</h1>
+                <div class="account-actions">
+                    <button type="button" class="account-actions__logout">로그아웃</button>
+                    <button type="button" class="account-actions__withdraw">회원 탈퇴</button>
+                </div>
+            </section>
+        </div>
     </main>
+
+    <!-- 회원 탈퇴 확인 (디자인에는 없음) -->
+    <dialog class="withdraw-dialog">
+        <form class="withdraw-dialog__form" method="dialog">
+            <h2 class="withdraw-dialog__title">회원 탈퇴</h2>
+            <p class="withdraw-dialog__text">탈퇴하면 공부 기록, 일정, 할 일, 채팅이 모두 삭제되고 되돌릴 수 없습니다.
+                계속하려면 비밀번호를 입력해 주세요.</p>
+            <input type="password" class="edit-box edit-box--wide" name="password" placeholder="비밀번호"
+                autocomplete="current-password">
+            <p class="settings__msg" data-msg="withdraw" role="alert"></p>
+            <div class="withdraw-dialog__buttons">
+                <button type="button" class="withdraw-dialog__cancel">취소</button>
+                <button type="submit" class="withdraw-dialog__submit">탈퇴하기</button>
+            </div>
+        </form>
+    </dialog>
 
     <!-- navigate 불러오기 -->
     <div data-include="../component/navigate.html"></div>

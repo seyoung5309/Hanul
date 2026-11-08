@@ -16,6 +16,7 @@ CREATE TABLE auth (
   id            INT          PRIMARY KEY AUTO_INCREMENT,
   email         VARCHAR(255) NOT NULL UNIQUE,
   password      VARCHAR(255) NOT NULL,                -- bcrypt 해시
+  password_changed_at DATETIME NULL,                  -- 설정 화면에서 마지막으로 바꾼 시각 (14일 제한)
   role          ENUM('user','admin') NOT NULL DEFAULT 'user', -- 공지 발송 권한
   terms_version VARCHAR(16)  NOT NULL,                -- 동의한 개인정보 처리방침 버전
   agreed_at     DATETIME     NOT NULL,                -- 개인정보 수집 동의 시각
@@ -48,6 +49,7 @@ CREATE TABLE user (
   time_visibility   ENUM('all','class','room','private') NOT NULL DEFAULT 'all', -- 공부 시간
   hide_ranking      BOOLEAN     NOT NULL DEFAULT FALSE, -- 내 랭킹 노출 끄기
   hide_ranking_view BOOLEAN     NOT NULL DEFAULT FALSE, -- 랭킹 화면 열람 끄기
+  account_changed_at DATETIME   NULL,                 -- 이름·아이디를 마지막으로 바꾼 시각 (14일 제한)
   FOREIGN KEY (id) REFERENCES auth(id)
     ON DELETE CASCADE ON UPDATE CASCADE
 );

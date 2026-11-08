@@ -14,7 +14,7 @@ async function findAuthByEmail(email) {
 
 async function findAuthById(id) {
   const [rows] = await pool.query(
-    "SELECT id, email, password, role FROM auth WHERE id = ?",
+    "SELECT id, email, password, role, password_changed_at AS passwordChangedAt FROM auth WHERE id = ?",
     [id],
   );
   return rows[0];
@@ -42,11 +42,12 @@ async function createAuth(conn, { email, passwordHash, termsVersion }) {
   return result.insertId;
 }
 
-async function updatePassword(conn, authId, passwordHash) {
-  await conn.query("UPDATE auth SET password = ? WHERE id = ?", [
-    passwordHash,
-    authId,
-  ]);
+// recordChange: 설정 화면에서 바꾸면 시각을 남긴다 (14일 제한). 메일로 재설정할 때는 남기지 않는다.
+async function updatePassword(conn, authId, passwordHash, { recordChange = false } = {}) {
+  await conn.query(
+    `UPDATE auth SET password = ?${recordChange ? ", password_changed_at = NOW()" : ""} WHERE id = ?`,
+    [passwordHash, authId],
+  );
 }
 
 // user, study_user, chat(작성자 NULL) 등은 FK로 함께 정리.
@@ -72,7 +73,8 @@ async function findProfile(id) {
     `SELECT u.id, a.email, a.role, u.identifier, u.name, u.birth, u.gender, u.img, u.comment,
             u.start_year AS startYear,
             u.status_visibility AS statusVisibility, u.time_visibility AS timeVisibility,
-            u.hide_ranking AS hideRanking, u.hide_ranking_view AS hideRankingView
+            u.hide_ranking AS hideRanking, u.hide_ranking_view AS hideRankingView,
+            u.account_changed_at AS accountChangedAt, a.password_changed_at AS passwordChangedAt
      FROM user u JOIN auth a ON a.id = u.id
      WHERE u.id = ?`,
     [id],

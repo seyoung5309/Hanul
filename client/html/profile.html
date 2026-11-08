@@ -1,16 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한울</title>
+    <title>한울 - 프로필</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/profile.css">
 </head>
 
-<body>
+<body data-page="profile">
+    <main class="profile-page">
+        <section class="profile-head">
+            <div class="profile-head__avatar"></div>
+            <div class="profile-head__info">
+                <p class="profile-head__name"></p>
+                <p class="profile-head__class"></p>
+            </div>
+        </section>
+
+        <div class="profile-body">
+            <section class="profile-group">
+                <h2 class="profile-group__title">통계</h2>
+                <div class="profile-stat">
+                    <p class="profile-stat__label">총 공부 시간</p>
+                    <p class="profile-stat__value profile-stat__time">00시간 00분 00초</p>
+                </div>
+                <div class="profile-stat">
+                    <p class="profile-stat__label">가장 많이 공부한 분야</p>
+                    <div class="tags"></div>
+                </div>
+                <div class="profile-stat">
+                    <p class="profile-stat__label">할일 기록</p>
+                    <p class="profile-stat__value profile-stat__todos"></p>
+                </div>
+            </section>
+
+            <section class="profile-group">
+                <h2 class="profile-group__title">랭킹</h2>
+                <div class="profile-rank">
+                    <p class="profile-stat__label">현재랭킹</p>
+                    <div class="profile-rank__list profile-rank__list--current"></div>
+                </div>
+                <div class="profile-rank">
+                    <p class="profile-stat__label">랭킹 최고 기록</p>
+                    <div class="profile-rank__list profile-rank__list--best"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- navigate 불러오기 -->
     <div data-include="../component/navigate.html"></div>
-    <div data-include="../component/footer.html"></div>
+
+    <!-- Component 불러오기-->
     <script src="../js/include.js"></script>
+
+    <!-- API 연동 -->
+    <script src="../js/api.js"></script>
+    <script src="../js/pages/profile.js"></script>
 </body>
 
 </html>

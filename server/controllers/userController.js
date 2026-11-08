@@ -231,6 +231,55 @@ async function updateImg(req, res) {
   res.status(204).end();
 }
 
+// 설정 화면: 이름·아이디, 비밀번호는 14일에 한 번만 바꿀 수 있다.
+const CHANGE_LIMIT_DAYS = 14;
+function checkChangeLimit(changedAt, what) {
+  if (!changedAt) return;
+  const next = new Date(new Date(changedAt).getTime() + CHANGE_LIMIT_DAYS * 24 * 60 * 60 * 1000);
+  if (next > new Date()) {
+    const day = `${next.getMonth() + 1}월 ${next.getDate()}일`;
+    throw new HttpError(409, `${what} ${CHANGE_LIMIT_DAYS}일에 한 번만 바꿀 수 있습니다. (${day}부터 가능)`);
+  }
+}
+
+// 설정: { name?, identifier? } 이름·아이디 변경
+async function updateAccount(req, res) {
+  const profile = await userModel.findProfile(req.user.id);
+  const fields = {};
+  if (req.body.name !== undefined) {
+    v.check(v.isName(req.body.name), "이름은 1~16자로 입력해 주세요.");
+    if (req.body.name.trim() !== profile.name) fields.name = req.body.name.trim();
+  }
+  if (req.body.identifier !== undefined) {
+    v.check(v.isIdentifier(req.body.identifier), "아이디는 영문, 숫자, _ 조합 4~16자로 입력해 주세요.");
+    if (req.body.identifier !== profile.identifier) fields.identifier = req.body.identifier;
+  }
+  v.check(Object.keys(fields).length > 0, "바뀐 내용이 없습니다.");
+  checkChangeLimit(profile.accountChangedAt, "이름과 아이디는");
+
+  await userModel.updateUser(req.user.id, { ...fields, account_changed_at: new Date() }).catch((err) => {
+    throw toDuplicateError(err);
+  });
+  res.status(204).end();
+}
+
+// 설정: { currentPassword, newPassword } 로그인한 상태에서 비밀번호 변경
+async function changePassword(req, res) {
+  const { currentPassword, newPassword } = req.body;
+  v.check(typeof currentPassword === "string" && currentPassword.length > 0, "기존 비밀번호를 입력해 주세요.");
+  v.check(v.isPassword(newPassword), "새 비밀번호는 8~64자로 입력해 주세요.");
+  v.check(newPassword !== currentPassword, "기존 비밀번호와 다른 비밀번호를 입력해 주세요.");
+
+  const auth = await userModel.findAuthById(req.user.id);
+  if (!auth) throw new HttpError(404, "사용자를 찾을 수 없습니다.");
+  if (!(await bcrypt.compare(currentPassword, auth.password))) throw new HttpError(400, "기존 비밀번호가 올바르지 않습니다.");
+  checkChangeLimit(auth.passwordChangedAt, "비밀번호는");
+
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await withTransaction((conn) => userModel.updatePassword(conn, auth.id, passwordHash, { recordChange: true }));
+  res.status(204).end();
+}
+
 // UD-008: 보낸 값만 바꾼다.
 async function updateVisibility(req, res) {
   const { statusVisibility, timeVisibility } = req.body;
@@ -270,8 +319,17 @@ async function updateRankingSetting(req, res) {
 // UD-010: { studentNumber } 새 학년도 반 등록 (같은 학년도에 다시 부르면 잘못 입력한 반을 고친다)
 async function changeClass(req, res) {
   const classInput = parseClassInput(req.body.studentNumber);
+  // 설정 화면에서 입학년도도 함께 고칠 수 있다. (보내지 않으면 그대로)
+  const admissionYear = req.body.admissionYear === "" ? undefined : req.body.admissionYear;
+  const schoolYear = currentSchoolYear();
+  if (admissionYear !== undefined) {
+    v.check(v.isIntBetween(Number(admissionYear), schoolYear - 6, schoolYear), "입학년도를 확인해 주세요.");
+  }
 
-  await withTransaction((conn) => enrollClass(conn, req.user.id, classInput)).catch((err) => {
+  await withTransaction(async (conn) => {
+    await enrollClass(conn, req.user.id, classInput);
+    if (admissionYear !== undefined) await userModel.updateUser(req.user.id, { start_year: Number(admissionYear) }, conn);
+  }).catch((err) => {
     throw toDuplicateError(err);
   });
   const current = await classModel.findUserClass(req.user.id, currentSchoolYear());
@@ -321,6 +379,8 @@ module.exports = {
   resetPassword,
   getMe,
   updateMe,
+  updateAccount,
+  changePassword,
   createImgUpload,
   updateImg,
   updateVisibility,

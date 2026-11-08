@@ -1,0 +1,121 @@
+/* ===== 공통 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    color: #000;
+    background: #fff;
+    min-width: 1920px;
+}
+
+/* ===== 레이아웃 (Figma: 1180px 영역, 머리 y=152, 본문 y=312) ===== */
+.profile-page {
+    width: 1180px;
+    margin: 0 auto;
+    padding: 152px 0 104px;
+}
+
+/* 사진 + 이름 */
+.profile-head {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 60px;
+}
+
+.profile-head__avatar {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #1a68d7 center / cover no-repeat;
+}
+
+.profile-head__info {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.profile-head__name {
+    font-size: 24px;
+}
+
+.profile-head__class {
+    font-size: 16px;
+    color: #444;
+}
+
+/* 통계 · 랭킹 */
+.profile-body {
+    margin-top: 40px;
+    padding-left: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+}
+
+.profile-group {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.profile-group__title {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.profile-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-stat__label {
+    font-size: 20px;
+    color: #444;
+}
+
+.profile-stat__value {
+    font-size: 24px;
+}
+
+.tags {
+    display: flex;
+    gap: 10px;
+}
+
+.tag {
+    height: 30px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #d7d8de;
+    border-radius: 15px;
+    background: #1a68d7;
+    color: #f8f9fd;
+    font-size: 16px;
+}
+
+.profile-rank {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-rank__list {
+    display: flex;
+    gap: 24px;
+    font-size: 24px;
+}
+
+.profile-rank__list--current {
+    color: #1a68d7;
+    font-weight: 600;
+}

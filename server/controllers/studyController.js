@@ -77,4 +77,19 @@ async function getRanking(req, res) {
   });
 }
 
-module.exports = { getCurrent, getSummary, getStats, getRanking };
+// 프로필: 내 학생 랭킹 순위 → { current: { day, week, month, all }, best: { ... } } (순위 없으면 null)
+async function getMyRanking(req, res) {
+  const userId = req.user.id;
+  const year = currentSchoolYear();
+  const [rankings, best] = await Promise.all([
+    Promise.all(statsModel.PERIODS.map((period) => statsModel.findStudentRanking(period, year))),
+    statsModel.findBestRanks(userId),
+  ]);
+  const current = Object.fromEntries(statsModel.PERIODS.map((period, i) => [
+    period,
+    rankings[i].find((row) => row.userId === userId)?.rank ?? null,
+  ]));
+  res.json({ current, best });
+}
+
+module.exports = { getCurrent, getSummary, getStats, getRanking, getMyRanking };

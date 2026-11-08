@@ -5,6 +5,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Pretendard', sans-serif;
     font-weight: 500;
@@ -13,11 +17,29 @@ body {
     min-width: 1920px;
 }
 
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+output {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+}
+
+button {
+    cursor: pointer;
+}
+
 ul {
     list-style: none;
 }
 
-/* ===== 레이아웃 (Figma: 메뉴 x=191, 카드 x=531 / y=68) ===== */
+/* ===== 레이아웃 (Figma: 메뉴 x=191 y=295, 카드 x=531 y=68 1280px) ===== */
 .settings {
     display: flex;
     align-items: flex-start;
@@ -25,6 +47,8 @@ ul {
 }
 
 .settings__menu {
+    position: sticky;
+    top: 295px;
     width: 218px;
     margin: 227px 122px 0 0;
     display: flex;
@@ -44,6 +68,10 @@ ul {
     border-radius: 30px;
 }
 
+.settings__section {
+    margin-top: 100px;
+}
+
 .settings__title {
     font-size: 36px;
     font-weight: 500;
@@ -55,7 +83,75 @@ ul {
     font-weight: 500;
 }
 
-/* ===== 프로필 ===== */
+.settings__note {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* 서버·입력 확인 안내 (디자인에는 없음, 필요할 때만 보임) */
+.settings__msg {
+    margin-top: 16px;
+    font-size: 16px;
+    color: #cf5353;
+}
+
+.settings__msg--ok {
+    color: #1a68d7;
+}
+
+.settings__msg:empty {
+    display: none;
+}
+
+/* 회색 칸 (이름·아이디·이메일·비밀번호) */
+.edit-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 300px;
+    height: 60px;
+    padding: 0 18px;
+    font-size: 24px;
+    background: #f8f9fd;
+    border: 2px solid #d7d8de;
+    border-radius: 15px;
+}
+
+.edit-box--wide {
+    width: 600px;
+}
+
+input.edit-box::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+input.edit-box:focus,
+.edit-box:focus-within {
+    outline: none;
+    border-color: #1a68d7;
+}
+
+.edit-box__input {
+    width: 210px;
+    outline: none;
+}
+
+/* Figma: 칸 안 x=244, y=12, 36px */
+.edit-box__btn {
+    position: absolute;
+    left: 242px;
+    top: 10px;
+    width: 36px;
+    height: 36px;
+}
+
+.edit-box__btn img {
+    display: block;
+    width: 36px;
+    height: 36px;
+}
+
+/* ===== 마이페이지 > 프로필 ===== */
 .profile-edit {
     display: flex;
     gap: 50px;
@@ -117,23 +213,213 @@ ul {
     gap: 5px;
 }
 
-.profile-edit__value {
-    width: 300px;
-    height: 60px;
-    padding: 13px 18px;
+.profile-edit__note {
+    align-self: flex-end;
+    margin-left: -30px; /* 아이디 칸과 20px */
+}
+
+/* ===== 개인 정보 및 보안 ===== */
+.student-info {
+    display: flex;
+    gap: 200px; /* Figma: 왼쪽 묶음 x=50(340px), 오른쪽 묶음 x=590 */
+    margin-top: 20px;
+}
+
+.student-info__group {
+    display: flex;
+    gap: 20px;
+}
+
+.info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     font-size: 24px;
+    font-weight: 400;
+}
+
+.info-field__box {
+    display: block;
+    width: 160px;
+    height: 50px;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 46px;
+    text-align: center;
     background: #f8f9fd;
-    border: 2px solid #d7d8de;
+    border: 2px solid #ebecf0;
     border-radius: 15px;
 }
 
-/* 서버·업로드 오류 안내 (디자인에는 없음, 필요할 때만 보임) */
-.settings__error {
-    margin-top: 16px;
-    font-size: 16px;
-    color: #cf5353;
+input.info-field__box:focus {
+    outline: none;
+    border-color: #1a68d7;
 }
 
-.settings__error:empty {
-    display: none;
+.student-info__note {
+    margin-top: 20px;
+}
+
+.settings__label--email {
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+
+.settings__label--password {
+    margin-top: 89px;
+    margin-bottom: 20px;
+}
+
+.password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.password-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 18px;
+}
+
+.password-form__note {
+    margin-top: 10px;
+}
+
+.password-form__submit {
+    width: 100px;
+    height: 60px;
+    margin-top: 10px;
+    font-size: 24px;
+    color: #f8f9fd;
+    background: #1a68d7;
+    border: 2px solid #f8f9fd;
+    border-radius: 15px;
+}
+
+.password-form .settings__msg {
+    margin-top: 0;
+}
+
+/* ===== 알림 설정 ===== */
+.toggle-list {
+    margin-top: -30px; /* 제목과 20px */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toggle-list__item {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+}
+
+.toggle-list__item span {
+    width: 249px; /* Figma: 스위치 x=299 */
+}
+
+.toggle {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 100px;
+    background: #ebecf0;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+    transition: background .2s, border-color .2s;
+}
+
+.toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    transition: left .2s, background .2s;
+}
+
+.toggle[aria-checked="true"] {
+    background: rgba(26, 104, 215, 0.1);
+    border-color: rgba(26, 104, 215, 0.5);
+}
+
+.toggle[aria-checked="true"]::after {
+    left: 34px;
+    background: #1a68d7;
+}
+
+/* ===== 계정 ===== */
+.account-actions {
+    margin-top: -30px; /* 제목과 20px */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+.account-actions__logout {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.account-actions__withdraw {
+    color: rgba(255, 0, 0, 0.5);
+}
+
+/* ===== 회원 탈퇴 확인 창 ===== */
+.withdraw-dialog {
+    margin: auto;
+    padding: 40px;
+    border: none;
+    border-radius: 30px;
+}
+
+.withdraw-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.withdraw-dialog__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 600px;
+}
+
+.withdraw-dialog__title {
+    font-size: 32px;
+    font-weight: 500;
+}
+
+.withdraw-dialog__text {
+    font-size: 20px;
+    color: #444;
+    line-height: 1.5;
+}
+
+.withdraw-dialog__buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.withdraw-dialog__buttons button {
+    width: 140px;
+    height: 60px;
+    font-size: 24px;
+    border-radius: 15px;
+}
+
+.withdraw-dialog__cancel {
+    border: 2px solid #d7d8de;
+}
+
+.withdraw-dialog__submit {
+    color: #fff;
+    background: #cf5353;
 }
