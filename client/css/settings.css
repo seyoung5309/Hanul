@@ -1,0 +1,139 @@
+/* ===== 공통 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    color: #000;
+    background: #fff;
+    min-width: 1920px;
+}
+
+ul {
+    list-style: none;
+}
+
+/* ===== 레이아웃 (Figma: 메뉴 x=191, 카드 x=531 / y=68) ===== */
+.settings {
+    display: flex;
+    align-items: flex-start;
+    padding: 68px 0 104px 191px;
+}
+
+.settings__menu {
+    width: 218px;
+    margin: 227px 122px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    font-size: 32px;
+}
+
+.settings__menu-item--active {
+    font-weight: 600;
+}
+
+.settings__card {
+    width: 1280px;
+    padding: 50px;
+    background: rgba(235, 236, 240, 0.5);
+    border-radius: 30px;
+}
+
+.settings__title {
+    font-size: 36px;
+    font-weight: 500;
+    margin-bottom: 50px;
+}
+
+.settings__label {
+    font-size: 24px;
+    font-weight: 500;
+}
+
+/* ===== 프로필 ===== */
+.profile-edit {
+    display: flex;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.avatar-upload {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+    border-radius: 30px;
+    background: rgba(26, 104, 215, 0.3) center / cover no-repeat;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.avatar-upload__input {
+    display: none;
+}
+
+/* Figma: 72px 아이콘 칸 안의 62x59 그림, 칸은 상자 가운데 */
+.avatar-upload__icon {
+    position: absolute;
+    left: 70.5px;
+    top: 73.5px;
+    width: 62px;
+    height: 59px;
+}
+
+/* 사진이 있으면 아이콘은 마우스를 올렸을 때만 보인다 */
+.avatar-upload--has-img .avatar-upload__icon {
+    opacity: 0;
+    transition: opacity .2s;
+}
+
+.avatar-upload--has-img:hover .avatar-upload__icon {
+    opacity: 1;
+}
+
+.avatar-upload--has-img:hover {
+    box-shadow: inset 0 0 0 200px rgba(26, 104, 215, 0.3);
+}
+
+.avatar-upload--loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.profile-edit__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-edit__field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile-edit__value {
+    width: 300px;
+    height: 60px;
+    padding: 13px 18px;
+    font-size: 24px;
+    background: #f8f9fd;
+    border: 2px solid #d7d8de;
+    border-radius: 15px;
+}
+
+/* 서버·업로드 오류 안내 (디자인에는 없음, 필요할 때만 보임) */
+.settings__error {
+    margin-top: 16px;
+    font-size: 16px;
+    color: #cf5353;
+}
+
+.settings__error:empty {
+    display: none;
+}

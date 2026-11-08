@@ -58,4 +58,10 @@ module.exports = {
     dailyLimit: Number(process.env.AI_DAILY_LIMIT) || 20, // AI-003: 1인 하루 요청 수
     monthlyTokenLimit: Number(process.env.AI_MONTHLY_TOKEN_LIMIT) || 0, // NF-010: 전체 월 토큰 상한 (0이면 제한 없음)
   },
+  // 프로필 사진 (Cloudinary). 값이 없으면 사진 업로드만 503으로 응답한다.
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
 };

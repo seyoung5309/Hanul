@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한울 - 환경설정</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/settings.css">
+</head>
+
+<body data-page="settings">
+    <main class="settings">
+        <ul class="settings__menu">
+            <li class="settings__menu-item settings__menu-item--active">마이페이지</li>
+        </ul>
+
+        <section class="settings__card">
+            <h1 class="settings__title">마이페이지</h1>
+
+            <h2 class="settings__label">프로필</h2>
+            <div class="profile-edit">
+                <!-- 누르면 사진 고르기 → Cloudinary 업로드 (js/pages/settings.js) -->
+                <label class="avatar-upload" title="프로필 사진 바꾸기">
+                    <input type="file" class="avatar-upload__input" accept="image/jpeg,image/png,image/webp">
+                    <img class="avatar-upload__icon" src="../assets/camera-plus.svg" alt="프로필 사진 바꾸기">
+                </label>
+
+                <div class="profile-edit__fields">
+                    <div class="profile-edit__field">
+                        <p class="settings__label">이름</p>
+                        <p class="profile-edit__value profile-edit__name"></p>
+                    </div>
+                    <div class="profile-edit__field">
+                        <p class="settings__label">아이디</p>
+                        <p class="profile-edit__value profile-edit__identifier"></p>
+                    </div>
+                </div>
+            </div>
+            <p class="settings__error" role="alert"></p>
+        </section>
+    </main>
+
+    <!-- navigate 불러오기 -->
+    <div data-include="../component/navigate.html"></div>
+
+    <!-- Component 불러오기-->
+    <script src="../js/include.js"></script>
+
+    <!-- API 연동 -->
+    <script src="../js/api.js"></script>
+    <script src="../js/pages/settings.js"></script>
+</body>
+
+</html>

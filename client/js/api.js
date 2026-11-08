@@ -45,6 +45,8 @@ const Hanul = (() => {
     const card = document.querySelector(".card.profile");
     if (!card) return;
 
+    const avatar = card.querySelector(".profile__avatar");
+    if (avatar && me.img) avatar.style.background = `center / cover url("${me.img}")`;
     card.querySelector(".profile__name").textContent = me.name;
     card.querySelector(".profile__class").textContent = me.class
       ? `${me.class.grade}학년 ${me.class.classNo}반 ${me.class.number}번`
@@ -57,5 +59,25 @@ const Hanul = (() => {
     });
   }
 
-  return { api, formatHMS, el, roomLink, fillProfileCard };
+  // 프로필 사진 업로드: 서버에서 서명을 받아 Cloudinary에 바로 올린 뒤, 주소를 서버에 저장한다.
+  // 사용: <input type="file" accept="image/*"> 의 change에서 await Hanul.uploadProfileImg(input.files[0])
+  const MAX_IMG_MB = 5;
+  async function uploadProfileImg(file) {
+    if (!file?.type.startsWith("image/")) throw new Error("사진 파일을 선택해 주세요.");
+    if (file.size > MAX_IMG_MB * 1024 * 1024) throw new Error(`사진은 ${MAX_IMG_MB}MB 이하만 올릴 수 있습니다.`);
+
+    const { uploadUrl, fields } = await api("POST", "/users/me/img/upload");
+    const form = new FormData();
+    for (const [key, value] of Object.entries(fields)) form.append(key, value);
+    form.append("file", file);
+
+    const res = await fetch(uploadUrl, { method: "POST", body: form });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.error?.message ?? "사진을 올리지 못했습니다.");
+
+    await api("PUT", "/users/me/img", { url: data.secure_url });
+    return data.secure_url;
+  }
+
+  return { api, formatHMS, el, roomLink, fillProfileCard, uploadProfileImg };
 })();

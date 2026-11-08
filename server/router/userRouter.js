@@ -17,6 +17,8 @@ router.use(requireAuth);
 
 router.get("/me", controller.getMe); //                        UD-007
 router.patch("/me", controller.updateMe); //                   UD-007 한 마디, 관심 과목
+router.post("/me/img/upload", controller.createImgUpload); //  UD-007 사진 업로드 폼 값 (Cloudinary 서명)
+router.put("/me/img", controller.updateImg); //                UD-007 { url } 사진 저장, null이면 삭제
 router.patch("/me/visibility", controller.updateVisibility); // UD-008
 router.patch("/me/ranking", controller.updateRankingSetting); // ST-008
 router.post("/me/class", controller.changeClass); //           UD-010

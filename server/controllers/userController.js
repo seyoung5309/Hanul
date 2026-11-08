@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/userModel");
+const cloudinaryService = require("../services/cloudinaryService");
 const classModel = require("../models/classModel");
 const withTransaction = require("../utils/transaction");
 const HttpError = require("../utils/httpError");
@@ -195,7 +196,7 @@ async function getMe(req, res) {
   });
 }
 
-// UD-007: 한 마디, 관심 과목 (프로필 사진은 Cloudinary 업로드 API에서 따로 처리)
+// UD-007: 한 마디, 관심 과목 (프로필 사진은 아래 createImgUpload, updateImg)
 async function updateMe(req, res) {
   const { comment, subjectIds } = req.body;
   const fields = {};
@@ -214,6 +215,19 @@ async function updateMe(req, res) {
     await userModel.updateUser(req.user.id, fields, conn);
     if (subjectIds !== undefined) await userModel.replaceLikedSubjects(conn, req.user.id, subjectIds);
   });
+  res.status(204).end();
+}
+
+// UD-007: 프로필 사진 업로드 준비 → 브라우저가 Cloudinary에 올릴 폼 값 (services/cloudinaryService.js 참고)
+async function createImgUpload(req, res) {
+  res.json(cloudinaryService.createAvatarUpload(req.user.id));
+}
+
+// UD-007: { url } 업로드한 사진을 내 프로필 사진으로 저장, null이면 사진 삭제
+async function updateImg(req, res) {
+  const { url } = req.body;
+  v.check(url === null || cloudinaryService.isAvatarUrl(req.user.id, url), "사진 주소를 확인해 주세요.");
+  await userModel.updateUser(req.user.id, { img: url });
   res.status(204).end();
 }
 
@@ -307,6 +321,8 @@ module.exports = {
   resetPassword,
   getMe,
   updateMe,
+  createImgUpload,
+  updateImg,
   updateVisibility,
   updateRankingSetting,
   changeClass,
