@@ -109,6 +109,7 @@ CREATE TABLE study_room (
   class_id       INT          NULL UNIQUE,           -- 반 방: 어느 반인지 (반당 1개)
   title          VARCHAR(255) NOT NULL,
   comment        VARCHAR(255),
+  img            VARCHAR(255) NULL,                  -- 썸네일 (Cloudinary URL)
   room_code      VARCHAR(6)   NULL UNIQUE,           -- 일반 방만. 영문+숫자 6자리
   owner_id       INT          NULL,                  -- 일반 방만. 방장
   max_members    INT          NULL,                  -- 일반 방만. 최대 인원

@@ -18,6 +18,8 @@ router.get("/unread", chatController.getUnreadCounts); //         CL-003, SR-011
 router.get("/:roomId", controller.getRoom); //                    SR-003, CL-001 방 정보와 참가자 현황
 router.delete("/:roomId", controller.deleteRoom); //              SR-005 방장만
 router.patch("/:roomId/owner", controller.changeOwner); //        SR-006 { userId } 방장만
+router.post("/:roomId/img/upload", controller.createImgUpload); // 썸네일 업로드 폼 값 (Cloudinary 서명) 방장만
+router.put("/:roomId/img", controller.updateImg); //               { url } 썸네일 저장, null이면 삭제. 방장만
 router.delete("/:roomId/members/me", controller.leaveRoom); //    SR-007
 router.delete("/:roomId/members/:userId", controller.kickMember); // SR-009 방장만
 router.post("/:roomId/invites", controller.inviteUser); //        SR-008 { userId } 방장만
