@@ -3,8 +3,11 @@ const roomModel = require("./roomModel");
 const withTransaction = require("../utils/transaction");
 const { splitByKstDate } = require("../utils/date");
 
+// roomId: 공부를 시작한 방. 세션은 그 방 하나에서만 기록된다. (방이 없어졌으면 null)
 const SESSION_COLUMNS = `id, user_id AS userId, subject_id AS subjectId, start,
-  check_deadline AS checkDeadline`;
+  check_deadline AS checkDeadline,
+  (SELECT l.room_id FROM study_log l
+   WHERE l.session_id = study_session.id AND l.status = '공부중' ORDER BY l.id LIMIT 1) AS roomId`;
 
 async function findActiveSession(userId) {
   const [rows] = await pool.query(
@@ -14,9 +17,12 @@ async function findActiveSession(userId) {
   return rows[0] ?? null;
 }
 
-// 이 세션으로 공부한 방 (방을 나와도 세션이 이어지는 동안은 포함)
+// 이 세션으로 지금 공부 중인 방 (방 화면을 떠나도 세션이 끝날 때까지 이어진다)
 async function findSessionRoomIds(sessionId) {
-  const [rows] = await pool.query("SELECT DISTINCT room_id AS roomId FROM study_log WHERE session_id = ?", [sessionId]);
+  const [rows] = await pool.query(
+    "SELECT DISTINCT room_id AS roomId FROM study_log WHERE session_id = ? AND status = '공부중'",
+    [sessionId],
+  );
   return rows.map((row) => row.roomId);
 }
 
@@ -40,25 +46,15 @@ async function startLogs(sessionId, roomIds) {
   await roomModel.touchActivity(roomIds);
 }
 
-async function endLogs(sessionId, roomIds) {
-  if (roomIds.length === 0) return;
-  await pool.query(
-    `UPDATE study_log SET status = '종료', end = NOW()
-     WHERE session_id = ? AND room_id IN (?) AND status = '공부중'`,
-    [sessionId, roomIds],
-  );
-}
-
-async function touchHeartbeat(sessionId, roomIds) {
+// 세션과 그 방 기록을 함께 살려 둔다. (어느 페이지에서 보내도 공부한 방의 기록이 이어진다)
+async function touchHeartbeat(sessionId) {
   await pool.query(
     "UPDATE study_session SET last_heartbeat_at = NOW() WHERE id = ? AND status = '공부중'",
     [sessionId],
   );
-  if (roomIds.length === 0) return;
   await pool.query(
-    `UPDATE study_log SET last_heartbeat_at = NOW()
-     WHERE session_id = ? AND room_id IN (?) AND status = '공부중'`,
-    [sessionId, roomIds],
+    "UPDATE study_log SET last_heartbeat_at = NOW() WHERE session_id = ? AND status = '공부중'",
+    [sessionId],
   );
 }
 
@@ -179,7 +175,6 @@ module.exports = {
   findSessionRoomIds,
   createSession,
   startLogs,
-  endLogs,
   touchHeartbeat,
   confirmCheck,
   endSession,

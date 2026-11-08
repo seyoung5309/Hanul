@@ -16,7 +16,12 @@
 
   let room = null; // GET /rooms/:roomId 결과
   let loadedAt = 0; // room을 받은 시각 (그 뒤로 흐른 시간만큼 타이머를 늘린다)
-  let session = null; // 내 공부 세션 (없으면 null)
+  let session = null; // 내 공부 세션 (없으면 null). session.roomId = 공부를 시작한 방
+
+  // 공부는 한 번에 한 방에서만: 다른 방에서 공부 중이면 이 방에서는 시작·종료할 수 없다.
+  // (방이 없어진 세션은 어디서든 끝낼 수 있게 이 방 것으로 본다)
+  const studyingHere = () => Boolean(session) && (session.roomId === roomId || session.roomId === null);
+  const studyingElsewhere = () => Boolean(session) && !studyingHere();
   let heartbeatTimer = null;
   let checkTimer = null;
 
@@ -35,6 +40,22 @@
     $(".room__title").textContent = room.title;
     document.title = `한울 - ${room.title}`;
     renderTimers();
+    renderMembers();
+  }
+
+  // 참여 학생: 공부 중이면 초록색, 아니면 회색 (공부 중인 학생을 위로)
+  // studying이 null이면 그 학생이 공부 상태를 숨긴 것이라 회색으로 둔다. (UD-008)
+  let myId = null;
+  function renderMembers() {
+    const members = [...room.members].sort((a, b) => Number(Boolean(b.studying)) - Number(Boolean(a.studying)));
+    $(".members__count").textContent = members.length;
+    $(".members__list").replaceChildren(...members.map((member) => {
+      const item = el("li", member.studying ? "member member--studying" : "member", member.name);
+      item.title = member.studying ? "공부 중" : "공부 중 아님";
+      if (member.userId === myId) item.append(el("span", "member__tag", "(나)"));
+      if (member.isOwner) item.append(el("span", "member__tag", "방장"));
+      return item;
+    }));
   }
 
   // 1초마다: 지금 이 방에서 공부 중인 기록 수만큼 총합이 늘고, 내가 공부 중이면 내 시간도 는다.
@@ -42,12 +63,17 @@
     if (!room) return;
     const elapsed = (Date.now() - loadedAt) / 1000;
     $(".timer__num--total").textContent = formatHMS(room.totalSeconds + room.activeCount * elapsed);
-    $(".timer__num--mine").textContent = formatHMS(room.mySeconds + (session ? elapsed : 0));
+    $(".timer__num--mine").textContent = formatHMS(room.mySeconds + (studyingHere() ? elapsed : 0));
   }
 
   function renderStudyState() {
-    studyButton.textContent = session ? "공부 종료" : "공부 시작";
-    studyButton.classList.toggle("room__study-btn--stop", Boolean(session));
+    const elsewhere = studyingElsewhere();
+    studyButton.textContent = elsewhere ? "다른 방에서 공부 중" : session ? "공부 종료" : "공부 시작";
+    studyButton.title = elsewhere ? "공부 중인 방에서 공부를 종료한 뒤 이 방에서 시작할 수 있습니다." : "";
+    studyButton.disabled = elsewhere;
+    studyButton.classList.toggle("room__study-btn--stop", studyingHere());
+    studyButton.classList.toggle("room__study-btn--elsewhere", elsewhere);
+    subjectSelect.hidden = elsewhere;
     subjectSelect.disabled = Boolean(session);
     if (session) subjectSelect.value = String(session.subjectId);
 
@@ -88,10 +114,11 @@
   let loadingChats = false;
   let lastReadSent = 0;
 
+  // "2026-11-09 16:05" (24시간)
   function formatChatTime(time) {
     const d = new Date(time);
     const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   function chatItem(chat) {
@@ -100,9 +127,13 @@
     const body = el("div", "message__body");
     body.append(meta, el("p", "message__text", chat.message)); // textContent로 출력 (XSS 방지)
 
+    // 프로필 사진이 있으면 사진, 없으면 파란 원
+    const avatar = el("div", "message__avatar");
+    if (chat.img) avatar.style.backgroundImage = `url("${chat.img}")`;
+
     const item = el("li", "message");
     item.dataset.id = chat.id;
-    item.append(el("div", "message__avatar"), body);
+    item.append(avatar, body);
     return item;
   }
 
@@ -183,14 +214,15 @@
   // ----- 이벤트 -----
 
   studyButton.addEventListener("click", async () => {
+    if (studyingElsewhere()) return;
     studyButton.disabled = true;
     try {
       if (session) await request("study:stop");
-      else await request("study:start", { subjectId: Number(subjectSelect.value) });
+      else await request("study:start", { subjectId: Number(subjectSelect.value), roomId });
     } catch (err) {
       alert(err.message);
     } finally {
-      studyButton.disabled = false;
+      renderStudyState(); // 버튼 상태(다른 방에서 공부 중이면 계속 비활성)를 다시 맞춘다
     }
   });
 
@@ -240,6 +272,7 @@
   });
 
   async function init() {
+    myId = (await api("GET", "/users/me")).id;
     await Promise.all([loadRoom(), loadSubjects(), loadChats()]);
     ({ session } = await api("GET", "/study/current"));
     renderStudyState();

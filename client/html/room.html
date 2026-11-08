@@ -22,16 +22,24 @@
         </header>
 
         <div class="room__content">
-            <div class="timer">
-                <div class="timer__item">
-                    <p class="timer__label">총합 공부 시간</p>
-                    <p class="timer__num timer__num--total">00:00:00</p>
+            <!-- 오른쪽: 공부 시간 + 참여 학생 -->
+            <aside class="room__side">
+                <div class="timer">
+                    <div class="timer__item">
+                        <p class="timer__label">총합 공부 시간</p>
+                        <p class="timer__num timer__num--total">00:00:00</p>
+                    </div>
+                    <div class="timer__item">
+                        <p class="timer__label">나의 공부 시간</p>
+                        <p class="timer__num timer__num--mine">00:00:00</p>
+                    </div>
                 </div>
-                <div class="timer__item">
-                    <p class="timer__label">나의 공부 시간</p>
-                    <p class="timer__num timer__num--mine">00:00:00</p>
-                </div>
-            </div>
+
+                <section class="members">
+                    <h2 class="members__title">참여 학생 <span class="members__count"></span></h2>
+                    <ul class="members__list"><!-- js/pages/room.js가 채움 --></ul>
+                </section>
+            </aside>
 
             <div class="chat">
                 <ul class="chat__messages"></ul>
