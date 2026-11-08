@@ -9,6 +9,16 @@
 - 기간: 2026.08.10 ~ 2026.11 (2학기)
 - 미림마이스터고등학교 2학년 「웹 응용 SW 프로그래밍 실무」 과목 프로젝트 수행평가
 
+## 🔗 접속하기
+
+**https://hanul-production.up.railway.app/html/**
+
+위 배포 주소로 접속한다. 따로 설치하거나 실행할 필요가 없다.
+
+- 서비스 소개 화면이 먼저 나오고, 로그인하면 메인 화면으로 이동한다.
+- PC 화면(가로 1920px) 기준으로 만들었다.
+- `client/html/` 폴더의 HTML 파일을 직접 열면 서버 API에 연결되지 않아 화면이 동작하지 않는다. 반드시 배포 주소로 접속한다.
+
 ---
 
 ## 만든 이유
@@ -25,6 +35,22 @@
 
 ---
 
+## 화면 구성 (IA)
+
+![한울 IA 구조도](docs/assets/hanul-ia.png)
+
+| 화면 | 주소 | 내용 |
+| --- | --- | --- |
+| 서비스 소개 | `/html/` | 첫 화면. 로그인·회원가입으로 이동 |
+| 로그인 · 회원가입 | `/html/login.html`, `/html/signup.html` | 회원가입은 2단계 (이메일·비밀번호 → 이름·아이디·학번) |
+| 메인 | `/html/main.html` | 공부 통계, 주간 랭킹, 내 스터디룸, 달력, 다가오는 일정, 할 일, 오늘의 급식, 읽지 않은 알림 |
+| 스터디룸 | `/html/study-room.html`, `/html/room.html` | 방 목록, 방 안 공부 현황·채팅 |
+| 랭킹 | `/html/rank.html` | 일간·주간·월간·종합 랭킹 |
+| AI 도우미 | `/html/ai-assistant.html` | 학습 계획 만들기, 질문하기, 대화 기록 |
+| 마이페이지 | `/html/settings.html` | 프로필 사진, 이름, 아이디 |
+
+---
+
 ## 주요 기능
 
 ### 회원
@@ -33,6 +59,7 @@
 - 비밀번호는 이메일로 재설정한다. 링크는 30분 동안 쓸 수 있다.
 - 새 학년도가 되면 반을 다시 등록할 수 있다.
 - 내 공부 현황을 누구에게 보여 줄지 고를 수 있다: 전체, 같은 반, 같은 스터디룸, 비공개.
+- 마이페이지에서 프로필 사진을 올린다. 사진은 Cloudinary에 저장되고, 메인·스터디룸의 프로필 카드에도 보인다.
 
 ### 공부 시간 측정
 - 과목을 고르고 공부를 시작하면, 같은 방에 있는 사람들에게 바로 표시된다(Socket.IO).
@@ -46,7 +73,7 @@
   - 만들 때 방 이름, 최대 인원(2~30명), 과목 키워드(선택, 최대 3개)를 정한다.
   - 영문 대문자와 숫자로 된 6자리 방 코드가 나온다. 이 코드를 입력하거나 방장의 초대를 수락하면 들어올 수 있다.
   - 한 사람이 최대 5개 방에 참여할 수 있다(반 스터디룸 제외). 여러 방에 동시에 참여할 수 있다.
-  - 방장은 방 삭제, 방장 넘기기, 내보내기, 초대를 할 수 있다.
+  - 방장은 방 삭제, 방장 넘기기, 내보내기, 초대를 할 수 있다. 참여자는 방에서 나갈 수 있다.
   - 마지막 활동(참가·공부·채팅)이 있고 30일이 지나면 방이 자동으로 삭제된다.
 - **채팅**
   - 실시간 채팅을 지원하고, 지난 기록은 30개씩 더 불러온다.
@@ -70,10 +97,27 @@
   - 알림 종류마다 켜고 끌 수 있다.
 
 ### 오늘의 급식
-- NEIS 교육정보 개방 포털에서 조식·중식·석식을 받아 와 메인 화면에 보여 준다.
+- NEIS 교육정보 개방 포털에서 조식·중식·석식을 받아 와 메인 화면에 보여 준다. 지금 시각에 맞는 식사를 먼저 보여 준다.
 
-### 메인 화면
-공부 시간 통계, 주간 랭킹, 참여 중인 스터디룸, 일정 달력, 다가오는 일정, 할 일, 오늘의 급식, 읽지 않은 알림을 한 화면에 모았다.
+---
+
+## 데이터베이스 (ERD)
+
+![한울 DB 테이블 구조도](docs/assets/hanul-erd.png)
+
+MySQL 테이블 27개를 7개 묶음으로 나눴다. 전체 정의는 [docs/mysql.sql](docs/mysql.sql)에 있다.
+
+| 묶음 | 테이블 | 내용 |
+| --- | --- | --- |
+| 사용자 | `auth`, `password_reset`, `user` | 로그인 정보, 비밀번호 재설정, 프로필·공개 범위·랭킹 숨기기 |
+| 사용자 · 반 · 과목 | `class`, `class_user`, `subject`, `subject_like` | 학년도별 반 배정, 과목, 관심 과목 |
+| 공부방 | `study_room`, `study_user`, `subject_room`, `room_invite` | 반·일반 스터디룸, 참여자, 키워드, 초대 |
+| 공부 기록 | `study_session`, `study_log`, `study_daily` | 공부 세션, 방별 기록, 날짜별 합계 |
+| 채팅 · 알림 | `chat`, `chat_read_cursor`, `chat_report`, `notification`, `notification_user`, `notification_setting` | 채팅, 읽음 위치, 신고, 알림과 알림 설정 |
+| To Do · 일정 | `todo`, `todo_subject`, `schedule`, `schedule_subject` | 할 일, 일정과 연결된 과목 |
+| AI 도우미 | `ai_room`, `ai_chat`, `ai_usage` | 대화방(요약 포함), 대화 기록, 하루 사용량 |
+
+모든 시각은 한국 시간(KST)으로 저장한다.
 
 ---
 
@@ -85,10 +129,13 @@
 | AI 학습 계획 · AI 질문 | 완료 |
 | 일정 · 할 일 · 알림 · 급식 | 완료 |
 | 메인 · 스터디룸 · 채팅 · AI 화면 | 완료 |
+| 서비스 소개 화면 | 완료 |
 | 회원가입 · 로그인 · 비밀번호 재설정 (서버) | 완료 |
-| 서비스 소개 · 로그인 · 회원가입 화면 | 진행 중 |
-| 공부 시간 통계 · 랭킹 (일간·주간·월간·누적, 학생·반, 랭킹 숨기기) | 진행 중 |
-| 프로필 화면 · 프로필 사진 (Cloudinary) | 진행 중 |
+| 로그인 · 회원가입 화면 | 디자인 완료, 서버 연동 진행 중 |
+| 랭킹 화면 | 디자인 완료, 랭킹 데이터 연동 진행 중 |
+| 공부 시간 통계 · 랭킹 API (일간·주간·월간·누적, 학생·반) | 진행 중 |
+| 프로필 사진 (Cloudinary) · 마이페이지 프로필 | 완료 |
+| 마이페이지 나머지 (개인 정보, 비밀번호 변경, 알림 설정, 계정) | 진행 중 |
 
 ---
 
@@ -101,6 +148,7 @@
 | 데이터베이스 | MySQL (Railway) |
 | 인증 | JWT (httpOnly 쿠키), bcrypt |
 | 외부 API | Google Gemini API, NEIS 교육정보 개방 포털 |
+| 이미지 저장 | Cloudinary (프로필 사진) |
 | 메일 | Nodemailer (SMTP) |
 | 배포 | Railway (서버 + DB) |
 | 기획 · 디자인 | Notion, Figma |
@@ -119,19 +167,21 @@ Hanul/
 │  ├─ js/
 │  │  ├─ api.js        # 서버 API 공통 함수 (/api 상대 경로로 요청)
 │  │  └─ pages/        # 페이지별 스크립트
-│  └─ component/       # 공통 헤더·푸터
+│  ├─ component/       # 공통 사이드바·푸터
+│  └─ assets/          # 아이콘, 로고, 이미지
 ├─ server/
 │  ├─ server.js        # 시작 파일 (HTTP + Socket.IO)
 │  ├─ app.js           # Express 설정, client 폴더 제공
 │  ├─ config/          # 환경 변수, DB 연결
 │  ├─ router/          # /api/* 라우터
 │  ├─ controllers/     # 요청 검증·응답
-│  ├─ services/        # 비즈니스 로직 (AI, 급식, 공부 측정, 알림 등)
+│  ├─ services/        # 비즈니스 로직 (AI, 급식, 공부 측정, 알림, Cloudinary 등)
 │  ├─ models/          # SQL
 │  ├─ socket/          # 실시간 공부 현황·채팅
 │  ├─ jobs/            # 예약 작업 (방 정리, 마감 알림)
 │  └─ utils/
 └─ docs/
+   ├─ assets/          # IA 구조도, ERD
    ├─ mysql.sql        # 전체 테이블
    ├─ seed.sql         # 초기 데이터 (과목)
    └─ migrations/      # 이미 만든 DB에 적용할 변경분
@@ -141,48 +191,15 @@ Hanul/
 
 ---
 
-## 로컬에서 실행하기
-
-필요한 것: Node.js 18 이상, MySQL 8
-
-1. **DB 만들기**
-   ```bash
-   mysql -h <호스트> -P <포트> -u <사용자> -p <DB 이름> < docs/mysql.sql
-   mysql -h <호스트> -P <포트> -u <사용자> -p <DB 이름> < docs/seed.sql
-   ```
-   DB를 이미 만들어 두었다면 `docs/migrations/`의 파일을 번호 순서대로 적용한다.
-
-2. **환경 변수 설정**
-   `server/.env.example`을 복사해 `server/.env.local`을 만들고 값을 채운다.
-
-   | 이름 | 설명 |
-   | --- | --- |
-   | `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | DB 접속 정보 (필수) |
-   | `JWT_SECRET` | 로그인 토큰 서명 키 (필수) |
-   | `APP_URL` | 서비스 주소. 메일 속 링크에 쓰인다 |
-   | `SMTP_*`, `MAIL_FROM` | 비밀번호 재설정 메일 |
-   | `NICE_API_KEY`, `NICE_SCHOOL_NAME` | 급식 조회 |
-   | `GEMINI_API_KEY`, `GEMINI_MODEL` | AI 도우미 |
-   | `AI_DAILY_LIMIT`, `AI_MONTHLY_TOKEN_LIMIT` | AI 사용량 제한 |
-
-3. **실행**
-   ```bash
-   cd server
-   npm install
-   npm run db:check   # DB 연결 확인
-   npm run dev        # 파일이 바뀌면 자동 재시작
-   ```
-   브라우저에서 http://localhost:3000/html/main.html 을 연다.
-   HTML 파일을 더블클릭해서 직접 열면 API 요청이 실패한다. 반드시 서버 주소로 열어야 한다.
-
----
-
 ## 배포 (Railway)
 
+서비스는 Railway에 서버와 DB를 함께 배포했다.
+
 - 저장소 루트의 `package.json`이 `server`를 설치하고 실행한다. 그래서 **Root Directory는 비워 둔다.** `server`로 지정하면 `client` 폴더가 빠져서 화면이 404가 된다.
-- Railway Variables에 위의 환경 변수를 넣고, 다음 두 값도 추가한다.
-  - `NODE_ENV=production`: 로그인 쿠키에 `secure` 옵션을 붙인다.
-  - `APP_URL`: 배포 주소로 바꾼다.
+- 환경 변수는 Railway Variables에서 관리한다. 항목은 [server/.env.example](server/.env.example)에 있다.
+  - DB 접속 정보, `JWT_SECRET`
+  - `GEMINI_*`(AI), `NICE_*`(급식), `CLOUDINARY_*`(프로필 사진), `SMTP_*`(메일)
+  - `NODE_ENV=production`(로그인 쿠키에 `secure` 적용), `APP_URL`(배포 주소)
 
 ---
 
@@ -197,6 +214,7 @@ Hanul/
 | 서버 비용, 쓰지 않는 방 | 1인 최대 5개 방 참여, 30일 동안 활동 없는 방 자동 삭제 |
 | 부적절한 채팅 | 채팅 신고 |
 | AI 계획이 실제 수준과 맞지 않음 | 의견을 반영해 다시 만들기 |
+| 남의 프로필 사진 자리에 업로드 | 서버가 사용자별 저장 위치를 넣어 서명하고, 내 자리의 사진 주소만 저장 |
 
 ---
 
@@ -204,5 +222,5 @@ Hanul/
 
 | GitHub | 담당 |
 | --- | --- |
-| [seyoung5309](https://github.com/seyoung5309) | 스터디룸, 실시간 공부 현황, 채팅, AI, 일정·할 일, 알림, 급식, 배포 |
+| [seyoung5309](https://github.com/seyoung5309) | 스터디룸, 실시간 공부 현황, 채팅, AI, 일정·할 일, 알림, 급식, 프로필 사진, 배포 |
 | [mirim-jyd](https://github.com/mirim-jyd) | 회원, 로그인, 랭킹, 프로필 |
