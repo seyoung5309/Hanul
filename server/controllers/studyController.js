@@ -12,8 +12,11 @@ const toStudentNumber = ({ grade, classNo, number }) =>
   grade ? `${grade}${classNo}${String(number).padStart(2, "0")}` : null;
 
 // 새로고침 후 공부 중인지 복구 (checkDeadline이 있으면 응답 확인 창을 다시 띄운다)
+// roomIds: 이 세션으로 공부한 방 (스터디룸 목록에 "(공부중)" 표시)
 async function getCurrent(req, res) {
-  res.json({ session: await studyModel.findActiveSession(req.user.id) });
+  const session = await studyModel.findActiveSession(req.user.id);
+  const roomIds = session ? await studyModel.findSessionRoomIds(session.id) : [];
+  res.json({ session, roomIds });
 }
 
 // ST-004: { today, week, month, total } 초

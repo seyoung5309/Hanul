@@ -14,6 +14,12 @@ async function findActiveSession(userId) {
   return rows[0] ?? null;
 }
 
+// 이 세션으로 공부한 방 (방을 나와도 세션이 이어지는 동안은 포함)
+async function findSessionRoomIds(sessionId) {
+  const [rows] = await pool.query("SELECT DISTINCT room_id AS roomId FROM study_log WHERE session_id = ?", [sessionId]);
+  return rows.map((row) => row.roomId);
+}
+
 // 이미 공부 중이면 UNIQUE (user_id, is_active)에 걸려 ER_DUP_ENTRY
 async function createSession(userId, subjectId) {
   const [result] = await pool.query(
@@ -170,6 +176,7 @@ async function findExpiredChecks(responseSeconds) {
 
 module.exports = {
   findActiveSession,
+  findSessionRoomIds,
   createSession,
   startLogs,
   endLogs,

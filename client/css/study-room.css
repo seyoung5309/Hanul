@@ -105,9 +105,11 @@ img {
 }
 
 /* 태그 */
+/* 칸을 넘치면 아래 줄로 내려간다 */
 .tags {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px 10px;
 }
 
 .tag {
@@ -252,6 +254,12 @@ img {
 
 .room-card__name {
     font-size: 24px;
+}
+
+/* 공부 종료를 누르지 않은 방 */
+.room-card__studying {
+    color: #cf5353;
+    white-space: nowrap; /* 길면 "(공부중)" 전체가 다음 줄로 */
 }
 
 /* 방 이름 링크를 카드 전체로 넓힌다. ⋮ 메뉴는 그 위에 올린다. */
@@ -484,6 +492,15 @@ img {
     background: #fff;
     border: 1px solid #d7d8de;
     border-radius: 8px;
+}
+
+/* 방 코드는 영문 대문자로 보이게 (서버도 대문자로 바꿔 찾는다) */
+.room-join-dialog input[name="roomCode"] {
+    text-transform: uppercase;
+}
+
+.room-join-dialog input[name="roomCode"]::placeholder {
+    text-transform: none;
 }
 
 .room-dialog__field input::placeholder {

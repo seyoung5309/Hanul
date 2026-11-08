@@ -27,7 +27,10 @@
                 </div>
             </section>
             <section class="room-section room-section--joined">
-                <h2 class="section-title">내가 참여한 스터디룸</h2>
+                <div class="section-head">
+                    <h2 class="section-title">내가 참여한 스터디룸</h2>
+                    <button type="button" class="section-head__btn room-join-open">스터디룸 참여하기</button>
+                </div>
                 <div class="room-grid"><!-- js/pages/study-room.js가 채움 -->
                 </div>
             </section>
@@ -99,6 +102,25 @@
             <div class="room-dialog__buttons">
                 <button type="button" class="room-dialog__cancel">취소하기</button>
                 <button type="submit" class="room-dialog__submit">생성하기</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- 스터디룸 참여하기 (생성하기와 같은 모양) -->
+    <dialog class="room-dialog room-join-dialog">
+        <form class="room-dialog__form" method="dialog">
+            <h2 class="room-dialog__title">스터디룸 참여하기</h2>
+            <div class="room-dialog__fields">
+                <label class="room-dialog__field">
+                    <span class="room-dialog__label">참여 코드</span>
+                    <input type="text" name="roomCode" maxlength="6" placeholder="참여 코드를 입력해 주세요."
+                        autocomplete="off" required>
+                </label>
+            </div>
+            <p class="room-dialog__error" role="alert"></p>
+            <div class="room-dialog__buttons">
+                <button type="button" class="room-dialog__cancel">취소하기</button>
+                <button type="submit" class="room-dialog__submit">참여하기</button>
             </div>
         </form>
     </dialog>

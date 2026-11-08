@@ -86,9 +86,11 @@ body {
     font-size: 24px;
 }
 
+/* 칸을 넘치면 아래 줄로 내려간다 */
 .tags {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px 10px;
 }
 
 .tag {

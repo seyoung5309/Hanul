@@ -4,6 +4,7 @@
   const MAX_RECENT = 2;
 
   let myId = null;
+  let studyingRoomIds = new Set(); // 공부 종료를 누르지 않은 세션의 방 → 이름 옆 "(공부중)"
 
   // ⋮ 더보기: 방장은 삭제, 참여자는 나가기 (반 메인은 나갈 수 없어 메뉴가 없다)
   function moreMenu(room) {
@@ -39,6 +40,7 @@
   function roomCard(room, { showMembers = false } = {}) {
     const name = el("a", "room-card__name", room.title);
     name.href = roomLink(room.id);
+    if (studyingRoomIds.has(room.id)) name.append(el("span", "room-card__studying", "(공부중)"));
     const text = el("div", "room-card__text");
     text.append(name);
     if (showMembers) text.append(el("p", "room-card__sub", `인원 ${room.memberCount}/${room.maxMembers ?? "-"}`));
@@ -79,8 +81,13 @@
   }
 
   async function loadRooms() {
-    const [me, rooms] = await Promise.all([api("GET", "/users/me"), api("GET", "/rooms")]);
+    const [me, rooms, current] = await Promise.all([
+      api("GET", "/users/me"),
+      api("GET", "/rooms"),
+      api("GET", "/study/current"),
+    ]);
     myId = me.id;
+    studyingRoomIds = new Set(current.roomIds);
     fillProfileCard(me);
     Hanul.fillProfileStats().catch((err) => console.error(err));
 
@@ -102,7 +109,7 @@
   // ----- 스터디룸 생성하기 (SR-001) -----
   const MAX_KEYWORDS = 3;
   const MAX_MEMBERS = 30; // 디자인에 인원 칸이 없어 서버가 허용하는 최대 인원으로 만든다
-  const dialog = document.querySelector(".room-dialog");
+  const dialog = document.querySelector(".room-dialog:not(.room-join-dialog)");
   const form = dialog.querySelector("form");
   const errorText = dialog.querySelector(".room-dialog__error");
   const chips = dialog.querySelector(".subject-chips");
@@ -157,9 +164,37 @@
     }
   });
 
+  // ----- 스터디룸 참여하기 (SR-002): 방 코드 6자리 -----
+  const joinDialog = document.querySelector(".room-join-dialog");
+  const joinForm = joinDialog.querySelector("form");
+  const joinError = joinDialog.querySelector(".room-dialog__error");
+
+  document.querySelector(".room-join-open").addEventListener("click", () => {
+    joinForm.reset();
+    joinError.textContent = "";
+    joinDialog.showModal();
+    joinForm.elements.roomCode.focus();
+  });
+
+  joinDialog.querySelector(".room-dialog__cancel").addEventListener("click", () => joinDialog.close());
+
+  joinForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      await api("POST", "/rooms/join", { roomCode: joinForm.elements.roomCode.value.trim() });
+      joinDialog.close();
+      await loadRooms();
+    } catch (err) {
+      joinError.textContent = err.message;
+    }
+  });
+
   async function init() {
     await loadRooms();
-    Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
+    const socket = io();
+    Hanul.initNoticeCard(socket); // 읽지 않은 알림 카드 + 실시간 갱신
+    // 다른 페이지에서도 공부가 이어지게 하고, 끝나면 "(공부중)"을 지운다.
+    Hanul.keepStudying(socket, () => loadRooms().catch((err) => console.error(err)));
   }
 
   init().catch((err) => console.error(err));

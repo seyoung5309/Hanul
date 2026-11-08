@@ -75,6 +75,18 @@ const Hanul = (() => {
     if (top.length === 0) tags.replaceChildren(el("p", "label", "아직 공부 기록이 없습니다."));
   }
 
+  // 방 화면 밖(메인, 스터디룸 목록)에서도 공부가 이어지도록 30초마다 heartbeat를 보낸다.
+  // (2분 넘게 끊기면 서버가 자동 종료) 공부가 끝나면 onEnd를 부른다.
+  const HEARTBEAT_MS = 30 * 1000;
+  function keepStudying(socket, onEnd) {
+    const beat = () => socket.emit("study:heartbeat", {}, () => {});
+    beat();
+    setInterval(beat, HEARTBEAT_MS);
+    socket.on("study:session", ({ session }) => {
+      if (!session) onEnd?.();
+    });
+  }
+
   // 프로필 사진 업로드: 서버에서 서명을 받아 Cloudinary에 바로 올린 뒤, 주소를 서버에 저장한다.
   // 사용: <input type="file" accept="image/*"> 의 change에서 await Hanul.uploadProfileImg(input.files[0])
   const MAX_IMG_MB = 5;
@@ -95,5 +107,5 @@ const Hanul = (() => {
     return data.secure_url;
   }
 
-  return { api, formatHMS, el, roomLink, fillProfileCard, fillProfileStats, uploadProfileImg };
+  return { api, formatHMS, el, roomLink, fillProfileCard, fillProfileStats, keepStudying, uploadProfileImg };
 })();

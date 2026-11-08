@@ -377,7 +377,9 @@
     Hanul.fillProfileStats().catch((err) => console.error(err));
     loadRanking().catch((err) => console.error(err));
     renderJoinedRooms(rooms.filter((room) => room.type === "custom").slice(0, MAX_JOINED));
-    Hanul.initNoticeCard(io()); // 읽지 않은 알림 카드 + 실시간 갱신
+    const socket = io();
+    Hanul.initNoticeCard(socket); // 읽지 않은 알림 카드 + 실시간 갱신
+    Hanul.keepStudying(socket); // 방 화면 밖에서도 공부가 이어지도록
     connectCalendar();
     await Promise.all([loadSchedules(), loadTodos(), loadMeals()]);
   }
