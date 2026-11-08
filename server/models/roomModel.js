@@ -204,7 +204,9 @@ async function findMembers(roomId) {
      JOIN user u ON u.id = su.user_id
      JOIN study_room r ON r.id = su.room_id
      LEFT JOIN class_user cu ON cu.user_id = u.id AND cu.class_id = r.class_id
+     -- 이 방에서 공부 중일 때만 (다른 방에서 공부 중이면 이 방에선 공부 중 아님)
      LEFT JOIN study_session s ON s.user_id = u.id AND s.status = '공부중'
+       AND EXISTS (SELECT 1 FROM study_log sl WHERE sl.session_id = s.id AND sl.room_id = r.id AND sl.status = '공부중')
      LEFT JOIN (
        SELECT ss.user_id,
               SUM(TIMESTAMPDIFF(SECOND, GREATEST(l.start, CURDATE()), COALESCE(l.end, NOW()))) AS seconds

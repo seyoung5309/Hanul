@@ -16,7 +16,12 @@
 
   let room = null; // GET /rooms/:roomId 결과
   let loadedAt = 0; // room을 받은 시각 (그 뒤로 흐른 시간만큼 타이머를 늘린다)
-  let session = null; // 내 공부 세션 (없으면 null)
+  let session = null; // 내 공부 세션 (없으면 null). session.roomId = 공부를 시작한 방
+
+  // 공부는 한 번에 한 방에서만: 다른 방에서 공부 중이면 이 방에서는 시작·종료할 수 없다.
+  // (방이 없어진 세션은 어디서든 끝낼 수 있게 이 방 것으로 본다)
+  const studyingHere = () => Boolean(session) && (session.roomId === roomId || session.roomId === null);
+  const studyingElsewhere = () => Boolean(session) && !studyingHere();
   let heartbeatTimer = null;
   let checkTimer = null;
 
@@ -42,12 +47,17 @@
     if (!room) return;
     const elapsed = (Date.now() - loadedAt) / 1000;
     $(".timer__num--total").textContent = formatHMS(room.totalSeconds + room.activeCount * elapsed);
-    $(".timer__num--mine").textContent = formatHMS(room.mySeconds + (session ? elapsed : 0));
+    $(".timer__num--mine").textContent = formatHMS(room.mySeconds + (studyingHere() ? elapsed : 0));
   }
 
   function renderStudyState() {
-    studyButton.textContent = session ? "공부 종료" : "공부 시작";
-    studyButton.classList.toggle("room__study-btn--stop", Boolean(session));
+    const elsewhere = studyingElsewhere();
+    studyButton.textContent = elsewhere ? "다른 방에서 공부 중" : session ? "공부 종료" : "공부 시작";
+    studyButton.title = elsewhere ? "공부 중인 방에서 공부를 종료한 뒤 이 방에서 시작할 수 있습니다." : "";
+    studyButton.disabled = elsewhere;
+    studyButton.classList.toggle("room__study-btn--stop", studyingHere());
+    studyButton.classList.toggle("room__study-btn--elsewhere", elsewhere);
+    subjectSelect.hidden = elsewhere;
     subjectSelect.disabled = Boolean(session);
     if (session) subjectSelect.value = String(session.subjectId);
 
@@ -188,14 +198,15 @@
   // ----- 이벤트 -----
 
   studyButton.addEventListener("click", async () => {
+    if (studyingElsewhere()) return;
     studyButton.disabled = true;
     try {
       if (session) await request("study:stop");
-      else await request("study:start", { subjectId: Number(subjectSelect.value) });
+      else await request("study:start", { subjectId: Number(subjectSelect.value), roomId });
     } catch (err) {
       alert(err.message);
     } finally {
-      studyButton.disabled = false;
+      renderStudyState(); // 버튼 상태(다른 방에서 공부 중이면 계속 비활성)를 다시 맞춘다
     }
   });
 

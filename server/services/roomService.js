@@ -1,5 +1,6 @@
 const roomModel = require("../models/roomModel");
 const studyModel = require("../models/studyModel");
+const studyService = require("./studyService");
 const HttpError = require("../utils/httpError");
 
 const MAX_JOINED_ROOMS = 5; // 1인당 참여 가능한 공부방 수 (반 메인 제외, SR-002)
@@ -21,15 +22,20 @@ function emitRoomUpdated(io, roomId, change) {
   io.to(`room:${roomId}`).emit("room:updated", { roomId, change });
 }
 
-// 나가기·내보내기 후: 그 사용자의 소켓을 방 채널에서 빼고, 이 방의 공부 기록을 끝낸다.
+// 이 방에서 공부 중이던 세션을 끝낸다. (공부는 시작한 방에서만 하므로 방이 없어지면 공부도 끝)
+async function endSessionInRoom(io, userId, roomId, reason) {
+  const session = await studyModel.findActiveSession(userId);
+  if (session?.roomId === roomId) await studyService.endSession(io, session.id, { status: "종료", reason });
+}
+
+// 나가기·내보내기 후: 그 사용자의 소켓을 방 채널에서 빼고, 이 방에서 하던 공부를 끝낸다.
 async function detachUser(io, userId, roomId) {
   const sockets = await io.in(`user:${userId}`).fetchSockets();
   for (const socket of sockets) {
     socket.leave(`room:${roomId}`);
     socket.data.rooms?.delete(roomId);
   }
-  const session = await studyModel.findActiveSession(userId);
-  if (session) await studyModel.endLogs(session.id, [roomId]);
+  await endSessionInRoom(io, userId, roomId, "room-left");
 }
 
 // 방 폭파 (SR-005, SR-010). 참가자들의 화면에 알리고 삭제한다.
@@ -40,6 +46,7 @@ async function closeRoom(io, roomId, reason) {
     socket.leave(`room:${roomId}`);
     socket.data.rooms?.delete(roomId);
   }
+  for (const userId of memberIds) await endSessionInRoom(io, userId, roomId, "room-closed");
   await roomModel.deleteRoom(roomId);
   for (const userId of memberIds) io.to(`user:${userId}`).emit("room:removed", { roomId, reason });
 }
