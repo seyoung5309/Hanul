@@ -1,14 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>한울</title>
+    <link rel="stylesheet" href="../css/login-design.css">
 </head>
 
 <body>
+<div class="login-container">
+    <h1 class="logo">한울</h1>
+    <h2 class="login-title">로그인</h2>
 
+    <form id="loginArea">
+        <div class="input-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" placeholder="이메일을 입력해 주세요.">
+        </div>
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력해 주세요.">
+        </div>
+        <button type="submit" class="login-button">로그인</button>
+    </form>
+
+    <div class="signup-link">
+        <a href="signup.html">아직 회원이 아니라면?</a>
+        <a href="signup.html">회원가입하기</a>
+    </div>
+
+    <div class="easy-login">
+        <p>간편 로그인</p>
+        <div class="social-login-group">
+            <button type="button" class="social-login" onclick="//소셜로그인 들어갈거1"></button>
+            <button type="button" class="social-login" onclick="//소셜로그인 들어갈거2"></button>
+            <button type="button" class="social-login" onclick="//소셜로그인 들어갈거3"></button>
+        </div>
+    </div>
+</div>
+    <script>
+        const loginArea = document.getElementById('loginArea');
+        loginArea.addEventListener('submit', async function(e) {
+            e.preventDefault()
+
+            const emailValue = document.getElementById('email').value;
+            const passwordValue = document.getElementById('password').value;
+
+            const giving = {
+                email: emailValue,
+                password: passwordValue,
+            };
+
+            await fetch('/api/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(giving)
+            });
+        });
+    </script>
 </body>
-
 </html>
