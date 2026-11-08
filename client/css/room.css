@@ -1,0 +1,303 @@
+/* ===== 공통 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
+    color: #000;
+    background: #fff;
+    min-width: 1920px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    font: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+}
+
+img {
+    display: block;
+}
+
+/* ===== 스터디룸 내부 ===== */
+.room {
+    position: absolute;
+    top: 0;
+    left: 150px;
+    width: 1600px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.room__header {
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    height: 66px;
+    padding: 0 16px;
+    border: 1px solid #d7d8de;
+}
+
+.room__back img {
+    width: 32px;
+    height: 32px;
+}
+
+.room__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a68d7;
+}
+
+.room__content {
+    position: relative;
+    flex: 1;
+    min-height: 0; /* 채팅 목록이 화면 밖으로 늘어나지 않고 스크롤되도록 */
+    background: #f3f3f3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.timer {
+    position: absolute;
+    top: 25px;
+    right: 40px;
+    width: 380px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 16px;
+}
+
+.timer__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.timer__label {
+    font-size: 16px;
+    font-weight: 400;
+    color: #666;
+}
+
+.timer__num {
+    font-size: 36px;
+}
+
+.timer__num--mine {
+    font-size: 40px;
+}
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    flex: 1;
+    min-height: 0;
+    padding-top: 160px; /* 오른쪽 위 타이머 아래부터 채팅 표시 */
+}
+
+.chat__messages {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 80px;
+}
+
+/* 채팅이 적을 때는 아래(입력창 쪽)에 붙인다 */
+.chat__messages > :first-child {
+    margin-top: auto;
+}
+
+.message__text {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.message__avatar {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #1a68d7;
+}
+
+.message__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #444;
+}
+
+.message__meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.message__text {
+    font-size: 20px;
+}
+
+.chat__form {
+    padding: 10px 20px 40px;
+}
+
+.chat__input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: #fff;
+    border: 1px solid #1a68d7;
+    border-radius: 100px;
+}
+
+.chat__input input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font: inherit;
+    font-size: 20px;
+    line-height: 20px;
+    color: #222;
+}
+
+.chat__input input::placeholder {
+    color: #929292;
+}
+
+.chat__buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.chat__buttons img {
+    width: 24px;
+    height: 24px;
+}
+
+/* ===== 공부 시작·종료 ===== */
+.room__study {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.room__subject {
+    height: 44px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 16px;
+    color: #222;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 12px;
+}
+
+.room__subject:disabled {
+    color: #666;
+    background: #f3f3f3;
+}
+
+.room__study-btn {
+    height: 44px;
+    padding: 0 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a68d7;
+    border-radius: 12px;
+}
+
+.room__study-btn--stop {
+    background: #cf5353;
+}
+
+.room__study-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* ===== 3시간 응답 확인 ===== */
+.study-check {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.study-check[hidden] {
+    display: none;
+}
+
+.study-check__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px 56px;
+    background: #fff;
+    border-radius: 16px;
+}
+
+.study-check__title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.study-check__text {
+    font-size: 16px;
+    color: #444;
+}
+
+.study-check__count {
+    font-weight: 700;
+    color: #cf5353;
+}
+
+.study-check__btn {
+    margin-top: 8px;
+    padding: 12px 48px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    background: #1a68d7;
+    border-radius: 12px;
+}

@@ -1,14 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>한울</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+    <link rel="stylesheet" href="../css/ai-assistant.css">
 </head>
 
 <body>
+    <main class="ai">
+        <!-- 기록 패널: 클릭하면 펼쳐지고 접힘 -->
+        <details class="history">
+            <summary class="history__head">
+                <span class="history__title"><img src="../assets/docs.svg" alt="">기록</span>
+                <img src="../assets/arrow_down.svg" alt="" class="history__arrow">
+            </summary>
+            <ul class="history__list"><!-- js/pages/ai-assistant.js가 채움 -->
+            </ul>
+        </details>
 
+        <h1 class="ai__title">AI에게 일정 리마인드를 물어보세요</h1>
+
+        <div class="ai__info">
+            <p>미림마이스터고등학교 2학년 웹 응용 SW 프로그래밍 실무 - 과목 프로젝트 수행평가</p>
+            <p>Developer GitHub</p>
+            <p class="small">seyoung5309</p>
+            <p class="small">mirim-jyd</p>
+            <p>한울 (2026.08.10 ~ 진행중)</p>
+        </div>
+
+        <!-- 대화 (대화방을 열면 보임) -->
+        <ul class="ai__messages" hidden></ul>
+
+        <p class="ai__usage"></p>
+
+        <form class="chat__input" onsubmit="return false;">
+            <input type="text" name="message" placeholder="내일 수학 수행이래" maxlength="1000" autocomplete="off">
+            <div class="chat__buttons">
+                <button type="button" class="ai__plan-open" title="학습 계획 만들기"><img src="../assets/plus.svg" alt="학습 계획 만들기"></button>
+                <button type="submit"><img src="../assets/send.svg" alt="전송"></button>
+            </div>
+        </form>
+    </main>
+
+    <!-- 학습 계획 만들기 (AI-001) -->
+    <dialog class="plan-dialog">
+        <form class="plan-dialog__form" method="dialog">
+            <h2 class="plan-dialog__title">학습 계획 만들기</h2>
+            <label class="plan-dialog__field">
+                <span>시험 일정</span>
+                <textarea name="exams" rows="2" maxlength="1000" placeholder="예: 10월 14일 수학, 10월 16일 영어"></textarea>
+            </label>
+            <label class="plan-dialog__field">
+                <span>공부 가능 시간</span>
+                <textarea name="availableTime" rows="2" maxlength="1000" placeholder="예: 평일 19~22시, 주말 오후 2~6시"></textarea>
+            </label>
+            <label class="plan-dialog__field">
+                <span>할 일</span>
+                <textarea name="tasks" rows="3" maxlength="1000" placeholder="예: 쎈 수학 극한 단원, 영어 본문 암기"></textarea>
+            </label>
+            <p class="plan-dialog__error" role="alert"></p>
+            <div class="plan-dialog__buttons">
+                <button type="button" class="plan-dialog__cancel">취소</button>
+                <button type="submit" class="plan-dialog__submit">계획 만들기</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- navigate 불러오기 -->
+    <div data-include="../component/navigate.html"></div>
+
+    <!-- Component 불러오기-->
+    <script src="../js/include.js"></script>
+
+    <!-- API 연동 -->
+    <script src="../js/api.js"></script>
+    <script src="../js/pages/ai-assistant.js"></script>
 </body>
 
 </html>
