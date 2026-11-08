@@ -89,12 +89,13 @@ const Hanul = (() => {
 
   // 프로필 사진 업로드: 서버에서 서명을 받아 Cloudinary에 바로 올린 뒤, 주소를 서버에 저장한다.
   // 사용: <input type="file" accept="image/*"> 의 change에서 await Hanul.uploadProfileImg(input.files[0])
+  // basePath: 서명은 POST {basePath}/upload, 저장은 PUT {basePath}
   const MAX_IMG_MB = 5;
-  async function uploadProfileImg(file) {
+  async function uploadImg(basePath, file) {
     if (!file?.type.startsWith("image/")) throw new Error("사진 파일을 선택해 주세요.");
     if (file.size > MAX_IMG_MB * 1024 * 1024) throw new Error(`사진은 ${MAX_IMG_MB}MB 이하만 올릴 수 있습니다.`);
 
-    const { uploadUrl, fields } = await api("POST", "/users/me/img/upload");
+    const { uploadUrl, fields } = await api("POST", `${basePath}/upload`);
     const form = new FormData();
     for (const [key, value] of Object.entries(fields)) form.append(key, value);
     form.append("file", file);
@@ -103,9 +104,12 @@ const Hanul = (() => {
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error(data?.error?.message ?? "사진을 올리지 못했습니다.");
 
-    await api("PUT", "/users/me/img", { url: data.secure_url });
+    await api("PUT", basePath, { url: data.secure_url });
     return data.secure_url;
   }
 
-  return { api, formatHMS, el, roomLink, fillProfileCard, fillProfileStats, keepStudying, uploadProfileImg };
+  const uploadProfileImg = (file) => uploadImg("/users/me/img", file);
+  const uploadRoomImg = (roomId, file) => uploadImg(`/rooms/${roomId}/img`, file); // 방장만
+
+  return { api, formatHMS, el, roomLink, fillProfileCard, fillProfileStats, keepStudying, uploadProfileImg, uploadRoomImg };
 })();

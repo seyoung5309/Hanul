@@ -230,7 +230,7 @@ img {
     width: 100px;
     height: 100px;
     flex-shrink: 0;
-    background: #d9d9d9;
+    background: #d9d9d9 center / cover no-repeat;
 }
 
 .room-card__body {
@@ -301,6 +301,7 @@ img {
     padding: 4px 0;
     font-size: 20px;
     text-align: left;
+    cursor: pointer;
 }
 
 .popup__item--danger {

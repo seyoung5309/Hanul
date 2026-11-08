@@ -16,6 +16,33 @@
     icon.alt = "더보기";
     button.append(icon);
 
+    const popup = el("div", "popup");
+
+    // 방장: 썸네일 업로드 (사진을 고르면 바로 Cloudinary에 올리고 목록을 다시 불러온다)
+    if (isOwner) {
+      const upload = el("label", "popup__item", "썸네일 업로드");
+      upload.tabIndex = 0; // 포커스를 받아야 누르는 동안 팝업(:focus-within)이 닫히지 않는다
+      upload.addEventListener("keydown", (event) => event.key === "Enter" && input.click());
+      const input = el("input");
+      input.type = "file";
+      input.accept = "image/jpeg,image/png,image/webp";
+      input.hidden = true;
+      input.addEventListener("change", async () => {
+        const file = input.files[0];
+        input.value = "";
+        if (!file) return;
+        document.activeElement?.blur();
+        try {
+          await Hanul.uploadRoomImg(room.id, file);
+          await loadRooms();
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+      upload.append(input);
+      popup.append(upload);
+    }
+
     const action = el("button", "popup__item popup__item--danger", isOwner ? "삭제하기" : "나가기");
     action.type = "button";
     action.addEventListener("click", async () => {
@@ -30,7 +57,6 @@
       }
     });
 
-    const popup = el("div", "popup");
     popup.append(action);
     const wrap = el("div", "more-wrap");
     wrap.append(button, popup);
@@ -66,7 +92,10 @@
     body.append(head, times, tags);
 
     const card = el("div", "room-card");
-    card.append(el("div", "room-card__thumb"), body);
+    // 썸네일: 올린 사진이 있으면 사진, 없으면 회색 칸
+    const thumb = el("div", "room-card__thumb");
+    if (room.img) thumb.style.backgroundImage = `url("${room.img}")`;
+    card.append(thumb, body);
     return card;
   }
 

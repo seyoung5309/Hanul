@@ -4,6 +4,7 @@ const chatModel = require("../models/chatModel");
 const notificationModel = require("../models/notificationModel");
 const userModel = require("../models/userModel");
 const roomService = require("../services/roomService");
+const cloudinaryService = require("../services/cloudinaryService");
 const notificationService = require("../services/notificationService");
 const { isVisibleIn } = require("../services/studyService");
 const withTransaction = require("../utils/transaction");
@@ -258,7 +259,25 @@ async function answerInvite(req, res) {
   res.json({ roomId, accepted: accept });
 }
 
+// 썸네일 업로드 준비 → 브라우저가 Cloudinary에 올릴 폼 값 (방장만, 프로필 사진과 같은 방식)
+async function createImgUpload(req, res) {
+  const room = await loadOwnedRoom(req);
+  res.json(cloudinaryService.createRoomUpload(room.id));
+}
+
+// { url } 올린 사진을 썸네일로 저장, null이면 삭제 (방장만)
+async function updateImg(req, res) {
+  const room = await loadOwnedRoom(req);
+  const { url } = req.body;
+  check(url === null || cloudinaryService.isRoomImgUrl(room.id, url), "사진 주소를 확인해 주세요.");
+  await roomModel.updateImg(room.id, url);
+  roomService.emitRoomUpdated(getIO(), room.id, "img");
+  res.status(204).end();
+}
+
 module.exports = {
+  createImgUpload,
+  updateImg,
   createRoom,
   getMyRooms,
   joinByCode,

@@ -2,7 +2,7 @@ const pool = require("../config/db");
 
 // 트랜잭션 안에서 부르는 함수는 conn을 받는다. (utils/transaction.js)
 
-const ROOM_COLUMNS = `id, type, class_id AS classId, title, comment, room_code AS roomCode,
+const ROOM_COLUMNS = `id, type, class_id AS classId, title, comment, img, room_code AS roomCode,
   owner_id AS ownerId, max_members AS maxMembers, created_at AS createdAt`;
 
 // 방 데이터에 접근하기 전에 참가자인지 확인
@@ -134,7 +134,7 @@ async function findMemberIds(roomId) {
 // 내가 참여한 방 목록. 반 메인이 맨 위.
 async function findMyRooms(userId) {
   const [rows] = await pool.query(
-    `SELECT r.id, r.type, r.title, r.comment, r.room_code AS roomCode, r.owner_id AS ownerId,
+    `SELECT r.id, r.type, r.title, r.comment, r.img, r.room_code AS roomCode, r.owner_id AS ownerId,
             r.max_members AS maxMembers,
             (SELECT COUNT(*) FROM study_user x WHERE x.room_id = r.id) AS memberCount
      FROM study_user su JOIN study_room r ON r.id = su.room_id
@@ -262,7 +262,13 @@ async function findPendingInvites(userId) {
   return rows;
 }
 
+// 썸네일 주소 저장 (null이면 삭제)
+async function updateImg(roomId, img) {
+  await pool.query("UPDATE study_room SET img = ? WHERE id = ?", [img, roomId]);
+}
+
 module.exports = {
+  updateImg,
   isMember,
   findUserRooms,
   findById,

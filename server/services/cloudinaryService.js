@@ -19,6 +19,7 @@ function requireConfig() {
 }
 
 const publicIdOf = (userId) => `${FOLDER}/user_${userId}`;
+const roomPublicIdOf = (roomId) => `hanul/rooms/room_${roomId}`; // 스터디룸 썸네일 (400x400으로 잘라 저장)
 
 // Cloudinary 서명: 파라미터를 이름순으로 "k=v&k=v" 로 잇고 API secret을 붙여 SHA-1
 function sign(params) {
@@ -30,13 +31,13 @@ function sign(params) {
 }
 
 // 업로드 폼에 그대로 넣을 값 (file만 브라우저가 추가한다). 서명은 1시간 동안 유효하다.
-function createAvatarUpload(userId) {
+function createUpload(publicId) {
   requireConfig();
   const params = {
     allowed_formats: FORMATS.join(","),
     invalidate: true, // 같은 자리에 덮어쓸 때 CDN 캐시도 비운다
     overwrite: true,
-    public_id: publicIdOf(userId),
+    public_id: publicId,
     timestamp: Math.floor(Date.now() / 1000),
     transformation: TRANSFORMATION,
   };
@@ -46,12 +47,20 @@ function createAvatarUpload(userId) {
   };
 }
 
-// 업로드 결과의 secure_url이 이 사용자 자리의 사진인지 확인한다.
-function isAvatarUrl(userId, url) {
+// 업로드 결과의 secure_url이 이 자리(publicId)의 사진인지 확인한다.
+function isUploadedUrl(publicId, url) {
   if (!cloudinary.cloudName || typeof url !== "string") return false;
   const prefix = `https://res.cloudinary.com/${cloudinary.cloudName}/image/upload/`;
-  const pattern = new RegExp(`^v\\d+/${publicIdOf(userId)}\\.(${FORMATS.join("|")})$`);
+  const pattern = new RegExp(`^v\\d+/${publicId}\\.(${FORMATS.join("|")})$`);
   return url.startsWith(prefix) && pattern.test(url.slice(prefix.length));
 }
 
-module.exports = { createAvatarUpload, isAvatarUrl, sign };
+// 프로필 사진
+const createAvatarUpload = (userId) => createUpload(publicIdOf(userId));
+const isAvatarUrl = (userId, url) => isUploadedUrl(publicIdOf(userId), url);
+
+// 스터디룸 썸네일 (방장만, 컨트롤러에서 확인)
+const createRoomUpload = (roomId) => createUpload(roomPublicIdOf(roomId));
+const isRoomImgUrl = (roomId, url) => isUploadedUrl(roomPublicIdOf(roomId), url);
+
+module.exports = { createAvatarUpload, isAvatarUrl, createRoomUpload, isRoomImgUrl, sign };
