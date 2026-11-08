@@ -4,123 +4,164 @@
     padding: 0;
 }
 
+/* Figma: 로고 위 120px, 폼은 580px 너비로 가운데 */
 body {
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    font-family: 'Pretendard', sans-serif;
+    font-weight: 500;
     background-color: #ffffff;
 }
 
 .signup-container {
-    width: 100%;
-    max-width: 420px;
-    padding: 40px 20px;
+    width: 580px;
+    margin: 0 auto;
+    padding: 120px 0 80px;
 }
 
 .logo {
-    text-align: center;
-    color: #2c3e75;
-    font-size: 44px;
-    font-weight: 900;
-    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 76px;
+}
+
+.logo img {
+    display: block;
+    width: 120px;
+    height: 64.735px;
 }
 
 .page-title {
-    color: #2c3e75;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 20px;
+    color: #1a68d7;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 50px;
 }
 
-.input-group {
-    margin-bottom: 16px;
+#signup2Area {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
 }
 
 .input-group label {
     display: block;
-    color: #2c3e75;
-    font-size: 13px;
-    font-weight: bold;
-    margin-bottom: 8px;
+    color: #1a68d7;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 18px;
 }
 
 .input-group input {
     width: 100%;
-    padding: 14px;
-    border: 1px solid #aeb7c8;
-    border-radius: 4px;
-    font-size: 14px;
+    padding: 20px;
+    border: 1px solid #d7d8de;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 24px;
+    line-height: normal;
+    color: #222;
 }
 
 .input-group input:focus {
-    border-color: #1d6ce3;
+    outline: none;
+    border-color: #1a68d7;
 }
 
 .input-group input::placeholder {
-    color: #a0a6b5;
+    color: #d7d8de;
 }
 
+/* 이름(135px) + 아이디, 입학년도 + 학번 */
 .row-group {
     display: flex;
+    gap: 24px;
+}
+
+.row-group .col-half {
+    flex: 1;
+    min-width: 0;
+}
+
+.row-group:has(.col-name) {
     gap: 12px;
-    margin-bottom: 16px;
+}
+
+.col-name {
+    width: 135px;
+    flex-shrink: 0;
+}
+
+.col-id {
+    flex: 1;
+    min-width: 0;
 }
 
 .id-input {
     display: flex;
-    gap: 8px;
+    gap: 12px;
+}
+
+.id-input input {
+    width: 275px;
+    flex-shrink: 0;
 }
 
 .check-btn {
-    padding: 0 14px;
-    background-color: #e2e8f0;
-    color: #1d6ce3;
+    width: 145px;
+    padding: 20px 10px;
+    background-color: #e6e6e6;
+    color: #1a68d7;
     border: none;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: bold;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: normal;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .check-btn:hover {
-    background-color: #cbd5e1;
+    background-color: #d7d8de;
 }
 
 .gender-group {
     display: flex;
-    gap: 10px;
+    gap: 22px;
 }
 
 .gender-btn {
     flex: 1;
-    padding: 14px;
-    border: 1px solid #aeb7c8;
+    padding: 20px 10px;
+    border: 1px solid #d7d8de;
     background-color: #ffffff;
-    color: #a0a6b5;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: bold;
+    color: #d7d8de;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: normal;
+    cursor: pointer;
 }
 
 .gender-btn.active {
-    background-color: #1d6ce3;
-    border-color: #1d6ce3;
+    background-color: #1a68d7;
+    border-color: #1a68d7;
     color: #ffffff;
 }
 
 .signup-btn {
     width: 100%;
-    padding: 15px;
-    background-color: #1d6ce3;
+    padding: 20px 10px;
+    background-color: #1a68d7;
     color: #ffffff;
     border: none;
-    border-radius: 4px;
-    font-size: 15px;
-    font-weight: bold;
-    margin-top: 10px;
-    margin-bottom: 20px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: normal;
+    margin-top: 48px; /* 입력칸과 80px (폼 간격 32px 포함) */
+    cursor: pointer;
 }
 
 .signup-btn:hover {
@@ -130,11 +171,12 @@ body {
 .login-link-group {
     display: flex;
     justify-content: space-between;
+    margin-top: 20px;
 }
 
 .login-link-group a {
-    color: #1d6ce3;
+    color: #1a68d7;
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 500;
 }

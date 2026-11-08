@@ -1,18 +1,16 @@
 <!doctype html>
 <html lang="ko">
-<!doctype html>
-<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>한울 - 랭킹</title>
-    <link rel="stylesheet" href="../css/rank-design.css">
-    <title>한울 - 랭킹</title>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
     <link rel="stylesheet" href="../css/rank-design.css">
 </head>
 
-<body>
+<body data-page="rank">
     <main class="main-wrap">
         <h1 class="title">랭킹</h1>
 
@@ -51,6 +49,15 @@
         <!-- 4~10위 리스트 -->
         <section class="list-box" id="list"></section>
     </main>
+
+    <!-- navigate 불러오기 -->
+    <div data-include="../component/navigate.html"></div>
+
+    <!-- footer 불러오기 -->
+    <div data-include="../component/footer.html"></div>
+
+    <!-- Component 불러오기-->
+    <script src="../js/include.js"></script>
 
     <script>
         const url = "https://hanul-production.up.railway.app"; // 백엔드 주소 넣을 곳
