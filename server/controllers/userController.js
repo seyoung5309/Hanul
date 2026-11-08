@@ -2,6 +2,9 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/userModel");
 const cloudinaryService = require("../services/cloudinaryService");
+const roomModel = require("../models/roomModel");
+const roomService = require("../services/roomService");
+const { getIO } = require("../socket");
 const classModel = require("../models/classModel");
 const withTransaction = require("../utils/transaction");
 const HttpError = require("../utils/httpError");
@@ -350,6 +353,7 @@ async function withdraw(req, res) {
 
   const ownedRooms = await userModel.countOwnedRooms(req.user.id);
   if (ownedRooms > 0) throw ownedRoomsError(ownedRooms);
+  const rooms = await roomModel.findUserRooms(req.user.id); // 탈퇴 후 참가자 목록을 갱신할 방
 
   try {
     await userModel.deleteAuth(req.user.id);
@@ -358,6 +362,9 @@ async function withdraw(req, res) {
     if (err.code === "ER_ROW_IS_REFERENCED_2") throw ownedRoomsError(await userModel.countOwnedRooms(req.user.id));
     throw err;
   }
+
+  const io = getIO();
+  for (const room of rooms) roomService.emitRoomUpdated(io, room.id, "left");
 
   clearTokenCookie(res);
   res.status(204).end();

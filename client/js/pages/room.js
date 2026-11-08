@@ -40,6 +40,22 @@
     $(".room__title").textContent = room.title;
     document.title = `한울 - ${room.title}`;
     renderTimers();
+    renderMembers();
+  }
+
+  // 참여 학생: 공부 중이면 초록색, 아니면 회색 (공부 중인 학생을 위로)
+  // studying이 null이면 그 학생이 공부 상태를 숨긴 것이라 회색으로 둔다. (UD-008)
+  let myId = null;
+  function renderMembers() {
+    const members = [...room.members].sort((a, b) => Number(Boolean(b.studying)) - Number(Boolean(a.studying)));
+    $(".members__count").textContent = members.length;
+    $(".members__list").replaceChildren(...members.map((member) => {
+      const item = el("li", member.studying ? "member member--studying" : "member", member.name);
+      item.title = member.studying ? "공부 중" : "공부 중 아님";
+      if (member.userId === myId) item.append(el("span", "member__tag", "(나)"));
+      if (member.isOwner) item.append(el("span", "member__tag", "방장"));
+      return item;
+    }));
   }
 
   // 1초마다: 지금 이 방에서 공부 중인 기록 수만큼 총합이 늘고, 내가 공부 중이면 내 시간도 는다.
@@ -256,6 +272,7 @@
   });
 
   async function init() {
+    myId = (await api("GET", "/users/me")).id;
     await Promise.all([loadRoom(), loadSubjects(), loadChats()]);
     ({ session } = await api("GET", "/study/current"));
     renderStudyState();
