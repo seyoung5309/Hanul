@@ -151,7 +151,7 @@ img {
     height: 50px;
     flex-shrink: 0;
     border-radius: 50%;
-    background: #1a68d7;
+    background: #1a68d7 center / cover no-repeat;
 }
 
 .message__body {

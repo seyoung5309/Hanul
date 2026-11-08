@@ -101,9 +101,13 @@
     const body = el("div", "message__body");
     body.append(meta, el("p", "message__text", chat.message)); // textContent로 출력 (XSS 방지)
 
+    // 프로필 사진이 있으면 사진, 없으면 파란 원
+    const avatar = el("div", "message__avatar");
+    if (chat.img) avatar.style.backgroundImage = `url("${chat.img}")`;
+
     const item = el("li", "message");
     item.dataset.id = chat.id;
-    item.append(el("div", "message__avatar"), body);
+    item.append(avatar, body);
     return item;
   }
 
