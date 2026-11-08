@@ -88,10 +88,11 @@
   let loadingChats = false;
   let lastReadSent = 0;
 
+  // "2026-11-09 16:05" (24시간)
   function formatChatTime(time) {
     const d = new Date(time);
     const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   function chatItem(chat) {
