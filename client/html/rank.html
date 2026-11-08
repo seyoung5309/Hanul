@@ -1,16 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한울</title>
+    <title>한울 - 랭킹</title>
+    <link rel="stylesheet" href="../css/rank-design.css">
 </head>
 
-<body data-page="rank">
-    <div data-include="../component/navigate.html"></div>
-    <div data-include="../component/footer.html"></div>
-    <script src="../js/include.js"></script>
+<body>
+    <main class="main-wrap">
+        <h1 class="title">랭킹</h1>
+
+        <div class="btns">
+            <button class="btn on" onclick="">일간랭킹</button>
+            <button class="btn" onclick="">월간랭킹</button>
+            <button class="btn" onclick="">주간랭킹</button>
+            <button class="btn" onclick="">종합 랭킹</button>
+        </div>
+
+        <div class="my-box">
+            <div class="box">
+                <span class="txt" id="txt1"></span>
+                <div class="val">
+                    <span class="t-text" id="t1"></span>
+                    <span class="r-text" id="r1"></span>
+                </div>
+            </div>
+
+            <div class="box">
+                <span class="txt" id="txt2"></span>
+                <div class="val">
+                    <span class="t-text" id="t2"></span>
+                    <span class="r-text" id="r2"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상위 1~3위 영역 -->
+        <section class="top-box">
+            <div class="card" id="top2"></div>
+            <div class="card first" id="top1"></div>
+            <div class="card" id="top3"></div>
+        </section>
+
+        <!-- 4~10위 리스트 -->
+        <section class="list-box" id="list"></section>
+    </main>
+
+    <script>
+        const url = "https://hanul-production.up.railway.app"; // 백엔드 주소 넣을 곳
+
+        function setPage(data) {
+            if (ims) {
+                document.getElementById("txt1").textContent = "";
+                document.getElementById("t1").textContent = "";
+                document.getElementById("r1").textContent = "";
+
+                document.getElementById("txt2").textContent = "";
+                document.getElementById("t2").textContent = "";
+                document.getElementById("r2").textContent = "";
+            }
+
+            const arr = "";
+            const c1 = document.getElementById("top1");
+            const c2 = document.getElementById("top2");
+            const c3 = document.getElementById("top3");
+
+            c1.innerHTML = `
+                <span class="num">1</span>
+                <div class="circle"></div>
+                <span class="s-id">${arr[0]}</span>
+                <span class="s-name">${arr[0]}</span>
+                <span class="s-time">${arr[0]}</span>
+            `;
+
+            c2.innerHTML = `
+                <span class="num">2</span>
+                <div class="circle"></div>
+                <span class="s-id">${arr[1]}</span>
+                <span class="s-name">${arr[1]}</span>
+                <span class="s-time">${arr[1]}</span>
+            `;
+
+            c3.innerHTML = `
+                <span class="num">3</span>
+                <div class="circle"></div>
+                <span class="s-id">${arr[2]}</span>
+                <span class="s-name">${arr[2]}</span>
+                <span class="s-time">${arr[2]}</span>
+            `;
+
+            const list = document.getElementById("list");
+            list.innerHTML = "";
+
+            for (let i = 3; i < arr.length; i++) {
+                list.innerHTML += `
+                    <div class="item">
+                        <div class="left">
+                            <span class="n">${i + 1}</span>
+                            <div class="circle"></div>
+                            <div class="info">
+                                <span class="id-txt">${arr[i]}</span>
+                                <span class="name-txt">${arr[i]}</span>
+                            </div>
+                        </div>
+                        <span class="time-txt">${arr[i]}</span>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadData() {
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                setPage(data);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        loadData();
+    </script>
 </body>
 
 </html>
