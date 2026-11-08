@@ -413,3 +413,143 @@ img {
 .notice {
     min-height: 500px;
 }
+/* ===== 스터디룸 생성하기 ===== */
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-head__btn {
+    font-size: 16px;
+    color: #1a68d7;
+}
+
+/* Figma: 화면 아래에서 올라오는 창 (메인의 할일·일정 창과 같은 모양) */
+.room-dialog {
+    width: 1180px;
+    max-width: none;
+    max-height: none;
+    margin: auto auto 0;
+    padding: 40px 10px 120px;
+    background: #f8f9fd;
+    border: 1px solid #d7d8de;
+    border-bottom: none;
+    border-radius: 24px 24px 0 0;
+}
+
+.room-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.room-dialog__form {
+    width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.room-dialog__title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1a68d7;
+}
+
+.room-dialog__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.room-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.room-dialog__label {
+    font-size: 24px;
+    font-weight: 500;
+    color: #666;
+}
+
+.room-dialog__field input {
+    width: 100%;
+    padding: 20px;
+    font: inherit;
+    font-size: 24px;
+    font-weight: 500;
+    color: #222;
+    background: #fff;
+    border: 1px solid #d7d8de;
+    border-radius: 8px;
+}
+
+.room-dialog__field input::placeholder {
+    color: #d7d8de;
+}
+
+.room-dialog__field input:focus {
+    outline: none;
+    border-color: #1a68d7;
+}
+
+/* 분야: 고르기 전엔 회색, 고르면 파란색 */
+.subject-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.subject-chip {
+    height: 30px;
+    padding: 0 20px;
+    font-size: 16px;
+    color: #666;
+    background: #ebecf0;
+    border: 1px solid #d7d8de;
+    border-radius: 15px;
+}
+
+.subject-chip[aria-pressed="true"] {
+    color: #f8f9fd;
+    background: #1a68d7;
+}
+
+/* 서버 검증 안내 (디자인에는 없음, 필요할 때만 보임) */
+.room-dialog__error {
+    margin: -20px 0;
+    font-size: 16px;
+    color: #cf5353;
+}
+
+.room-dialog__error:empty {
+    display: none;
+}
+
+.room-dialog__buttons {
+    margin-top: 40px;
+    display: flex;
+    gap: 20px;
+}
+
+.room-dialog__buttons button {
+    flex: 1;
+    padding: 20px 10px;
+    font-size: 24px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.room-dialog__cancel {
+    color: #1a68d7;
+    background: #f8f9fd;
+    border: 1px solid #1a68d7;
+}
+
+.room-dialog__submit {
+    color: #fff;
+    background: #1a68d7;
+    border: 1px solid #1a68d7; /* 취소하기와 너비를 맞추기 위해 같은 두께의 테두리 */
+}

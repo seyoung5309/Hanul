@@ -43,6 +43,8 @@
     text.append(name);
     if (showMembers) text.append(el("p", "room-card__sub", `인원 ${room.memberCount}/${room.maxMembers ?? "-"}`));
     text.append(el("p", "room-card__sub", room.type === "class" ? "반 메인" : room.comment ?? ""));
+    // 방장에게는 친구에게 알려 줄 방 코드를 보여 준다.
+    if (room.roomCode && room.ownerId === myId) text.append(el("p", "room-card__sub", `방 코드 ${room.roomCode}`));
 
     const head = el("div", "room-card__head");
     head.append(text);
@@ -96,6 +98,64 @@
       rooms.filter((room) => room.ownerId !== me.id), // 반 메인 포함
     );
   }
+
+  // ----- 스터디룸 생성하기 (SR-001) -----
+  const MAX_KEYWORDS = 3;
+  const MAX_MEMBERS = 30; // 디자인에 인원 칸이 없어 서버가 허용하는 최대 인원으로 만든다
+  const dialog = document.querySelector(".room-dialog");
+  const form = dialog.querySelector("form");
+  const errorText = dialog.querySelector(".room-dialog__error");
+  const chips = dialog.querySelector(".subject-chips");
+
+  async function loadSubjectChips() {
+    if (chips.childElementCount > 0) return;
+    const subjects = await api("GET", "/subjects");
+    chips.replaceChildren(...subjects.map((subject) => {
+      const chip = el("button", "subject-chip", subject.name);
+      chip.type = "button";
+      chip.dataset.id = subject.id;
+      chip.setAttribute("aria-pressed", "false");
+      chip.addEventListener("click", () => {
+        const selected = chip.getAttribute("aria-pressed") === "true";
+        const count = chips.querySelectorAll('[aria-pressed="true"]').length;
+        if (!selected && count >= MAX_KEYWORDS) {
+          errorText.textContent = `분야는 최대 ${MAX_KEYWORDS}개까지 고를 수 있습니다.`;
+          return;
+        }
+        errorText.textContent = "";
+        chip.setAttribute("aria-pressed", String(!selected));
+      });
+      return chip;
+    }));
+  }
+
+  document.querySelector(".room-create-open").addEventListener("click", async () => {
+    form.reset();
+    errorText.textContent = "";
+    chips.querySelectorAll(".subject-chip").forEach((chip) => chip.setAttribute("aria-pressed", "false"));
+    dialog.showModal();
+    form.elements.title.focus();
+    await loadSubjectChips().catch((err) => (errorText.textContent = err.message));
+  });
+
+  dialog.querySelector(".room-dialog__cancel").addEventListener("click", () => dialog.close());
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const subjectIds = [...chips.querySelectorAll('[aria-pressed="true"]')].map((chip) => Number(chip.dataset.id));
+    try {
+      await api("POST", "/rooms", {
+        title: form.elements.title.value,
+        comment: form.elements.comment.value.trim() || null,
+        subjectIds,
+        maxMembers: MAX_MEMBERS,
+      });
+      dialog.close();
+      await loadRooms();
+    } catch (err) {
+      errorText.textContent = err.message;
+    }
+  });
 
   async function init() {
     await loadRooms();
