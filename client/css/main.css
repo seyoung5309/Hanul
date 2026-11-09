@@ -305,6 +305,7 @@ img {
 
 .calendar {
     width: 480px;
+    min-height: 0;
     padding: 20px;
 }
 
@@ -328,7 +329,10 @@ img {
     height: 20px;
 }
 
+/* 카드(2행 높이 512px) 안의 남은 높이만 쓰고, 일정이 많으면 목록만 스크롤 */
 .calendar__body {
+    flex: 1;
+    min-height: 0;
     display: flex;
     gap: 12px;
 }
@@ -363,12 +367,15 @@ img {
 
 .calendar__events {
     flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
 .calendar__events li {
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     gap: 11px;
