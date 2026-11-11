@@ -132,34 +132,42 @@ MySQL 테이블 27개를 7개 묶음으로 나눴다. 전체 정의는 [docs/mys
 
 ## 기술 스택
 
-| 구분          | 사용 기술                                            |
-| ------------- | ---------------------------------------------------- |
-| 프론트엔드    | HTML, CSS, JavaScript (프레임워크 없음)              |
-| 백엔드        | JavaScript (Node.js, CommonJS), Express 5, Socket.IO |
-| 데이터베이스  | MySQL (Railway)                                      |
-| 인증          | JWT (httpOnly 쿠키), bcrypt                          |
-| 외부 API      | Google Gemini API, NEIS 교육정보 개방 포털           |
-| 이미지 저장   | Cloudinary (프로필 사진, 스터디룸 썸네일)            |
-| 메일          | Nodemailer (SMTP)                                    |
-| 배포          | Railway (서버 + DB)                                  |
-| 기획 · 디자인 | Notion, Figma                                        |
-| 개발 환경     | Visual Studio Code, GitHub                           |
+| 구분          | 사용 기술                                                              |
+| ------------- | ---------------------------------------------------------------------- |
+| 프론트엔드    | HTML, CSS, JavaScript (프레임워크 없음)                                |
+| 백엔드        | JavaScript (Node.js, CommonJS), 직접 만든 경량 라우터 (`http` 모듈), Socket.IO |
+| 데이터베이스  | MySQL (Railway)                                                        |
+| 인증          | JWT (httpOnly 쿠키), bcrypt                                            |
+| 외부 API      | Google Gemini API, NEIS 교육정보 개방 포털                             |
+| 이미지 저장   | Cloudinary (프로필 사진, 스터디룸 썸네일)                              |
+| 메일          | Nodemailer (SMTP)                                                      |
+| 배포          | Railway (서버 + DB)                                                    |
+| 기획 · 디자인 | Notion, Figma                                                          |
+| 개발 환경     | Visual Studio Code, GitHub                                             |
 
 ### 서버
 
 서버는 JavaScript로 작성했고 Node.js에서 실행됩니다.
 모듈은 CommonJS(`require` / `module.exports`) 방식입니다.
 
-| 패키지                                                | 용도                                                  |
-| ----------------------------------------------------- | ----------------------------------------------------- |
-| `express`                                             | HTTP API 서버, `client` 폴더(화면) 제공               |
-| `socket.io`                                           | 실시간 공부 현황, 채팅, 알림                          |
-| `mysql2`                                              | MySQL 연결 (연결마다 세션 시간대를 KST로 맞춤)        |
-| `jsonwebtoken`, `bcryptjs`, `cookie-parser`, `cookie` | 로그인 토큰, 비밀번호 암호화, 쿠키 처리               |
-| `@google/genai`                                       | AI 도우미 (Gemini, 일정·할 일 추가 도구 포함)         |
-| `nodemailer`                                          | 비밀번호 재설정 메일                                  |
-| `node-cron`                                           | 예약 작업 (오래된 방 정리, 마감 알림, 공부 자동 종료) |
-| `dotenv`                                              | 환경 변수 (`server/.env.local`)                       |
+웹 프레임워크(Express 등)는 쓰지 않습니다. Node.js 기본 `http` 모듈 위에 필요한 기능만 직접 만든 경량 도구(`server/http/`)로 API와 화면 파일을 제공합니다.
+
+| 파일 (`server/http/`) | 하는 일                                                                         |
+| --------------------- | ------------------------------------------------------------------------------- |
+| `router.js`           | 주소별 처리 (`/rooms/:roomId`), 미들웨어 연결, async 오류 전달                  |
+| `request.js`          | 쿼리·쿠키·JSON 본문 읽기 (본문 1MB 제한, 잘못된 JSON은 400)                     |
+| `response.js`         | `res.json`, `res.status`, 로그인 쿠키 설정·삭제, 이동(redirect)                 |
+| `static.js`           | `client` 폴더 화면 파일 제공 (파일 종류 지정, 캐시, `../`·숨김 파일 경로 차단) |
+
+| 패키지                                 | 용도                                                  |
+| -------------------------------------- | ----------------------------------------------------- |
+| `socket.io`                            | 실시간 공부 현황, 채팅, 알림                          |
+| `mysql2`                               | MySQL 연결 (연결마다 세션 시간대를 KST로 맞춤)        |
+| `jsonwebtoken`, `bcryptjs`, `cookie`   | 로그인 토큰, 비밀번호 암호화, 쿠키 읽기·쓰기          |
+| `@google/genai`                        | AI 도우미 (Gemini, 일정·할 일 추가 도구 포함)         |
+| `nodemailer`                           | 비밀번호 재설정 메일                                  |
+| `node-cron`                            | 예약 작업 (오래된 방 정리, 마감 알림, 공부 자동 종료) |
+| `dotenv`                               | 환경 변수 (`server/.env.local`)                       |
 
 | 명령 (`server` 폴더) | 내용                                                        |
 | -------------------- | ----------------------------------------------------------- |
@@ -186,7 +194,8 @@ Hanul/
 │  └─ assets/          # 아이콘, 로고, 이미지
 ├─ server/
 │  ├─ server.js        # 시작 파일 (HTTP + Socket.IO)
-│  ├─ app.js           # Express 설정, client 폴더 제공
+│  ├─ app.js           # 요청 처리 순서 (요청 읽기 → 화면 파일 → /api → 오류 처리)
+│  ├─ http/            # 직접 만든 경량 라우터·요청·응답·정적 파일 도구 (Express 대신)
 │  ├─ config/          # 환경 변수, DB 연결
 │  ├─ router/          # /api/* 라우터
 │  ├─ controllers/     # 요청 검증·응답
