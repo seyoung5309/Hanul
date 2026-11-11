@@ -1,9 +1,9 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const mealService = require("../services/mealService");
 const { check, isDate } = require("../utils/validate");
 const { kstNow } = require("../utils/date");
 
-const router = express.Router();
+const router = createRouter();
 
 // 오늘의 급식 ?date=YYYY-MM-DD (없으면 오늘, 한국 시간)
 router.get("/", async (req, res) => {

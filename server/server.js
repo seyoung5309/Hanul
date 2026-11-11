@@ -4,7 +4,7 @@ const app = require("./app");
 const { initSocket } = require("./socket");
 const startJobs = require("./jobs");
 
-// Express(REST)와 Socket.IO(실시간)가 같은 포트를 함께 쓴다.
+// REST API(app.js)와 Socket.IO(실시간)가 같은 포트를 함께 쓴다.
 const server = http.createServer(app);
 initSocket(server);
 startJobs();

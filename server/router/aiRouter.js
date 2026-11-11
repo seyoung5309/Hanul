@@ -1,7 +1,7 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const controller = require("../controllers/aiController");
 
-const router = express.Router();
+const router = createRouter();
 
 // Google Gemini 사용. AI를 부르는 요청은 하루 사용 횟수에 포함된다. (AI-003)
 router.get("/usage", controller.getUsage); //                          AI-003 오늘 남은 사용량

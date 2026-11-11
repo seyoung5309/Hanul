@@ -1,8 +1,8 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const { requireAdmin } = require("../middleware/authMiddleware");
 const controller = require("../controllers/notificationController");
 
-const router = express.Router();
+const router = createRouter();
 
 // 새 알림은 소켓 notification:new로도 온다.
 router.get("/", controller.getNotifications); //                       NT-001 ?before=&type=&unread=true

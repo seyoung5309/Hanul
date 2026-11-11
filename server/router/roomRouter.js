@@ -1,8 +1,8 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const controller = require("../controllers/roomController");
 const chatController = require("../controllers/chatController");
 
-const router = express.Router();
+const router = createRouter();
 
 // 반 메인도 type='class'인 공부방이라 현황 조회(GET /:roomId)를 함께 쓴다.
 // 방 안에서 일어난 변화는 소켓 room:updated, 방에서 빠지면 room:removed로 알린다.
