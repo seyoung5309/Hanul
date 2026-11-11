@@ -1,7 +1,7 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const { requireAuth } = require("../middleware/authMiddleware");
 
-const router = express.Router();
+const router = createRouter();
 
 router.get("/health", (req, res) => res.json({ ok: true }));
 

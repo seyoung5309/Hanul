@@ -1,8 +1,8 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const { requireAuth } = require("../middleware/authMiddleware");
 const controller = require("../controllers/userController");
 
-const router = express.Router();
+const router = createRouter();
 
 // ----- 로그인 없이 사용 -----
 router.post("/signup", controller.signup); //                  UD-001, UD-003

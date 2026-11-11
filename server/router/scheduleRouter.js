@@ -1,7 +1,7 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const controller = require("../controllers/scheduleController");
 
-const router = express.Router();
+const router = createRouter();
 
 // 날짜는 "2026-10-01" 또는 "2026-10-01T14:30" (한국 시간). 하루 전에 알림을 보낸다. (TD-007)
 router.post("/", controller.createSchedule); //                 TD-001 { title, descript?, date, subjectIds? }

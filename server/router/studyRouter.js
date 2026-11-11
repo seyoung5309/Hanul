@@ -1,7 +1,7 @@
-const express = require("express");
+const { createRouter } = require("../http");
 const controller = require("../controllers/studyController");
 
-const router = express.Router();
+const router = createRouter();
 
 // 공부 시작·종료는 실시간 반영이 필요해 소켓(socket/studyHandler.js)으로 처리한다.
 router.get("/current", controller.getCurrent); // 지금 공부 중인 세션 (없으면 null)
