@@ -1,47 +1,89 @@
 const HttpError = require("./httpError");
 
-// 조건이 거짓이면 400 에러
-function check(condition, message) {
-  if (!condition) throw new HttpError(400, message);
+// false라면 400 에러
+function check(question, message) {
+  if (!question) {
+    throw new HttpError(400, message);
+  }
 }
 
-const isEmail = (v) => typeof v === "string" && v.length <= 255 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+// i(대소문자 무시), g(여러 개 찾기)
+// test(): 유효성 체크, exec(): 일치하면 배열 반환(0번째 인덱스는 전체 문자열)
+// ()로 exec 함수 쓸 때 나눌 범위 정할 수 있음. (?:)를 앞에 넣으면 배열에 저장 X
+// /^~/: ~로 시작함, /~$/: ~로 끝남
+// [abc] 중에 한 글자, [^abc]가 아닌 한 글자
+// [A-Za-z] 범위 지정
+// /d 숫자 하나, /s 공백 하나, . 아무거나 하나, /. 그냥 점 하나
+// 반복 횟수: +(1번 이상), *(0번 이상), ?(0 또는 1), {a}(a번), {a, b}(a번 이상 b번 이하)
 
-// bcrypt는 72바이트까지만 쓰므로 길이를 제한한다.
-const isPassword = (v) => typeof v === "string" && v.length >= 8 && v.length <= 64;
+let isEmail = (e) => {
+  return (
+    typeof e == "string" &&
+    e.length <= 255 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)
+  );
+};
 
-const isIdentifier = (v) => typeof v === "string" && /^[A-Za-z0-9_]{4,16}$/.test(v);
+let isPassword = (p) => {
+  return typeof p == "string" && p.length >= 8 && p.length <= 64;
+};
 
-const isName = (v) => typeof v === "string" && v.trim().length >= 1 && v.trim().length <= 16;
+let isIdentifier = (i) => {
+  return typeof i == "string" && /^[A-Za-z0-9_]{4,16}$/.test(i);
+};
 
-// "2008-03-01" 형식이고 실제 있는 날짜인지
-function isDate(v) {
-  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
-  const d = new Date(`${v}T00:00:00Z`);
-  return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v);
+let isName = (n) => {
+  return typeof n == "string" && n.trim().length >= 1 && n.trim().length <= 16;
+};
+
+function isDate(d) {
+  if (typeof d != "string" || !/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+    return false;
+  }
+
+  let d1 = new Date(`${d}T00:00:00Z`);
+
+  return !Number.isNaN(d1.getTime()) && d1.toISOString().startsWith(d);
 }
 
-// "2026-10-01" 또는 "2026-10-01T14:30" → DB에 넣을 "2026-10-01 14:30:00" (KST 그대로). 형식이 틀리면 null
-// 날짜만 오면 그날 00:00으로 본다.
-function toDateTime(v) {
-  if (typeof v !== "string") return null;
-  const match = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(v.trim());
-  if (!match || !isDate(match[1])) return null;
-  const [, date, hh = "00", mm = "00"] = match;
-  if (Number(hh) > 23 || Number(mm) > 59) return null;
+function toDateTime(d) {
+  if (typeof d != "string") return null;
+  const dt = /^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}):(\d{2}))?$/.exec(d.trim());
+
+  if (!dt || !isDate(dt[1])) {
+    return null;
+  }
+
+  let [, date, hh = "00", mm = "00"] = dt;
+
+  if (Number(hh) > 23 || Number(mm) > 59) {
+    return null;
+  }
+
   return `${date} ${hh}:${mm}:00`;
 }
 
-// 학번 "2105" → { grade: 2, classNo: 1, number: 5 } (학년 1자리 + 반 1자리 + 번호 2자리). 형식이 틀리면 null
-function parseStudentNumber(v) {
-  const match = /^([1-6])([1-9])(\d{2})$/.exec(String(v ?? "").trim());
-  if (!match || match[3] === "00") return null;
-  return { grade: Number(match[1]), classNo: Number(match[2]), number: Number(match[3]) };
+function parseStudentNumber(s) {
+  let num = /^([1-6])([1-9])(\d{2})$/.exec(String(s ?? "").trim());
+
+  if (!num || num[3] === "00") {
+    return null;
+  }
+
+  return {
+    grade: Number(num[1]),
+    classNo: Number(num[2]),
+    number: Number(num[3]),
+  };
 }
 
-const isIntBetween = (v, min, max) => Number.isInteger(v) && v >= min && v <= max;
+let isIntBetween = (a, min, max) => {
+  return Number.isInteger(a) && a >= min && a <= max;
+};
 
-const isBoolean = (v) => typeof v === "boolean";
+let isBoolean = (a) => {
+  return typeof a == "boolean";
+};
 
 module.exports = {
   check,
