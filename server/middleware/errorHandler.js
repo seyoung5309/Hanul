@@ -4,25 +4,34 @@ function notFound(req, res, next) {
   next(new HttpError(404, "존재하지 않는 API입니다."));
 }
 
-// 컨트롤러에서 따로 처리하지 않은 에러를 응답으로 바꾼다.
+// 컨트롤러에서 처리되지 않은 에러를 반환
 function toHttpError(err) {
-  if (err instanceof HttpError) return err; // 잘못된 JSON(400)·너무 큰 본문(413)도 http/request.js가 HttpError로 던진다
-  if (err.code === "ER_DUP_ENTRY") return new HttpError(409, "이미 존재하는 값입니다.");
-  if (err.code === "ER_NO_REFERENCED_ROW_2") return new HttpError(400, "존재하지 않는 항목을 참조했습니다.");
+  if (err instanceof HttpError) {
+    return err;
+  }
+
+  if (err.code == "ER_DUP_ENTRY") {
+    return new HttpError(409, "이미 존재하는 값입니다.");
+  }
+
+  if (err.code === "ER_NO_REFERENCED_ROW_2") {
+    return new HttpError(400, "존재하지 않는 항목을 참조했습니다.");
+  }
+
   return err;
 }
 
-// eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
-  const httpError = toHttpError(err);
-  const status = httpError.status || 500;
-  const expected = httpError instanceof HttpError; // 우리가 안내 문구를 정해서 던진 에러
+  let httpError = toHttpError(err);
+  let status = httpError.status || 500;
+  let expected = httpError instanceof HttpError; // message를 가졌으면 그거 출력됨
   if (!expected && status >= 500) console.error(err);
 
-  // 예상하지 못한 500대 에러는 내부 정보가 새지 않도록 메시지를 감춘다.
-  // HttpError는 503("AI 사용자가 많아요")처럼 5xx여도 정해 둔 안내 문구를 그대로 보여준다.
   res.status(status).json({
-    message: !expected && status >= 500 ? "서버 오류가 발생했습니다." : httpError.message,
+    message:
+      !expected && status >= 500
+        ? "서버 오류가 발생했습니다."
+        : httpError.message,
   });
 }
 

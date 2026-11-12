@@ -2,12 +2,12 @@ const jwt = require("jsonwebtoken");
 const { isProd, jwt: jwtConfig } = require("../config/env");
 const HttpError = require("../utils/httpError");
 
-// 토큰은 httpOnly 쿠키에 담는다. (JS에서 읽을 수 없어 XSS로 탈취되지 않음)
 const TOKEN_COOKIE = "token";
 
-// payload: { id, role }
-function signToken(payload) {
-  return jwt.sign(payload, jwtConfig.secret, { expiresIn: `${jwtConfig.expiresDays}d` });
+function signToken(idAndRole) {
+  return jwt.sign(idAndRole, jwtConfig.secret, {
+    expiresIn: `${jwtConfig.expiresDays}d`, // 7d로 저장됨.
+  });
 }
 
 function verifyToken(token) {
@@ -17,13 +17,13 @@ function verifyToken(token) {
 const cookieOptions = {
   httpOnly: true,
   sameSite: "lax",
-  secure: isProd, // 배포(HTTPS)에서만 secure
+  secure: isProd,
 };
 
-function setTokenCookie(res, payload) {
-  res.cookie(TOKEN_COOKIE, signToken(payload), {
+function setTokenCookie(res, idAndRole) {
+  res.cookie(TOKEN_COOKIE, signToken(idAndRole), {
     ...cookieOptions,
-    maxAge: jwtConfig.expiresDays * 24 * 60 * 60 * 1000,
+    maxAge: jwtConfig.expiresDays * 24 * 60 * 60 * 1000, // 7일
   });
 }
 
@@ -33,20 +33,27 @@ function clearTokenCookie(res) {
 
 // NF-001: 로그인하지 않았거나 만료된 사용자 차단
 function requireAuth(req, res, next) {
-  const token = req.cookies[TOKEN_COOKIE];
-  if (!token) throw new HttpError(401, "로그인이 필요합니다.");
+  let token = req.cookies[TOKEN_COOKIE];
+
+  if (!token) {
+    throw new HttpError(401, "로그인이 필요합니다.");
+  }
 
   try {
     req.user = verifyToken(token);
   } catch {
     throw new HttpError(401, "인증이 만료되었습니다. 다시 로그인해 주세요.");
   }
+
   next();
 }
 
-// NT-005: 관리자 전용
+// 관리자 전용
 function requireAdmin(req, res, next) {
-  if (req.user?.role !== "admin") throw new HttpError(403, "권한이 없습니다.");
+  if (req.user?.role !== "admin") {
+    throw new HttpError(403, "권한이 없습니다.");
+  }
+
   next();
 }
 
