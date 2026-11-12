@@ -4,27 +4,27 @@ const controller = require("../controllers/userController");
 
 const router = createRouter();
 
-// ----- 로그인 없이 사용 -----
-router.post("/signup", controller.signup); //                  UD-001, UD-003
-router.get("/check", controller.checkDuplicate); //            UD-002 ?email=&identifier=
-router.post("/login", controller.login); //                    UD-004
-router.post("/logout", controller.logout); //                  UD-005 (토큰이 만료돼도 로그아웃 가능)
-router.post("/password-reset", controller.requestPasswordReset); // UD-006 재설정 메일 발송
-router.put("/password-reset", controller.resetPassword); //    UD-006 새 비밀번호 설정
+// 로그인 없이 사용
+router.post("/signup", controller.signup);
+router.get("/check", controller.checkDuplicate);
+router.post("/login", controller.login);
+router.post("/logout", controller.logout);
+router.post("/password-reset", controller.requestPasswordReset);
+router.put("/password-reset", controller.resetPassword);
 
-// ----- 여기부터 로그인 필요 -----
+// 여기부터 로그인 필요
 router.use(requireAuth);
 
-router.get("/me", controller.getMe); //                        UD-007
-router.patch("/me", controller.updateMe); //                   UD-007 한 마디, 관심 과목
-router.patch("/me/account", controller.updateAccount); //      설정 { name?, identifier? } 14일에 한 번
-router.put("/me/password", controller.changePassword); //      설정 { currentPassword, newPassword } 14일에 한 번
-router.post("/me/img/upload", controller.createImgUpload); //  UD-007 사진 업로드 폼 값 (Cloudinary 서명)
-router.put("/me/img", controller.updateImg); //                UD-007 { url } 사진 저장, null이면 삭제
-router.patch("/me/visibility", controller.updateVisibility); // UD-008
-router.patch("/me/ranking", controller.updateRankingSetting); // ST-008
-router.post("/me/class", controller.changeClass); //           UD-010
-router.delete("/me", controller.withdraw); //                  UD-009
-router.get("/search", controller.searchUsers); //              SR-008 ?identifier=
+router.get("/me", controller.getMe);
+router.patch("/me", controller.updateMe);
+router.patch("/me/account", controller.updateAccount);
+router.put("/me/password", controller.changePassword);
+router.post("/me/img/upload", controller.createImgUpload);
+router.put("/me/img", controller.updateImg);
+router.patch("/me/visibility", controller.updateVisibility);
+router.patch("/me/ranking", controller.updateRankingSetting);
+router.post("/me/class", controller.changeClass);
+router.delete("/me", controller.withdraw);
+router.get("/search", controller.searchUsers);
 
 module.exports = router;

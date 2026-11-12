@@ -3,6 +3,6 @@ const controller = require("../controllers/subjectController");
 
 const router = createRouter();
 
-router.get("/", controller.getSubjects); // 과목 목록 (과목 선택 UI 공통)
+router.get("/", controller.getSubjects); // 과목 목록 불러오기
 
 module.exports = router;

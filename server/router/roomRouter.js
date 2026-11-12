@@ -4,29 +4,32 @@ const chatController = require("../controllers/chatController");
 
 const router = createRouter();
 
-// 반 메인도 type='class'인 공부방이라 현황 조회(GET /:roomId)를 함께 쓴다.
-// 방 안에서 일어난 변화는 소켓 room:updated, 방에서 빠지면 room:removed로 알린다.
-router.post("/", controller.createRoom); //                       SR-001 → { id, roomCode }
-router.get("/", controller.getMyRooms); //                        내가 참여한 방 목록 (반 메인이 맨 위)
-router.post("/join", controller.joinByCode); //                   SR-002 { roomCode }
+router.post("/", controller.createRoom); // 방 생성 { id, roomCode }
+router.get("/", controller.getMyRooms); // 내가 참여한 방 목록 (반 메인이 맨 위)
+router.post("/join", controller.joinByCode); // 코드로 스터디룸 참여 { roomCode }
 
-// /:roomId보다 먼저 등록해야 "invites"가 roomId로 잡히지 않는다.
-router.get("/invites", controller.getMyInvites); //               SR-008 받은 초대 목록
-router.patch("/invites/:inviteId", controller.answerInvite); //   SR-008 { accept }
-router.get("/unread", chatController.getUnreadCounts); //         CL-003, SR-011 { roomId: 안 읽은 수 }
+// 초대 <- 일단 기획서에 있어서 구현은 했는데 디자인에 까먹고 안 넣어서 생략됨
+router.get("/invites", controller.getMyInvites); // 초대 목록 확인
+router.patch("/invites/:inviteId", controller.answerInvite); // 초대에 반응하기 (승락 or 거절) { accept }
+router.post("/:roomId/invites", controller.inviteUser); // 초대 보내기
 
-router.get("/:roomId", controller.getRoom); //                    SR-003, CL-001 방 정보와 참가자 현황
-router.delete("/:roomId", controller.deleteRoom); //              SR-005 방장만
-router.patch("/:roomId/owner", controller.changeOwner); //        SR-006 { userId } 방장만
-router.post("/:roomId/img/upload", controller.createImgUpload); // 썸네일 업로드 폼 값 (Cloudinary 서명) 방장만
-router.put("/:roomId/img", controller.updateImg); //               { url } 썸네일 저장, null이면 삭제. 방장만
-router.delete("/:roomId/members/me", controller.leaveRoom); //    SR-007
-router.delete("/:roomId/members/:userId", controller.kickMember); // SR-009 방장만
-router.post("/:roomId/invites", controller.inviteUser); //        SR-008 { userId } 방장만
+// 채팅
+router.get("/unread", chatController.getUnreadCounts); // { roomId: 안 읽은 수 }
 
-// ----- 채팅 (보내기는 소켓 chat:send) -----
-router.get("/:roomId/chats", chatController.getChats); //         CL-002 ?before= 이전 기록 30개씩
-router.put("/:roomId/chats/read", chatController.markRead); //    CL-003 { chatId } 여기까지 읽음
-router.post("/:roomId/chats/:chatId/report", chatController.reportChat); // CL-004 { reason }
+// 스터디룸
+router.get("/:roomId", controller.getRoom); // 방 정보와 참가자 현황 불러오기
+router.delete("/:roomId", controller.deleteRoom); // 방장이 스터디룸 삭제
+router.patch("/:roomId/owner", controller.changeOwner); // 방장이 다른 사용자한테 방장 넘겨주기 { userId }
+router.post("/:roomId/img/upload", controller.createImgUpload); // Cloudinary에 썸네일 업로드 (Cloudinary 서명)
+router.put("/:roomId/img", controller.updateImg); // 업로드된 썸네일 저장 { url }
+router.delete("/:roomId/members/me", controller.leaveRoom); // 스터디룸 떠나기
+router.delete("/:roomId/members/:userId", controller.kickMember); // 방장이 참여자 강퇴
+
+//  채팅 (보내기는 소켓 chat:send)
+router.get("/:roomId/chats", chatController.getChats); // 이전 기록 30개씩 반환
+router.put("/:roomId/chats/read", chatController.markRead); // 읽은 부분 불러오기 { chatId }
+
+// 웹 사이트에 신고 디자인이 구현이 안되서 신고 기능 작동을 못시킴...
+router.post("/:roomId/chats/:chatId/report", chatController.reportChat); // 채팅 신고하기 { reason }
 
 module.exports = router;
