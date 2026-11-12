@@ -3,11 +3,10 @@ const controller = require("../controllers/scheduleController");
 
 const router = createRouter();
 
-// 날짜는 "2026-10-01" 또는 "2026-10-01T14:30" (한국 시간). 하루 전에 알림을 보낸다. (TD-007)
-router.post("/", controller.createSchedule); //                 TD-001 { title, descript?, date, subjectIds? }
-router.get("/", controller.getSchedules); //                    TD-003 ?from=&to=&limit= 날짜순
-router.get("/:scheduleId", controller.getSchedule);
-router.patch("/:scheduleId", controller.updateSchedule); //     TD-002 보낸 값만 수정
-router.delete("/:scheduleId", controller.deleteSchedule); //    TD-002
+router.post("/", controller.createSchedule); // 일정 생성 { title, descript?, date, subjectIds? }
+router.get("/", controller.getSchedules); // 일정 불러오기 ?from=&to=&limit= 날짜순
+router.get("/:scheduleId", controller.getSchedule); // 일정 세부 사항 불러오기
+router.patch("/:scheduleId", controller.updateSchedule); // 일정 수정하기
+router.delete("/:scheduleId", controller.deleteSchedule); // 일정 삭제하기
 
 module.exports = router;
