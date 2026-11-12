@@ -22,12 +22,12 @@ function currentSchoolYear() {
 function splitByKstDate(start, end) {
   let result = [];
   let check = start.getTime();
-  const end = end.getTime();
+  const endMs = end.getTime();
 
-  while (check < end) {
+  while (check < endMs) {
     let kst = check + KST;
     let nextMidnight = Math.floor(kst / DAY) * DAY + DAY - KST;
-    let segmentEnd = Math.min(nextMidnight, end);
+    let segmentEnd = Math.min(nextMidnight, endMs);
     let seconds = Math.round((segmentEnd - check) / 1000);
 
     if (seconds > 0)
