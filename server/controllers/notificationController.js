@@ -8,17 +8,23 @@ const PAGE_SIZE = 20;
 const MAX_TITLE_LENGTH = 255;
 const MAX_DESCRIPT_LENGTH = 2000;
 
+// 공지인지 To Do인지 뭔 타입인지 체크
 function parseType(value) {
-  if (value === undefined || value === "") return null;
-  check(notificationModel.TYPES.includes(value), `type은 ${notificationModel.TYPES.join(", ")} 중 하나입니다.`);
+  if (value == undefined || value == "") return null;
+  check(
+    notificationModel.TYPES.includes(value),
+    `type은 ${notificationModel.TYPES.join(", ")} 중 하나입니다.`,
+  );
   return value;
 }
 
-// NT-001: ?before=&type=&unread=true
-// 처음엔 before 없이 → 최신 20개, 더 보려면 마지막 id를 before로
+// 알림 20개 불러오기 ?before=&type=&unread=true
 async function getNotifications(req, res) {
   const before = req.query.before ? Number(req.query.before) : null;
-  check(before === null || (Number.isInteger(before) && before > 0), "before를 확인해 주세요.");
+  check(
+    before == null || (Number.isInteger(before) && before > 0),
+    "before를 확인해 주세요.",
+  );
 
   const rows = await notificationModel.findForUser(req.user.id, {
     before,
@@ -26,38 +32,42 @@ async function getNotifications(req, res) {
     type: parseType(req.query.type),
     unreadOnly: req.query.unread === "true",
   });
-  res.json({ notifications: rows.slice(0, PAGE_SIZE), hasMore: rows.length > PAGE_SIZE });
+  res.json({
+    notifications: rows.slice(0, PAGE_SIZE),
+    hasMore: rows.length > PAGE_SIZE,
+  });
 }
 
-// NT-002
+// 안 읽은 알림 개수
 async function getUnreadCount(req, res) {
   res.json(await notificationModel.countUnread(req.user.id));
 }
 
-// NT-002, NT-003: 알림을 누르면 읽음 처리 후 관련 화면으로 이동
+// 알림을 누르면 읽음 처리 후 관련 화면으로 이동
 async function markRead(req, res) {
   const id = Number(req.params.notificationId);
   check(Number.isInteger(id) && id > 0, "notificationId를 확인해 주세요.");
-  if ((await notificationModel.markRead(req.user.id, id)) === 0) throw new HttpError(404, "알림을 찾을 수 없습니다.");
+  if ((await notificationModel.markRead(req.user.id, id)) == 0)
+    throw new HttpError(404, "알림을 찾을 수 없습니다.");
   res.status(204).end();
 }
 
-// NT-002: ?type= 을 주면 그 종류만
+// ?type= 을 통해서 알림 불러오기 (To Do나 공지나 type에 따라 한번에 불러오기 가능)
 async function markAllRead(req, res) {
   await notificationModel.markAllRead(req.user.id, parseType(req.query.type));
   res.status(204).end();
 }
 
-// NT-004
+// 알림 설정 불러오기
 async function getSettings(req, res) {
   res.json(await notificationModel.findSettings(req.user.id));
 }
 
-// NT-004: 보낸 값만 바꾼다. { notice?, schedule?, study_room? }
+// 알림 설정 변경
 async function updateSettings(req, res) {
   const fields = {};
   for (const type of notificationModel.TYPES) {
-    if (req.body[type] === undefined) continue;
+    if (req.body[type] == undefined) continue;
     check(isBoolean(req.body[type]), `${type}은 true 또는 false여야 합니다.`);
     fields[type] = req.body[type];
   }
@@ -67,14 +77,25 @@ async function updateSettings(req, res) {
   res.json(await notificationModel.findSettings(req.user.id));
 }
 
-// NT-005: 관리자가 전체 공지 (공지 알림을 꺼 둔 사용자는 제외)
+// 관리자가 전체 공지 (공지 알림을 꺼 둔 사용자는 제외)
 async function sendNotice(req, res) {
-  const title = typeof req.body.title === "string" ? req.body.title.trim() : "";
-  const descript = typeof req.body.descript === "string" ? req.body.descript.trim() : "";
-  check(title.length > 0 && title.length <= MAX_TITLE_LENGTH, `제목은 1~${MAX_TITLE_LENGTH}자로 입력해 주세요.`);
-  check(descript.length > 0 && descript.length <= MAX_DESCRIPT_LENGTH, `내용은 1~${MAX_DESCRIPT_LENGTH}자로 입력해 주세요.`);
+  const title = typeof req.body.title == "string" ? req.body.title.trim() : "";
+  const descript =
+    typeof req.body.descript == "string" ? req.body.descript.trim() : "";
+  check(
+    title.length > 0 && title.length <= MAX_TITLE_LENGTH,
+    `제목은 1~${MAX_TITLE_LENGTH}자로 입력해 주세요.`,
+  );
+  check(
+    descript.length > 0 && descript.length <= MAX_DESCRIPT_LENGTH,
+    `내용은 1~${MAX_DESCRIPT_LENGTH}자로 입력해 주세요.`,
+  );
 
-  const result = await notificationService.notify(getIO(), null, { title, descript, type: "notice" });
+  const result = await notificationService.notify(getIO(), null, {
+    title,
+    descript,
+    type: "notice",
+  });
   res.status(201).json(result); // { id, count: 받은 사람 수 }
 }
 
