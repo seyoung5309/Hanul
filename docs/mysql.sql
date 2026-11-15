@@ -23,18 +23,6 @@ CREATE TABLE auth (
   created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP
 );
 
--- 비밀번호 재설정 (메일로 보낸 토큰은 해시만 저장)
-CREATE TABLE password_reset (
-  id         INT          PRIMARY KEY AUTO_INCREMENT,
-  auth_id    INT          NOT NULL,
-  token_hash VARCHAR(255) NOT NULL UNIQUE,
-  expires_at DATETIME     NOT NULL,
-  used_at    DATETIME     NULL,                       -- 사용 완료 시각 (재사용 방지)
-  created_at DATETIME     DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (auth_id) REFERENCES auth(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 CREATE TABLE user (
   id                INT         PRIMARY KEY,
   identifier        VARCHAR(16) NOT NULL UNIQUE,

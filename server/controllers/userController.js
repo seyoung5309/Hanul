@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const userModel = require("../models/userModel");
 const cloudinaryService = require("../services/cloudinaryService");
@@ -10,19 +9,15 @@ const withTransaction = require("../utils/transaction");
 const HttpError = require("../utils/httpError");
 const v = require("../utils/validate");
 const { currentSchoolYear } = require("../utils/date");
-const { sendMail } = require("../utils/mailer");
-const { appUrl } = require("../config/env");
 const { setTokenCookie, clearTokenCookie } = require("../middleware/authMiddleware");
 
 const TERMS_VERSION = "2026-09"; // 개인정보 처리방침이 바뀌면 올린다. (NF-006)
 const BCRYPT_ROUNDS = 10;
-const RESET_TOKEN_MINUTES = 30;
 const MAX_LIKED_SUBJECTS = 5;
 const VISIBILITIES = ["all", "class", "room", "private"];
 const GENDERS = { male: 0, female: 1 }; // DB: 0=남, 1=여
 
 const normalizeEmail = (email) => (typeof email === "string" ? email.trim().toLowerCase() : email);
-const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
 // 어떤 값이 중복됐는지 알려주는 에러로 바꾼다.
 function toDuplicateError(err) {
@@ -131,53 +126,6 @@ function logout(req, res) {
   res.status(204).end();
 }
 
-// UD-006: 재설정 링크를 메일로 보낸다.
-async function requestPasswordReset(req, res) {
-  const email = normalizeEmail(req.body.email);
-  v.check(v.isEmail(email), "이메일 형식을 확인해 주세요.");
-
-  const auth = await userModel.findAuthByEmail(email);
-  if (auth) {
-    const token = crypto.randomBytes(32).toString("hex");
-    await userModel.createPasswordReset({
-      authId: auth.id,
-      tokenHash: hashToken(token),
-      expiresAt: new Date(Date.now() + RESET_TOKEN_MINUTES * 60 * 1000),
-    });
-
-    const link = `${appUrl}/html/reset-password.html?token=${token}`;
-    try {
-      await sendMail({
-        to: email,
-        subject: "비밀번호 재설정 안내",
-        text: `아래 링크에서 ${RESET_TOKEN_MINUTES}분 안에 새 비밀번호를 설정해 주세요.\n${link}\n\n요청하지 않았다면 이 메일을 무시해 주세요.`,
-      });
-    } catch (err) {
-      console.error("비밀번호 재설정 메일 발송 실패", err);
-    }
-  }
-
-  // 가입 여부가 드러나지 않도록 항상 같은 응답
-  res.json({ message: "가입된 이메일이라면 재설정 링크를 보냈습니다." });
-}
-
-// UD-006: 메일 링크의 토큰으로 새 비밀번호 설정
-async function resetPassword(req, res) {
-  const { token, password } = req.body;
-  v.check(typeof token === "string" && token.length > 0, "재설정 링크가 올바르지 않습니다.");
-  v.check(v.isPassword(password), "비밀번호는 8~64자로 입력해 주세요.");
-
-  const reset = await userModel.findValidPasswordReset(hashToken(token));
-  if (!reset) throw new HttpError(400, "재설정 링크가 만료되었거나 이미 사용되었습니다.");
-
-  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-  await withTransaction(async (conn) => {
-    await userModel.updatePassword(conn, reset.authId, passwordHash);
-    await userModel.usePasswordResets(conn, reset.authId);
-  });
-  res.status(204).end();
-}
-
 // UD-007
 async function getMe(req, res) {
   const profile = await userModel.findProfile(req.user.id);
@@ -279,7 +227,7 @@ async function changePassword(req, res) {
   checkChangeLimit(auth.passwordChangedAt, "비밀번호는");
 
   const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
-  await withTransaction((conn) => userModel.updatePassword(conn, auth.id, passwordHash, { recordChange: true }));
+  await withTransaction((conn) => userModel.updatePassword(conn, auth.id, passwordHash));
   res.status(204).end();
 }
 
@@ -382,8 +330,6 @@ module.exports = {
   checkDuplicate,
   login,
   logout,
-  requestPasswordReset,
-  resetPassword,
   getMe,
   updateMe,
   updateAccount,

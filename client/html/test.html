@@ -324,16 +324,6 @@
                         ],
                     },
                     { name: "로그아웃", req: "UD-005", method: "POST", path: "/api/users/logout", fields: [] },
-                    {
-                        name: "재설정 메일 요청", req: "UD-006", method: "POST", path: "/api/users/password-reset",
-                        note: "SMTP 설정이 없으면 서버 콘솔에 링크가 출력됩니다.", fields: [f("email", "이메일", "email")],
-                    },
-                    {
-                        name: "새 비밀번호 설정", req: "UD-006", method: "PUT", path: "/api/users/password-reset", fields: [
-                            f("token", "토큰", "text", { placeholder: "메일 링크의 token 값" }),
-                            f("password", "새 비밀번호", "password"),
-                        ],
-                    },
                     { name: "내 정보", req: "UD-007", method: "GET", path: "/api/users/me", fields: [] },
                     {
                         name: "프로필 수정", req: "UD-007", method: "PATCH", path: "/api/users/me", fields: [
