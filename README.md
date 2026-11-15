@@ -60,7 +60,7 @@
 
 - 이메일, 비밀번호, 이름, 아이디, 학번 4자리를 받아 가입한다. 성별, 입학년도, 생년월일은 선택 항목이다.
 - 학번을 입력하면 학년·반·번호가 정해지고 그 반에 배정된다. 예를 들어 `2105`는 2학년 1반 5번이다.
-- 비밀번호는 이메일로 재설정한다. 링크는 30분 동안 쓸 수 있다.
+- 비밀번호는 로그인한 상태에서 설정 화면에서 바꾼다. 이름·아이디와 비밀번호는 14일에 한 번만 바꿀 수 있다.
 - 새 학년도가 되면 반을 다시 등록할 수 있다.
 - 내 공부 현황을 누구에게 보여 줄지 고를 수 있다: 전체, 같은 반, 같은 스터디룸, 비공개.
 - 마이페이지에서 프로필 사진을 올린다. 사진은 Cloudinary에 저장되고, 메인·스터디룸의 프로필 카드에도 보인다.
@@ -77,9 +77,9 @@
 - **반 스터디룸**: 반마다 자동으로 만들어진다. 같은 반 친구들의 공부 현황을 보고 채팅할 수 있다.
 - **일반 스터디룸**
   - 만들 때 방 이름, 최대 인원(2~30명), 과목 키워드(선택, 최대 3개)를 정한다.
-  - 영문 대문자와 숫자로 된 6자리 방 코드가 나온다. 이 코드를 입력하거나 방장의 초대를 수락하면 들어올 수 있다.
+  - 영문 대문자와 숫자로 된 6자리 방 코드가 나온다. 스터디룸 목록의 "스터디룸 참여하기"에 이 코드를 입력하면 들어올 수 있다.
   - 한 사람이 최대 5개 방에 참여할 수 있다(반 스터디룸 제외). 여러 방에 동시에 참여할 수 있다.
-  - 방장은 방 삭제, 방장 넘기기, 내보내기, 초대를 할 수 있다. 참여자는 방에서 나갈 수 있다.
+  - 방장은 방 삭제, 방장 넘기기, 내보내기, 썸네일 업로드를 할 수 있다. 참여자는 방에서 나갈 수 있다.
   - 마지막 활동(참가·공부·채팅)이 있고 30일이 지나면 방이 자동으로 삭제된다.
 - **채팅**
   - 실시간 채팅을 지원하고, 지난 기록은 30개씩 더 불러온다.
@@ -114,13 +114,13 @@
 
 ![한울 DB 테이블 구조도](docs/assets/hanul-erd.png)
 
-MySQL 테이블 27개를 7개 묶음으로 나눴다. 전체 정의는 [docs/mysql.sql](docs/mysql.sql)에 있다.
+MySQL 테이블 25개를 7개 묶음으로 나눴다. 전체 정의는 [docs/mysql.sql](docs/mysql.sql)에 있다.
 
 | 묶음               | 테이블                                                                                                 | 내용                                                       |
 | ------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| 사용자             | `auth`, `password_reset`, `user`                                                                       | 로그인 정보, 비밀번호 재설정, 프로필·공개 범위·랭킹 숨기기 |
+| 사용자             | `auth`, `user`                                                                                         | 로그인 정보, 프로필·공개 범위·랭킹 숨기기                  |
 | 사용자 · 반 · 과목 | `class`, `class_user`, `subject`, `subject_like`                                                       | 학년도별 반 배정, 과목, 관심 과목                          |
-| 공부방             | `study_room`, `study_user`, `subject_room`, `room_invite`                                              | 반·일반 스터디룸, 참여자, 키워드, 초대                     |
+| 공부방             | `study_room`, `study_user`, `subject_room`                                                             | 반·일반 스터디룸, 참여자, 키워드                           |
 | 공부 기록          | `study_session`, `study_log`, `study_daily`                                                            | 공부 세션, 방별 기록, 날짜별 합계                          |
 | 채팅 · 알림        | `chat`, `chat_read_cursor`, `chat_report`, `notification`, `notification_user`, `notification_setting` | 채팅, 읽음 위치, 신고, 알림과 알림 설정                    |
 | To Do · 일정       | `todo`, `todo_subject`, `schedule`, `schedule_subject`                                                 | 할 일, 일정과 연결된 과목                                  |
@@ -140,7 +140,6 @@ MySQL 테이블 27개를 7개 묶음으로 나눴다. 전체 정의는 [docs/mys
 | 인증          | JWT (httpOnly 쿠키), bcrypt                                            |
 | 외부 API      | Google Gemini API, NEIS 교육정보 개방 포털                             |
 | 이미지 저장   | Cloudinary (프로필 사진, 스터디룸 썸네일)                              |
-| 메일          | Nodemailer (SMTP)                                                      |
 | 배포          | Railway (서버 + DB)                                                    |
 | 기획 · 디자인 | Notion, Figma                                                          |
 | 개발 환경     | Visual Studio Code, GitHub                                             |
@@ -165,7 +164,6 @@ MySQL 테이블 27개를 7개 묶음으로 나눴다. 전체 정의는 [docs/mys
 | `mysql2`                               | MySQL 연결 (연결마다 세션 시간대를 KST로 맞춤)        |
 | `jsonwebtoken`, `bcryptjs`, `cookie`   | 로그인 토큰, 비밀번호 암호화, 쿠키 읽기·쓰기          |
 | `@google/genai`                        | AI 도우미 (Gemini, 일정·할 일 추가 도구 포함)         |
-| `nodemailer`                           | 비밀번호 재설정 메일                                  |
 | `node-cron`                            | 예약 작업 (오래된 방 정리, 마감 알림, 공부 자동 종료) |
 | `dotenv`                               | 환경 변수 (`server/.env.local`)                       |
 
@@ -207,8 +205,7 @@ Hanul/
 └─ docs/
    ├─ assets/          # IA 구조도, ERD
    ├─ mysql.sql        # 전체 테이블
-   ├─ seed.sql         # 초기 데이터 (과목)
-   └─ migrations/      # 이미 만든 DB에 적용할 변경분
+   └─ seed.sql         # 초기 데이터 (과목)
 ```
 
 프론트엔드와 API를 같은 서버에서 제공합니다. 그래서 클라이언트는 `/api/...` 상대 경로로 요청하고, 쿠키나 CORS를 따로 설정하지 않아도 됩니다.
@@ -222,8 +219,8 @@ Hanul/
 - 저장소 루트의 `package.json`이 `server`를 설치하고 실행합니다. 그래서 Root Directory는 비워 둡니다. `server`로 지정하면 `client` 폴더가 빠져서 화면이 404가 됩니다.
 - 환경 변수는 Railway Variables에서 관리하며, 항목은 [server/.env.example](server/.env.example)에 있습니다.
   - DB 접속 정보, `JWT_SECRET`
-  - `GEMINI_*`(AI), `NICE_*`(급식), `CLOUDINARY_*`(프로필 사진), `SMTP_*`(메일)
-  - `NODE_ENV=production`(로그인 쿠키에 `secure` 적용), `APP_URL`(배포 주소)
+  - `GEMINI_*`(AI), `NICE_*`(급식), `CLOUDINARY_*`(프로필 사진·스터디룸 썸네일)
+  - `NODE_ENV=production`(로그인 쿠키에 `secure` 적용)
 
 ---
 

@@ -1,6 +1,6 @@
 // "읽지 않은 알림" 카드 (main, study-room 공통). api.js 다음에 불러온다.
 //   채팅 탭: 안 읽은 채팅이 있는 방 (CL-003, SR-011)
-//   공지사항 탭: 읽지 않은 알림 전체 - 공지, 공부방 초대, 일정 (NT-001~003)
+//   공지사항 탭: 읽지 않은 알림 전체 - 공지, 공부방, 일정 (NT-001~003)
 Hanul.initNoticeCard = (socket) => {
   const { api, el, roomLink } = Hanul;
   const card = document.querySelector(".card.notice");
@@ -36,9 +36,7 @@ Hanul.initNoticeCard = (socket) => {
   async function openNotification(n) {
     await api("PATCH", `/notifications/${n.id}/read`);
 
-    if (n.targetType === "room_invite") {
-      await answerInvite(n);
-    } else if (n.targetType === "study_room") {
+    if (n.targetType === "study_room") {
       location.href = roomLink(n.targetId);
       return;
     } else if (n.targetType === "schedule" || n.targetType === "todo") {
@@ -48,20 +46,6 @@ Hanul.initNoticeCard = (socket) => {
       alert(`${n.title}\n\n${n.descript}`); // 공지는 내용을 보여준다.
     }
     await refresh();
-  }
-
-  async function answerInvite(n) {
-    let accept;
-    if (confirm(`${n.descript}\n\n초대를 수락할까요?`)) accept = true;
-    else if (confirm("초대를 거절할까요? (취소하면 나중에 다시 볼 수 있습니다)")) accept = false;
-    else return;
-
-    try {
-      const { roomId } = await api("PATCH", `/rooms/invites/${n.targetId}`, { accept });
-      if (accept) location.href = roomLink(roomId);
-    } catch (err) {
-      alert(err.message); // 이미 응답했거나 방이 삭제된 경우
-    }
   }
 
   async function renderChatTab(rooms) {

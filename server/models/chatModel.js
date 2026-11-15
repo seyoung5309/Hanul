@@ -1,18 +1,19 @@
 const pool = require("../config/db");
 
-// 작성자가 탈퇴하면 chat.user_id가 NULL이 된다. (UD-009)
+// 작성자가 탈퇴하면 chat.user_id가 NULL
 const CHAT_COLUMNS = `c.id, c.room_id AS roomId, c.user_id AS userId, c.message, c.time,
   COALESCE(u.name, '탈퇴한 사용자') AS name, u.identifier, u.img`;
 
+// 채팅 자체를 생성
 async function create({ roomId, userId, message }) {
-  const [result] = await pool.query("INSERT INTO chat (room_id, user_id, message) VALUES (?, ?, ?)", [
-    roomId,
-    userId,
-    message,
-  ]);
+  const [result] = await pool.query(
+    "INSERT INTO chat (room_id, user_id, message) VALUES (?, ?, ?)",
+    [roomId, userId, message],
+  );
   return findById(result.insertId);
 }
 
+// 채팅으로 누가 보낸 건지 찾기
 async function findById(chatId) {
   const [rows] = await pool.query(
     `SELECT ${CHAT_COLUMNS} FROM chat c LEFT JOIN user u ON u.id = c.user_id WHERE c.id = ?`,
@@ -21,7 +22,7 @@ async function findById(chatId) {
   return rows[0] ?? null;
 }
 
-// before보다 오래된 채팅을 최신순으로 limit개. (before가 없으면 가장 최근부터)
+// 예전에 보낸 채팅 찾기
 async function findBefore(roomId, { before = null, limit }) {
   const [rows] = await pool.query(
     `SELECT ${CHAT_COLUMNS} FROM chat c LEFT JOIN user u ON u.id = c.user_id
@@ -32,7 +33,7 @@ async function findBefore(roomId, { before = null, limit }) {
   return rows;
 }
 
-// 읽은 위치는 앞으로만 움직인다. (오래된 채팅을 다시 봐도 안 읽음이 늘지 않음)
+// 읽은 채팅은 무엇인가?
 async function markRead(userId, roomId, chatId) {
   await pool.query(
     `INSERT INTO chat_read_cursor (user_id, room_id, last_read_chat_id) VALUES (?, ?, ?)
@@ -42,8 +43,7 @@ async function markRead(userId, roomId, chatId) {
   );
 }
 
-// 방별 안 읽은 채팅 수 (CL-003, SR-011). 내 채팅과 참여하기 전 채팅은 세지 않는다.
-// { roomId: count }
+// 방 별로 안 읽은 채팅 개수
 async function countUnread(userId) {
   const [rows] = await pool.query(
     `SELECT su.room_id AS roomId, COUNT(c.id) AS count
@@ -60,14 +60,20 @@ async function countUnread(userId) {
   return Object.fromEntries(rows.map(({ roomId, count }) => [roomId, count]));
 }
 
-// 같은 채팅을 두 번 신고하면 ER_DUP_ENTRY
+// 채팅 신고
 async function report({ chatId, reporterId, reason }) {
-  const [result] = await pool.query("INSERT INTO chat_report (chat_id, reporter_id, reason) VALUES (?, ?, ?)", [
-    chatId,
-    reporterId,
-    reason,
-  ]);
+  const [result] = await pool.query(
+    "INSERT INTO chat_report (chat_id, reporter_id, reason) VALUES (?, ?, ?)",
+    [chatId, reporterId, reason],
+  );
   return result.insertId;
 }
 
-module.exports = { create, findById, findBefore, markRead, countUnread, report };
+module.exports = {
+  create,
+  findById,
+  findBefore,
+  markRead,
+  countUnread,
+  report,
+};

@@ -21,7 +21,6 @@ const port = Number(process.env.PORT) || 3000;
 module.exports = {
   port,
   isProd: process.env.NODE_ENV === "production",
-  appUrl: process.env.APP_URL || `http://localhost:${port}`,
   db: {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT) || 3306,
@@ -40,15 +39,6 @@ module.exports = {
   jwt: {
     secret: process.env.JWT_SECRET,
     expiresDays: Number(process.env.JWT_EXPIRES_DAYS) || 7,
-  },
-
-  // 이메일 인증 (구현하려다가 유료여서 생략)
-  mail: {
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-    from: process.env.MAIL_FROM || process.env.SMTP_USER,
   },
 
   // NEIS 교육정보 개방 포털 API

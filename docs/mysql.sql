@@ -23,18 +23,6 @@ CREATE TABLE auth (
   created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP
 );
 
--- 비밀번호 재설정 (메일로 보낸 토큰은 해시만 저장)
-CREATE TABLE password_reset (
-  id         INT          PRIMARY KEY AUTO_INCREMENT,
-  auth_id    INT          NOT NULL,
-  token_hash VARCHAR(255) NOT NULL UNIQUE,
-  expires_at DATETIME     NOT NULL,
-  used_at    DATETIME     NULL,                       -- 사용 완료 시각 (재사용 방지)
-  created_at DATETIME     DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (auth_id) REFERENCES auth(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 CREATE TABLE user (
   id                INT         PRIMARY KEY,
   identifier        VARCHAR(16) NOT NULL UNIQUE,
@@ -153,27 +141,6 @@ CREATE TABLE subject_room (                           -- 서버 로직상 최대
     ON DELETE CASCADE ON UPDATE CASCADE,              -- 방 폭파 시 함께 삭제
   FOREIGN KEY (subject_id) REFERENCES subject(id)
     ON DELETE RESTRICT ON UPDATE RESTRICT
-);
-
--- 초대 (수락 시 서버가 study_user INSERT)
-CREATE TABLE room_invite (
-  id          INT      PRIMARY KEY AUTO_INCREMENT,
-  room_id     INT      NOT NULL,
-  inviter_id  INT      NOT NULL,                     -- 초대한 방장
-  invitee_id  INT      NOT NULL,                     -- 초대받은 사용자
-  status      ENUM('대기','수락','거절') NOT NULL DEFAULT '대기',
-  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  answered_at DATETIME NULL,
-  -- 대기 중이면 1, 응답했으면 NULL → 같은 방에 대기 중인 초대는 1개만
-  is_pending  TINYINT AS (IF(status = '대기', 1, NULL)) STORED,
-  UNIQUE (room_id, invitee_id, is_pending),
-  INDEX (invitee_id, status),
-  FOREIGN KEY (room_id) REFERENCES study_room(id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (inviter_id) REFERENCES user(id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (invitee_id) REFERENCES user(id)
-    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- ---------------------------------------------------------------------
@@ -382,7 +349,7 @@ CREATE TABLE notification (
   descript    TEXT         NOT NULL,
   type        ENUM('notice','schedule','study_room') NOT NULL,
   -- 클릭 시 이동할 대상 (공지처럼 대상이 없으면 NULL)
-  target_type ENUM('schedule','todo','study_room','room_invite') NULL,
+  target_type ENUM('schedule','todo','study_room') NULL,
   target_id   INT          NULL,
   created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP
 );

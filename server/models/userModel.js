@@ -42,10 +42,10 @@ async function createAuth(conn, { email, passwordHash, termsVersion }) {
   return result.insertId;
 }
 
-// recordChange: 설정 화면에서 바꾸면 시각을 남긴다 (14일 제한). 메일로 재설정할 때는 남기지 않는다.
-async function updatePassword(conn, authId, passwordHash, { recordChange = false } = {}) {
+// 설정 화면에서 바꾼 시각을 함께 남긴다. (14일에 한 번 제한)
+async function updatePassword(conn, authId, passwordHash) {
   await conn.query(
-    `UPDATE auth SET password = ?${recordChange ? ", password_changed_at = NOW()" : ""} WHERE id = ?`,
+    "UPDATE auth SET password = ?, password_changed_at = NOW() WHERE id = ?",
     [passwordHash, authId],
   );
 }
@@ -93,18 +93,6 @@ async function updateUser(id, fields, conn = pool) {
   ]);
 }
 
-// 아이디 앞부분으로 검색
-async function searchByIdentifier(keyword, excludeId) {
-  const escaped = keyword.replace(/[\\%_]/g, "\\$&");
-  const [rows] = await pool.query(
-    `SELECT id, identifier, name, img FROM user
-     WHERE identifier LIKE ? AND id <> ?
-     ORDER BY identifier LIMIT 10`,
-    [`${escaped}%`, excludeId],
-  );
-  return rows;
-}
-
 // 관심 과목
 
 async function findLikedSubjects(userId) {
@@ -134,32 +122,6 @@ async function countOwnedRooms(userId) {
   return row.count;
 }
 
-// 비밀번호 재설정
-
-async function createPasswordReset({ authId, tokenHash, expiresAt }) {
-  await pool.query(
-    "INSERT INTO password_reset (auth_id, token_hash, expires_at) VALUES (?, ?, ?)",
-    [authId, tokenHash, expiresAt],
-  );
-}
-
-async function findValidPasswordReset(tokenHash) {
-  const [rows] = await pool.query(
-    `SELECT id, auth_id AS authId FROM password_reset
-     WHERE token_hash = ? AND used_at IS NULL AND expires_at > NOW()`,
-    [tokenHash],
-  );
-  return rows[0];
-}
-
-// 사용한 토큰과 같은 계정의 다른 토큰까지 모두 사용 처리
-async function usePasswordResets(conn, authId) {
-  await conn.query(
-    "UPDATE password_reset SET used_at = NOW() WHERE auth_id = ? AND used_at IS NULL",
-    [authId],
-  );
-}
-
 module.exports = {
   findAuthByEmail,
   findAuthById,
@@ -171,11 +133,7 @@ module.exports = {
   createUser,
   findProfile,
   updateUser,
-  searchByIdentifier,
   findLikedSubjects,
   replaceLikedSubjects,
   countOwnedRooms,
-  createPasswordReset,
-  findValidPasswordReset,
-  usePasswordResets,
 };

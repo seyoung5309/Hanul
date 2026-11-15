@@ -10,9 +10,9 @@ const { check, isDate, toDateTime } = require("../utils/validate");
 const { parseTitle, parseDescript } = require("../utils/itemInput");
 const { kstNow, formatKst } = require("../utils/date");
 
-const SUMMARIZE_AFTER = 20; // AI-007: 요약 안 된 채팅이 이만큼 넘으면
-const KEEP_RECENT = 10; //     최근 이만큼만 원문으로 두고 앞부분을 요약한다
-const CONTEXT_DAYS = 14; //    AI에게 알려 줄 다가오는 일정 기간
+const SUMMARIZE_AFTER = 20;
+const KEEP_RECENT = 10; //     최근 10개까지만 원문으로 하고 나머지는 요약
+const CONTEXT_DAYS = 14; //    2주 내에 있는 할 일이나 To Do 같은 거
 const MAX_PLAN_SCHEDULES = 30;
 const MAX_PLAN_TODOS = 15;
 const MAX_INPUT_LENGTH = 1000;
@@ -20,17 +20,17 @@ const MAX_INPUT_LENGTH = 1000;
 const pad = (n) => String(n).padStart(2, "0");
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
+// 날짜 형식 변환
 function todayKst() {
-  const { year, month, day } = kstNow();
-  const date = `${year}-${pad(month)}-${pad(day)}`;
-  const weekday = WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()];
+  let { year, month, day } = kstNow();
+  let date = `${year}-${pad(month)}-${pad(day)}`;
+  let weekday = WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()];
   return { date, label: `${date} (${weekday})` };
 }
 
-// ----- 사용량 (AI-003, NF-010) -----
-
+// 사용량 불러오기 (20 제한)
 async function getUsage(userId) {
-  const count = await aiModel.findTodayCount(userId);
+  let count = await aiModel.findTodayCount(userId);
   return {
     count,
     limit: aiConfig.dailyLimit,
@@ -38,14 +38,17 @@ async function getUsage(userId) {
   };
 }
 
+// 사용량 체크 하기
 async function checkQuota(userId) {
-  const { count, limit } = await getUsage(userId);
+  let { count, limit } = await getUsage(userId);
+
   if (count >= limit) {
     throw new HttpError(
       429,
       `오늘 AI 사용 횟수(${limit}회)를 모두 사용했습니다. 내일 다시 이용해 주세요.`,
     );
   }
+
   if (
     aiConfig.monthlyTokenLimit > 0 &&
     (await aiModel.sumMonthTokens()) >= aiConfig.monthlyTokenLimit
@@ -57,14 +60,13 @@ async function checkQuota(userId) {
   }
 }
 
-// ----- AI에게 알려 줄 사용자 정보 -----
-
+// 사용자에 대하여 알려줄 정보
 async function userContext(userId) {
-  const today = todayKst();
-  const until = new Date(`${today.date}T00:00:00Z`);
+  let today = todayKst();
+  let until = new Date(`${today.date}T00:00:00Z`);
   until.setUTCDate(until.getUTCDate() + CONTEXT_DAYS);
 
-  const [schedules, todos, subjects] = await Promise.all([
+  let [schedules, todos, subjects] = await Promise.all([
     scheduleModel.findRange(userId, {
       from: `${today.date} 00:00:00`,
       to: `${until.toISOString().slice(0, 10)} 00:00:00`,
@@ -74,10 +76,11 @@ async function userContext(userId) {
     subjectModel.findAll(),
   ]);
 
-  const scheduleLines =
+  let scheduleLines =
     schedules.map((s) => `- ${formatKst(s.date)} ${s.title}`).join("\n") ||
     "- 없음";
-  const todoLines =
+
+  let todoLines =
     todos
       .slice(0, 20)
       .map(
@@ -93,43 +96,48 @@ async function userContext(userId) {
   };
 }
 
-// ----- 대화방 (AI-006) -----
-
+// 대화방 찾기
 async function findRoomOrThrow(userId, roomId) {
   const room = await aiModel.findRoom(userId, roomId);
-  if (!room) throw new HttpError(404, "대화방을 찾을 수 없습니다.");
+
+  if (!room) {
+    throw new HttpError(404, "대화방을 찾을 수 없습니다.");
+  }
+
   return room;
 }
 
-// ----- 학습 질문 (AI-005) -----
-
+// 질문 프롬프트
 const CHAT_SYSTEM = `너는 고등학생의 공부를 돕는 학습 도우미 "한울 AI"야.
 - 한국어로 친절하고 간결하게 답해. 마크다운 기호(#, **, 표) 없이 평문과 줄바꿈, "- " 목록만 써.
 - 개념 질문은 단계적으로 쉽게 설명하고, 학습 방법 질문은 바로 실천할 수 있는 방법을 제안해.
 - 사용자의 일정이나 할 일을 물으면 아래 [사용자 정보]만 근거로 답하고, 없는 내용은 지어내지 마.
 - 너는 add_schedules(일정 추가), add_todos(할 일 추가) 기능으로 사용자의 달력과 To Do에 직접 추가할 수 있어.
-  - 사용자가 추가·등록·넣어 달라고 하거나, 네가 제안한 일정을 추가하는 데 동의하면 바로 호출해.
+  - 사용자가 추가, 등록, 넣어 달라고 하거나, 네가 제안한 일정을 추가하는 데 동의하면 바로 호출해.
   - 일정을 짜 달라고만 하면 먼저 일정을 제안하고, 마지막에 "이대로 일정에 추가할까?"라고 물어봐.
   - 날짜는 [사용자 정보]의 오늘을 기준으로 계산해 (내일, 이번 주 금요일 등). 쉬는 시간·식사는 일정에 넣지 마.
   - 추가한 뒤에는 무엇을 언제로 추가했는지 짧게 알려 줘. 실패하면 이유를 알려 주고, 추가했다고 말하지 마.
 - 학습 계획표가 필요해 보이면 입력창 왼쪽 + 버튼의 "학습 계획 만들기"를 안내해.`;
 
+// 채팅 보내기
 async function chat(userId, roomId, message) {
-  const text = typeof message === "string" ? message.trim() : "";
+  let text = typeof message === "string" ? message.trim() : "";
+
   check(
     text.length > 0 && text.length <= MAX_INPUT_LENGTH,
     `질문은 1~${MAX_INPUT_LENGTH}자로 입력해 주세요.`,
   );
 
-  const room = await findRoomOrThrow(userId, roomId);
+  let room = await findRoomOrThrow(userId, roomId);
+
   await checkQuota(userId);
 
-  const context = await userContext(userId);
-  const userChat = await aiModel.addChat(room.id, "user", text);
-  const recent = await aiModel.findChatsAfter(room.id, room.summaryChatId); // 방금 질문 포함
-
-  const added = { schedules: [], todos: [] };
+  let context = await userContext(userId);
+  let userChat = await aiModel.addChat(room.id, "user", text);
+  let recent = await aiModel.findChatsAfter(room.id, room.summaryChatId); // 방금 질문 포함
+  let added = { schedules: [], todos: [] };
   let result;
+
   try {
     result = await gemini.generate({
       system: `${CHAT_SYSTEM}\n\n[사용자 정보]\n${context.text}${room.summary ? `\n\n[이전 대화 요약]\n${room.summary}` : ""}`,
@@ -144,12 +152,8 @@ async function chat(userId, roomId, message) {
     throw err;
   }
 
-  const aiChat = await aiModel.addChat(
-    room.id,
-    "ai",
-    result.text,
-    result.tokens,
-  );
+  let aiChat = await aiModel.addChat(room.id, "ai", result.text, result.tokens);
+
   await aiModel.addUsage(userId, result.tokens);
   await aiModel.touchRoom(room.id);
   await summarizeIfLong(userId, room).catch((err) =>
@@ -159,16 +163,20 @@ async function chat(userId, roomId, message) {
   return { userChat, aiChat, added, usage: await getUsage(userId) };
 }
 
-// AI-007: 요약 안 된 채팅이 많아지면 최근 것만 남기고 앞부분을 요약에 합친다.
+// 앞 부분만 남기고 나머지는 요약
 async function summarizeIfLong(userId, room) {
-  const chats = await aiModel.findChatsAfter(room.id, room.summaryChatId);
-  if (chats.length <= SUMMARIZE_AFTER) return;
+  let chats = await aiModel.findChatsAfter(room.id, room.summaryChatId);
 
-  const old = chats.slice(0, chats.length - KEEP_RECENT);
-  const transcript = old
+  if (chats.length <= SUMMARIZE_AFTER) {
+    return;
+  }
+
+  let old = chats.slice(0, chats.length - KEEP_RECENT);
+  let transcript = old
     .map((c) => `${c.role === "ai" ? "AI" : "학생"}: ${c.text}`)
     .join("\n");
-  const result = await gemini.generate({
+
+  let result = await gemini.generate({
     system:
       "너는 대화 요약기야. 이후 대화에 필요한 정보(학생의 목표, 과목, 시험, 어려워하는 부분, 정한 내용) 위주로 한국어 10문장 이내로 요약해.",
     history: [
@@ -180,13 +188,10 @@ async function summarizeIfLong(userId, room) {
   });
 
   await aiModel.updateSummary(room.id, result.text, old.at(-1).id);
-  await aiModel.addUsage(userId, result.tokens, { countRequest: false }); // 사용자가 요청한 게 아니라 횟수에는 넣지 않음
+  await aiModel.addUsage(userId, result.tokens, { countRequest: false }); // 사용자가 한 질문이 아니니까 체크 안함.
 }
 
-// ----- 학습 계획 (AI-001, AI-002, AI-004) -----
-
-// 답의 모양. 형식(스키마) 강제 기능은 무료 등급에서 막혀서 지시문에 글로 적고,
-// 받은 값은 sanitizePlan으로 한 번 더 거른다.
+// 학습 계획 함수 요청 형식
 const PLAN_FORMAT = `반드시 아래 모양의 JSON 하나로만 답해. 다른 글은 쓰지 마.
 {
   "summary": "계획의 핵심 2~4문장",
@@ -198,6 +203,7 @@ const PLAN_FORMAT = `반드시 아래 모양의 JSON 하나로만 답해. 다른
   ]
 }`;
 
+// 학습 계획 세우기
 function planSystem(context) {
   return `너는 고등학생의 학습 계획을 세우는 전문가야.
 - 사용자의 시험 일정, 공부 가능 시간, 할 일을 바탕으로 오늘부터 시험 전까지 현실적인 계획을 세워.
@@ -213,10 +219,11 @@ ${PLAN_FORMAT}
 ${context.text}`;
 }
 
-// AI 응답을 저장 가능한 값만 남긴다.
+// AI 응답을 저장 가능한 값만
 function sanitizePlan(data) {
-  const str = (v) => (typeof v === "string" ? v.trim() : "");
-  const schedules = (Array.isArray(data?.schedules) ? data.schedules : [])
+  let str = (v) => (typeof v === "string" ? v.trim() : "");
+
+  let schedules = (Array.isArray(data?.schedules) ? data.schedules : [])
     .map((s) => ({
       title: str(s.title).slice(0, 100),
       date: str(s.date),
@@ -228,7 +235,8 @@ function sanitizePlan(data) {
         s.title && isDate(s.date) && /^([01]\d|2[0-3]):[0-5]\d$/.test(s.time),
     )
     .slice(0, MAX_PLAN_SCHEDULES);
-  const todos = (Array.isArray(data?.todos) ? data.todos : [])
+
+  let todos = (Array.isArray(data?.todos) ? data.todos : [])
     .map((t) => ({
       title: str(t.title).slice(0, 100),
       dueDate: isDate(str(t.dueDate)) ? str(t.dueDate) : null,
@@ -236,35 +244,45 @@ function sanitizePlan(data) {
     }))
     .filter((t) => t.title)
     .slice(0, MAX_PLAN_TODOS);
+
   return { summary: str(data?.summary), schedules, todos };
 }
 
 // 대화 기록에 남길 읽기 좋은 글
 function planToText(plan) {
-  const day = (date) => {
-    const [, m, d] = date.split("-");
+  let day = (date) => {
+    let [, m, d] = date.split("-");
     return `${Number(m)}/${Number(d)}(${WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()]})`;
   };
-  const scheduleLines =
+
+  let scheduleLines =
     plan.schedules
       .map((s) => `- ${day(s.date)} ${s.time} ${s.title}`)
       .join("\n") || "- 없음";
-  const todoLines =
+
+  let todoLines =
     plan.todos
       .map((t) => `- ${t.title}${t.dueDate ? ` (~${day(t.dueDate)})` : ""}`)
       .join("\n") || "- 없음";
+
   return `${plan.summary}\n\n[공부 시간표]\n${scheduleLines}\n\n[할 일]\n${todoLines}`;
 }
 
+// 사용자 입력 글 유효성 체크
 function parseText(value, name) {
-  if (value === undefined || value === null) return "";
+  if (value === undefined || value === null) {
+    return "";
+  }
+
   check(
     typeof value === "string" && value.length <= MAX_INPUT_LENGTH,
     `${name}은 ${MAX_INPUT_LENGTH}자 이하로 입력해 주세요.`,
   );
+
   return value.trim();
 }
 
+// gemini로 계획 만들어서 DB 저장
 async function runPlan(userId, room, requestText, promptText) {
   await checkQuota(userId);
   const context = await userContext(userId);
@@ -300,11 +318,12 @@ async function runPlan(userId, room, requestText, promptText) {
   };
 }
 
-// AI-001: { roomId?, exams, availableTime, tasks } — roomId가 없으면 새 대화방을 만든다.
+// 새 대화방 생성
 async function createPlan(userId, body) {
-  const exams = parseText(body.exams, "시험 일정");
-  const availableTime = parseText(body.availableTime, "공부 가능 시간");
-  const tasks = parseText(body.tasks, "할 일");
+  let exams = parseText(body.exams, "시험 일정");
+  let availableTime = parseText(body.availableTime, "공부 가능 시간");
+  let tasks = parseText(body.tasks, "할 일");
+
   check(
     exams || availableTime || tasks,
     "시험 일정, 공부 가능 시간, 할 일 중 하나 이상 입력해 주세요.",
@@ -315,7 +334,7 @@ async function createPlan(userId, body) {
     room = await findRoomOrThrow(userId, Number(body.roomId));
   } else {
     await checkQuota(userId); // 한도를 넘었으면 빈 대화방을 만들지 않는다
-    const { date } = todayKst();
+    let { date } = todayKst();
     room = await aiModel.findRoom(
       userId,
       await aiModel.createRoom(
@@ -325,57 +344,66 @@ async function createPlan(userId, body) {
     );
   }
 
-  const requestText = `학습 계획을 만들어 줘.\n- 시험 일정: ${exams || "없음"}\n- 공부 가능 시간: ${availableTime || "없음"}\n- 할 일: ${tasks || "없음"}`;
+  let requestText = `학습 계획을 만들어 줘.\n- 시험 일정: ${exams || "없음"}\n- 공부 가능 시간: ${availableTime || "없음"}\n- 할 일: ${tasks || "없음"}`;
   return runPlan(userId, room, requestText, requestText);
 }
 
-// AI-004: { roomId, plan, feedback: "tight" | "loose" | 자유 입력 }
+//
 const FEEDBACK_TEXT = {
   tight:
     "계획이 너무 빡빡해요. 하루 공부량을 줄이고 쉬는 시간을 늘려서 다시 짜 주세요.",
   loose: "계획이 너무 느슨해요. 공부 시간을 늘리고 더 촘촘하게 다시 짜 주세요.",
 };
 
+// 계획 새로 구상하기
 async function regeneratePlan(userId, body) {
-  const room = await findRoomOrThrow(userId, Number(body.roomId));
+  let room = await findRoomOrThrow(userId, Number(body.roomId));
+
   check(
     body.plan && typeof body.plan === "object",
     "이전 계획(plan)을 보내 주세요.",
   );
-  const feedback =
+
+  let feedback =
     FEEDBACK_TEXT[body.feedback] ?? parseText(body.feedback, "요청");
+
   check(feedback, "어떻게 바꿀지 알려 주세요.");
 
-  const previous = sanitizePlan(body.plan);
-  const promptText = `아래 이전 계획을 요청에 맞게 다시 만들어 줘.\n\n[이전 계획]\n${planToText(previous)}\n\n[요청]\n${feedback}`;
+  let previous = sanitizePlan(body.plan);
+  let promptText = `아래 이전 계획을 요청에 맞게 다시 만들어 줘.\n\n[이전 계획]\n${planToText(previous)}\n\n[요청]\n${feedback}`;
+
   return runPlan(userId, room, feedback, promptText);
 }
 
-// AI-002: 사용자가 확인·수정한 계획을 일정·To Do로 저장
+// 일정이나 To Do 저장
 async function applyPlan(userId, body) {
-  const schedules = Array.isArray(body.schedules) ? body.schedules : [];
-  const todos = Array.isArray(body.todos) ? body.todos : [];
+  let schedules = Array.isArray(body.schedules) ? body.schedules : [];
+  let todos = Array.isArray(body.todos) ? body.todos : [];
+
   check(
     schedules.length + todos.length > 0,
     "저장할 일정이나 할 일을 선택해 주세요.",
   );
+
   check(
     schedules.length <= MAX_PLAN_SCHEDULES && todos.length <= MAX_PLAN_TODOS,
     "한 번에 저장할 수 있는 개수를 넘었습니다.",
   );
+
   return saveItems(userId, { schedules, todos });
 }
 
-// 일정 { title, descript?, date, time?, subject? }, 할 일 { title, descript?, dueDate?, subject? }을 검증해 한 번에 저장
+// 값 유효성이나 그런거 검증하기
 async function saveItems(userId, { schedules = [], todos = [] }) {
-  const subjectIdByName = new Map(
+  let subjectIdByName = new Map(
     (await subjectModel.findAll()).map((s) => [s.name, s.id]),
   );
-  const subjectIds = (name) =>
+
+  let subjectIds = (name) =>
     subjectIdByName.has(name) ? [subjectIdByName.get(name)] : [];
 
-  const scheduleRows = schedules.map((s) => {
-    const date = toDateTime(s.time ? `${s.date}T${s.time}` : s.date);
+  let scheduleRows = schedules.map((s) => {
+    let date = toDateTime(s.time ? `${s.date}T${s.time}` : s.date);
     check(date, `'${s.title ?? ""}' 일정의 날짜를 확인해 주세요.`);
     return {
       title: parseTitle(s.title),
@@ -384,12 +412,14 @@ async function saveItems(userId, { schedules = [], todos = [] }) {
       subjectIds: subjectIds(s.subject),
     };
   });
-  const todoRows = todos.map((t) => {
-    const dueDate = t.dueDate ? toDateTime(t.dueDate) : null;
+
+  let todoRows = todos.map((t) => {
+    let dueDate = t.dueDate ? toDateTime(t.dueDate) : null;
     check(
       !t.dueDate || dueDate,
       `'${t.title ?? ""}' 할 일의 마감일을 확인해 주세요.`,
     );
+
     return {
       title: parseTitle(t.title),
       descript: parseDescript(t.descript),
@@ -399,8 +429,8 @@ async function saveItems(userId, { schedules = [], todos = [] }) {
   });
 
   await withTransaction(async (conn) => {
-    for (const s of scheduleRows) {
-      const id = await scheduleModel.create(conn, {
+    for (let s of scheduleRows) {
+      let id = await scheduleModel.create(conn, {
         userId,
         title: s.title,
         descript: s.descript,
@@ -408,8 +438,9 @@ async function saveItems(userId, { schedules = [], todos = [] }) {
       });
       await subjectModel.replaceLinked(conn, "schedule", id, s.subjectIds);
     }
-    for (const t of todoRows) {
-      const id = await todoModel.create(conn, {
+
+    for (let t of todoRows) {
+      let id = await todoModel.create(conn, {
         userId,
         title: t.title,
         descript: t.descript,
@@ -418,12 +449,11 @@ async function saveItems(userId, { schedules = [], todos = [] }) {
       await subjectModel.replaceLinked(conn, "todo", id, t.subjectIds);
     }
   });
+
   return { schedules: scheduleRows.length, todos: todoRows.length };
 }
 
-// ----- 대화로 일정·할 일 추가 (AI 도구) -----
-// AI에게는 "추가해 달라는 요청"을 만드는 방법만 알려 준다. 실제 저장은 saveItems가
-// 로그인한 사용자(userId)로 검증한 뒤 한다. 조회·수정·삭제는 도구로 열지 않는다.
+// AI가 쓸 수 있는 함수
 
 const MAX_TOOL_ITEMS = 10;
 
@@ -504,12 +534,15 @@ function chatToolDeclarations(subjects) {
 }
 
 function toolItems(args) {
-  const items = Array.isArray(args.items) ? args.items : [];
+  let items = Array.isArray(args.items) ? args.items : [];
+
   check(items.length > 0, "추가할 항목이 없습니다.");
+
   check(
     items.length <= MAX_TOOL_ITEMS,
     `한 번에 ${MAX_TOOL_ITEMS}개까지 추가할 수 있습니다.`,
   );
+
   return items.map((item) =>
     Object.fromEntries(
       Object.entries(item).map(([key, value]) => [
@@ -520,11 +553,11 @@ function toolItems(args) {
   );
 }
 
-// added: 이번 대화에서 실제로 추가한 항목 (응답으로 화면에 알려 준다)
+// 추가한 항목
 function chatToolHandlers(userId, added) {
   return {
     async add_schedules(args) {
-      const schedules = toolItems(args).map((s) => ({
+      let schedules = toolItems(args).map((s) => ({
         ...s,
         time: s.time || "",
         subject: s.subject || null,
@@ -540,7 +573,7 @@ function chatToolHandlers(userId, added) {
       return { result: `일정 ${schedules.length}개를 추가했습니다.` };
     },
     async add_todos(args) {
-      const todos = toolItems(args).map((t) => ({
+      let todos = toolItems(args).map((t) => ({
         ...t,
         dueDate: t.dueDate || null,
         subject: t.subject || null,

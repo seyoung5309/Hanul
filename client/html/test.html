@@ -324,16 +324,6 @@
                         ],
                     },
                     { name: "로그아웃", req: "UD-005", method: "POST", path: "/api/users/logout", fields: [] },
-                    {
-                        name: "재설정 메일 요청", req: "UD-006", method: "POST", path: "/api/users/password-reset",
-                        note: "SMTP 설정이 없으면 서버 콘솔에 링크가 출력됩니다.", fields: [f("email", "이메일", "email")],
-                    },
-                    {
-                        name: "새 비밀번호 설정", req: "UD-006", method: "PUT", path: "/api/users/password-reset", fields: [
-                            f("token", "토큰", "text", { placeholder: "메일 링크의 token 값" }),
-                            f("password", "새 비밀번호", "password"),
-                        ],
-                    },
                     { name: "내 정보", req: "UD-007", method: "GET", path: "/api/users/me", fields: [] },
                     {
                         name: "프로필 수정", req: "UD-007", method: "PATCH", path: "/api/users/me", fields: [
@@ -355,11 +345,6 @@
                     {
                         name: "새 학년도 반 등록", req: "UD-010", method: "POST", path: "/api/users/me/class", fields: [
                             f("studentNumber", "학번", "text", { placeholder: "예: 3107" }),
-                        ],
-                    },
-                    {
-                        name: "아이디 검색", req: "SR-008", method: "GET", path: "/api/users/search", fields: [
-                            f("identifier", "아이디 앞부분", "text", { in: "query", placeholder: "2자 이상" }),
                         ],
                     },
                     {
@@ -404,15 +389,6 @@
                     {
                         name: "내보내기", req: "SR-009", method: "DELETE", path: "/api/rooms/:roomId/members/:userId",
                         fields: [path("roomId"), path("userId", "내보낼 사람 id")],
-                    },
-                    {
-                        name: "초대하기", req: "SR-008", method: "POST", path: "/api/rooms/:roomId/invites",
-                        fields: [path("roomId"), f("userId", "초대할 사람 id", "number", { share: true })],
-                    },
-                    { name: "받은 초대", req: "SR-008", method: "GET", path: "/api/rooms/invites", fields: [] },
-                    {
-                        name: "초대 응답", req: "SR-008", method: "PATCH", path: "/api/rooms/invites/:inviteId",
-                        fields: [path("inviteId"), f("accept", "수락", "bool", { value: "true" })],
                     },
                     { name: "방 삭제", req: "SR-005", method: "DELETE", path: "/api/rooms/:roomId", danger: true, fields: [path("roomId")] },
                 ],
@@ -632,7 +608,6 @@
         function afterSuccess(def, data) {
             if (def.path === "/api/rooms" && def.method === "POST") setShared("roomId", data.id);
             if (def.path === "/api/rooms/join") setShared("roomId", data.roomId);
-            if (def.path.endsWith("/invites") && def.method === "POST") setShared("inviteId", data.id);
             if (def.path === "/api/classes/me") setShared("roomId", data.roomId);
             if (def.path === "/api/schedules" && def.method === "POST") setShared("scheduleId", data.id);
             if (def.path === "/api/todos" && def.method === "POST") setShared("todoId", data.id);
@@ -761,7 +736,6 @@
                 if (event === "study:check") showCheck(payload.deadline);
                 if (event === "notification:new") {
                     setShared("notificationId", payload.id);
-                    if (payload.targetType === "room_invite") setShared("inviteId", payload.targetId);
                 }
             });
         }

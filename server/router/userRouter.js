@@ -9,8 +9,6 @@ router.post("/signup", controller.signup);
 router.get("/check", controller.checkDuplicate);
 router.post("/login", controller.login);
 router.post("/logout", controller.logout);
-router.post("/password-reset", controller.requestPasswordReset);
-router.put("/password-reset", controller.resetPassword);
 
 // 여기부터 로그인 필요
 router.use(requireAuth);
@@ -25,6 +23,5 @@ router.patch("/me/visibility", controller.updateVisibility);
 router.patch("/me/ranking", controller.updateRankingSetting);
 router.post("/me/class", controller.changeClass);
 router.delete("/me", controller.withdraw);
-router.get("/search", controller.searchUsers);
 
 module.exports = router;
