@@ -4,8 +4,12 @@ const pool = require("../config/db");
 const COLUMNS =
   "id, title, descript, due_date AS dueDate, is_do AS isDone, created_at AS createdAt";
 
-const toTodo = (row) => row && { ...row, isDone: Boolean(row.isDone) };
+// 일정 했니? 안했니?
+const toTodo = (row) => {
+  return row && { ...row, isDone: Boolean(row.isDone) };
+};
 
+// 생성하기
 async function create(conn, { userId, title, descript, dueDate }) {
   const [result] = await conn.query(
     "INSERT INTO todo (user_id, title, descript, due_date) VALUES (?, ?, ?, ?)",
@@ -14,6 +18,7 @@ async function create(conn, { userId, title, descript, dueDate }) {
   return result.insertId;
 }
 
+// To Do 가져오기
 async function findOne(userId, id) {
   const [rows] = await pool.query(
     `SELECT ${COLUMNS} FROM todo WHERE id = ? AND user_id = ?`,
@@ -32,17 +37,25 @@ async function findAll(userId, { done = null } = {}) {
   return rows.map(toTodo);
 }
 
-// fields: { title?, descript?, due_date? } — 마감이 바뀌면 알림을 다시 보낼 수 있게 notified_at을 비움.
+// 일정 수정하기 fields: { title?, descript?, due_date? }
 async function update(conn, userId, id, fields) {
   const sets = Object.keys(fields).map((column) => `${column} = ?`);
-  if ("due_date" in fields) sets.push("notified_at = NULL");
-  if (sets.length === 0) return;
+
+  if ("due_date" in fields) {
+    sets.push("notified_at = NULL");
+  }
+
+  if (sets.length === 0) {
+    return;
+  }
+
   await conn.query(
     `UPDATE todo SET ${sets.join(", ")} WHERE id = ? AND user_id = ?`,
     [...Object.values(fields), id, userId],
   );
 }
 
+// 완료 처리
 async function setDone(userId, id, isDone) {
   const [result] = await pool.query(
     "UPDATE todo SET is_do = ? WHERE id = ? AND user_id = ?",
@@ -60,6 +73,7 @@ async function setAllDone(userId) {
   return result.affectedRows;
 }
 
+// To Do 삭제
 async function remove(userId, id) {
   const [result] = await pool.query(
     "DELETE FROM todo WHERE id = ? AND user_id = ?",
@@ -78,8 +92,12 @@ async function findDueSoon(hours) {
   return rows;
 }
 
+// 읽은 알림 변경
 async function markNotified(ids) {
-  if (ids.length === 0) return;
+  if (ids.length == 0) {
+    return;
+  }
+
   await pool.query("UPDATE todo SET notified_at = NOW() WHERE id IN (?)", [
     ids,
   ]);
