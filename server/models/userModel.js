@@ -93,18 +93,6 @@ async function updateUser(id, fields, conn = pool) {
   ]);
 }
 
-// 아이디 앞부분으로 검색
-async function searchByIdentifier(keyword, excludeId) {
-  const escaped = keyword.replace(/[\\%_]/g, "\\$&");
-  const [rows] = await pool.query(
-    `SELECT id, identifier, name, img FROM user
-     WHERE identifier LIKE ? AND id <> ?
-     ORDER BY identifier LIMIT 10`,
-    [`${escaped}%`, excludeId],
-  );
-  return rows;
-}
-
 // 관심 과목
 
 async function findLikedSubjects(userId) {
@@ -145,7 +133,6 @@ module.exports = {
   createUser,
   findProfile,
   updateUser,
-  searchByIdentifier,
   findLikedSubjects,
   replaceLikedSubjects,
   countOwnedRooms,

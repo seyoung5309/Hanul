@@ -1,15 +1,12 @@
 const crypto = require("crypto");
 const roomModel = require("../models/roomModel");
 const chatModel = require("../models/chatModel");
-const notificationModel = require("../models/notificationModel");
-const userModel = require("../models/userModel");
 const roomService = require("../services/roomService");
 const cloudinaryService = require("../services/cloudinaryService");
-const notificationService = require("../services/notificationService");
 const { isVisibleIn } = require("../services/studyService");
 const withTransaction = require("../utils/transaction");
 const HttpError = require("../utils/httpError");
-const { check, isIntBetween, isBoolean } = require("../utils/validate");
+const { check, isIntBetween } = require("../utils/validate");
 const { getIO } = require("../socket");
 
 const MAX_TITLE_LENGTH = 30;
@@ -275,96 +272,6 @@ async function kickMember(req, res) {
   res.status(204).end();
 }
 
-// 아이디 검색(GET /api/users/search)이나 같은 반 목록에서 고른 사용자를 초대
-async function inviteUser(req, res) {
-  let room = await loadOwnedRoom(req);
-  let inviteeId = parseId(req.body.userId, "userId");
-
-  check(inviteeId !== req.user.id, "자기 자신은 초대할 수 없습니다.");
-
-  if (await roomModel.isMember(inviteeId, room.id)) {
-    throw new HttpError(409, "이미 참여한 사용자입니다.");
-  }
-
-  let inviteId;
-
-  try {
-    inviteId = await roomModel.createInvite({
-      roomId: room.id,
-      inviterId: req.user.id,
-      inviteeId,
-    });
-  } catch (err) {
-    if (err.code === "ER_DUP_ENTRY") {
-      throw new HttpError(409, "이미 초대한 사용자입니다.");
-    }
-    if (err.code === "ER_NO_REFERENCED_ROW_2") {
-      throw new HttpError(404, "존재하지 않는 사용자입니다.");
-    }
-    throw err;
-  }
-
-  let inviter = await userModel.findProfile(req.user.id);
-
-  await notificationService.notify(getIO(), [inviteeId], {
-    title: "공부방 초대",
-    descript: `${inviter.name}님이 '${room.title}' 공부방에 초대했습니다.`,
-    type: "study_room",
-    targetType: "room_invite",
-    targetId: inviteId,
-  });
-
-  res.status(201).json({ id: inviteId });
-}
-
-// 쵇 불러오기 (근데 이거 디자인 없어서 구현 안됐을텐데)
-async function getMyInvites(req, res) {
-  res.json(await roomModel.findPendingInvites(req.user.id));
-}
-
-// 초대 수락 혹은 거절 (이것도)
-async function answerInvite(req, res) {
-  let inviteId = parseId(req.params.inviteId, "inviteId");
-  let { accept } = req.body;
-
-  check(isBoolean(accept), "accept는 true 또는 false여야 합니다.");
-
-  let roomId = await withTransaction(async (conn) => {
-    let invite = await roomModel.findInviteForUpdate(conn, inviteId);
-
-    if (
-      !invite ||
-      invite.inviteeId !== req.user.id ||
-      invite.status !== "대기"
-    ) {
-      throw new HttpError(404, "초대를 찾을 수 없습니다.");
-    }
-
-    if (accept) {
-      let room = await roomModel.findById(invite.roomId, {
-        conn,
-        forUpdate: true,
-      });
-      await roomService.addMemberChecked(conn, room, req.user.id);
-    }
-
-    await roomModel.answerInvite(conn, invite.id, accept ? "수락" : "거절");
-    return invite.roomId;
-  });
-
-  await notificationModel.markReadByTarget(
-    req.user.id,
-    "room_invite",
-    inviteId,
-  ); // 응답한 초대 알림은 읽음
-
-  if (accept) {
-    roomService.emitRoomUpdated(getIO(), roomId, "joined");
-  }
-
-  res.json({ roomId, accepted: accept });
-}
-
 // 썸네일 업로드 준비 - 브라우저가 Cloudinary에 올릴 값 (방장만, 프로필 사진과 같은 방식)
 async function createImgUpload(req, res) {
   let room = await loadOwnedRoom(req);
@@ -397,9 +304,6 @@ module.exports = {
   changeOwner,
   leaveRoom,
   kickMember,
-  inviteUser,
-  getMyInvites,
-  answerInvite,
   // chatController에서 같은 방 접근 확인을 쓴다.
   parseId,
   loadMemberRoom,

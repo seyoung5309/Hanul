@@ -1,8 +1,5 @@
 const pool = require("../config/db");
 
-// 공부 시간 통계·랭킹 (ST-004~006). 공부가 끝난 시간만 센다. (study_daily는 세션이 끝날 때 쌓인다)
-// DB 세션 시간대가 KST라 CURDATE()가 한국 날짜다. (config/db.js)
-
 // 기간 조건. d는 study_daily 별칭
 const PERIOD_WHERE = {
   day: "d.date = CURDATE()",
@@ -11,7 +8,7 @@ const PERIOD_WHERE = {
   all: "TRUE",
 };
 
-// ST-004: 오늘·이번 주·이번 달·누적 (초)
+// 통합(오늘, 이번주, 이번 달, 누적) 불러오기
 async function findSummary(userId) {
   const [[row]] = await pool.query(
     `SELECT COALESCE(SUM(IF(${PERIOD_WHERE.day}, d.seconds, 0)), 0) AS today,
@@ -21,10 +18,12 @@ async function findSummary(userId) {
      FROM study_daily d WHERE d.user_id = ?`,
     [userId],
   );
-  return Object.fromEntries(Object.entries(row).map(([key, value]) => [key, Number(value)]));
+  return Object.fromEntries(
+    Object.entries(row).map(([key, value]) => [key, Number(value)]),
+  );
 }
 
-// ST-006: 날짜별 공부 시간 (from~to, 둘 다 없으면 전체)
+// 날짜별 공부 시간
 async function findDaily(userId, { from, to }) {
   const [rows] = await pool.query(
     `SELECT date, seconds FROM study_daily
@@ -35,7 +34,7 @@ async function findDaily(userId, { from, to }) {
   return rows;
 }
 
-// ST-006: 과목별 공부 시간, 많은 순 (공부를 시작한 날짜 기준)
+// 과목별 공부 시간
 async function findSubjectTotals(userId, { from, to }) {
   const [rows] = await pool.query(
     `SELECT sub.id AS subjectId, sub.name, SUM(TIMESTAMPDIFF(SECOND, s.start, s.end)) AS seconds
@@ -51,7 +50,7 @@ async function findSubjectTotals(userId, { from, to }) {
   return rows.map((row) => ({ ...row, seconds: Number(row.seconds) }));
 }
 
-// ST-005: 학생 랭킹. 랭킹 숨기기(hide_ranking)를 켠 사람은 빼고 순위를 매긴다. (동점은 같은 순위)
+// 학생 랭킹 불러오기 (랭킹 안보기 체크한 사람 제외)
 async function findStudentRanking(period, year) {
   const [rows] = await pool.query(
     `SELECT u.id AS userId, u.name, u.img, c.grade, c.class AS classNo, cu.number, t.seconds,
@@ -68,7 +67,7 @@ async function findStudentRanking(period, year) {
   return rows.map((row) => ({ ...row, seconds: Number(row.seconds) }));
 }
 
-// ST-005: 반 랭킹. 그 학년도 반 학생들의 공부 시간 합
+// 반 학생들의 공부 시간 합
 async function findClassRanking(period, year) {
   const [rows] = await pool.query(
     `SELECT c.id AS classId, c.grade, c.class AS classNo, SUM(d.seconds) AS seconds,
@@ -86,14 +85,13 @@ async function findClassRanking(period, year) {
 }
 
 // 프로필: 지금까지 가장 높았던 학생 랭킹 순위 { day, week, month, all } (기록이 없으면 null)
-//   일간·주간·월간은 지난 날·주·달마다 순위를 매겨 가장 높은 것,
-//   종합은 매일 그날까지의 누적 시간으로 순위를 매겨 가장 높은 것
 const BUCKET = {
   day: "d.date",
   week: "YEARWEEK(d.date, 3)", // 월요일 시작
   month: "DATE_FORMAT(d.date, '%Y-%m')",
 };
 
+// 나의 최고 랭킹은 어디일까? 두구두구
 async function findBestRanks(userId) {
   const best = {};
   for (const [period, bucket] of Object.entries(BUCKET)) {
@@ -136,11 +134,12 @@ async function findUserSeconds(userId, period) {
   return Number(row.seconds);
 }
 
+// 나의 반은 어디?!
 async function findClassId(userId, year) {
-  const [rows] = await pool.query("SELECT class_id AS classId FROM class_user WHERE user_id = ? AND year = ?", [
-    userId,
-    year,
-  ]);
+  const [rows] = await pool.query(
+    "SELECT class_id AS classId FROM class_user WHERE user_id = ? AND year = ?",
+    [userId, year],
+  );
   return rows[0]?.classId ?? null;
 }
 

@@ -348,11 +348,6 @@
                         ],
                     },
                     {
-                        name: "아이디 검색", req: "SR-008", method: "GET", path: "/api/users/search", fields: [
-                            f("identifier", "아이디 앞부분", "text", { in: "query", placeholder: "2자 이상" }),
-                        ],
-                    },
-                    {
                         name: "회원 탈퇴", req: "UD-009", method: "DELETE", path: "/api/users/me", danger: true,
                         fields: [f("password", "비밀번호 확인", "password")],
                     },
@@ -394,15 +389,6 @@
                     {
                         name: "내보내기", req: "SR-009", method: "DELETE", path: "/api/rooms/:roomId/members/:userId",
                         fields: [path("roomId"), path("userId", "내보낼 사람 id")],
-                    },
-                    {
-                        name: "초대하기", req: "SR-008", method: "POST", path: "/api/rooms/:roomId/invites",
-                        fields: [path("roomId"), f("userId", "초대할 사람 id", "number", { share: true })],
-                    },
-                    { name: "받은 초대", req: "SR-008", method: "GET", path: "/api/rooms/invites", fields: [] },
-                    {
-                        name: "초대 응답", req: "SR-008", method: "PATCH", path: "/api/rooms/invites/:inviteId",
-                        fields: [path("inviteId"), f("accept", "수락", "bool", { value: "true" })],
                     },
                     { name: "방 삭제", req: "SR-005", method: "DELETE", path: "/api/rooms/:roomId", danger: true, fields: [path("roomId")] },
                 ],
@@ -622,7 +608,6 @@
         function afterSuccess(def, data) {
             if (def.path === "/api/rooms" && def.method === "POST") setShared("roomId", data.id);
             if (def.path === "/api/rooms/join") setShared("roomId", data.roomId);
-            if (def.path.endsWith("/invites") && def.method === "POST") setShared("inviteId", data.id);
             if (def.path === "/api/classes/me") setShared("roomId", data.roomId);
             if (def.path === "/api/schedules" && def.method === "POST") setShared("scheduleId", data.id);
             if (def.path === "/api/todos" && def.method === "POST") setShared("todoId", data.id);
@@ -751,7 +736,6 @@
                 if (event === "study:check") showCheck(payload.deadline);
                 if (event === "notification:new") {
                     setShared("notificationId", payload.id);
-                    if (payload.targetType === "room_invite") setShared("inviteId", payload.targetId);
                 }
             });
         }

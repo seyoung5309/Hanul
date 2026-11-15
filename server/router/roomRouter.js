@@ -9,9 +9,6 @@ router.get("/", controller.getMyRooms); // 내가 참여한 방 목록 (반 메�
 router.post("/join", controller.joinByCode); // 코드로 스터디룸 참여 { roomCode }
 
 // 초대 <- 일단 기획서에 있어서 구현은 했는데 디자인에 까먹고 안 넣어서 생략됨
-router.get("/invites", controller.getMyInvites); // 초대 목록 확인
-router.patch("/invites/:inviteId", controller.answerInvite); // 초대에 반응하기 (승락 or 거절) { accept }
-router.post("/:roomId/invites", controller.inviteUser); // 초대 보내기
 
 // 채팅
 router.get("/unread", chatController.getUnreadCounts); // { roomId: 안 읽은 수 }

@@ -318,13 +318,6 @@ async function withdraw(req, res) {
   res.status(204).end();
 }
 
-// SR-008: 초대할 사용자를 아이디 앞부분으로 검색
-async function searchUsers(req, res) {
-  const keyword = req.query.identifier;
-  v.check(typeof keyword === "string" && keyword.length >= 2 && keyword.length <= 16, "아이디를 2자 이상 입력해 주세요.");
-  res.json(await userModel.searchByIdentifier(keyword, req.user.id));
-}
-
 module.exports = {
   signup,
   checkDuplicate,
@@ -340,5 +333,4 @@ module.exports = {
   updateRankingSetting,
   changeClass,
   withdraw,
-  searchUsers,
 };

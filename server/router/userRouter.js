@@ -23,6 +23,5 @@ router.patch("/me/visibility", controller.updateVisibility);
 router.patch("/me/ranking", controller.updateRankingSetting);
 router.post("/me/class", controller.changeClass);
 router.delete("/me", controller.withdraw);
-router.get("/search", controller.searchUsers);
 
 module.exports = router;
