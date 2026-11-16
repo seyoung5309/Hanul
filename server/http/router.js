@@ -1,7 +1,5 @@
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
-// "/rooms/:roomId/chats" → { regex, keys: ["roomId"] }
-// prefix면 그 경로로 시작하는 주소도 맞는다. (use)
 function compilePath(path, { prefix }) {
   const keys = [];
   const pattern = path
@@ -25,7 +23,11 @@ function compilePath(path, { prefix }) {
 
 function matchLayer(layer, pathname) {
   const match = layer.regex.exec(pathname);
-  if (!match) return null;
+
+  if (!match) {
+    return null;
+  }
+
   const params = {};
   layer.keys.forEach((key, i) => {
     try {
@@ -34,14 +36,16 @@ function matchLayer(layer, pathname) {
       params[key] = match[i + 1]; // 잘못 인코딩된 값은 그대로
     }
   });
+
   return { params, matched: match[0] };
 }
 
-// 핸들러를 실행하고, 동기·비동기 에러를 모두 next(err)로 넘긴다.
 function call(handler, args, next) {
   try {
     const result = handler(...args);
-    if (result && typeof result.then === "function") result.catch(next);
+    if (result && typeof result.then === "function") {
+      result.catch(next);
+    }
   } catch (err) {
     next(err);
   }
@@ -58,24 +62,35 @@ function createRouter() {
     let index = 0;
 
     const next = (err) => {
-      req.url = originalUrl; // 하위 라우터가 바꾼 주소를 되돌린다
+      req.url = originalUrl; // 하위 라우터가 바꾼 주소를 되돌림
       const layer = layers[index++];
-      if (!layer) return done(err);
+
+      if (!layer) {
+        return done(err);
+      }
 
       const methodOk =
         !layer.method ||
         layer.method === req.method ||
         (layer.method === "GET" && req.method === "HEAD");
       const found = methodOk && matchLayer(layer, pathname);
-      if (!found) return next(err);
+
+      if (!found) {
+        return next(err);
+      }
 
       const isErrorHandler = layer.handler.length === 4;
-      if (Boolean(err) !== isErrorHandler) return next(err); // 에러면 오류 처리기만, 아니면 일반 핸들러만
+
+      if (Boolean(err) !== isErrorHandler) {
+        return next(err); // 에러면 오류 처리기만, 아니면 일반 핸들러만
+      }
 
       req.params = { ...req.params, ...found.params };
-      // use로 연결한 하위 라우터에는 연결 경로를 뺀 주소를 보여 준다. ("/rooms/2" → "/2")
-      if (layer.prefix)
+
+      // use로 연결한 하위 라우터에는 연결 경로를 뺀 주소를 보여 줌. ("/rooms/2" → "/2")
+      if (layer.prefix) {
         req.url = (pathname.slice(found.matched.length) || "/") + queryPart;
+      }
 
       const args = isErrorHandler ? [err, req, res, next] : [req, res, next];
       call(layer.handler, args, next);
@@ -87,10 +102,11 @@ function createRouter() {
   function add(method, path, handlers, { prefix }) {
     const { regex, keys } = compilePath(path, { prefix });
     for (const handler of handlers.flat()) {
-      if (typeof handler !== "function")
+      if (typeof handler !== "function") {
         throw new TypeError(
           `${method ?? "use"} ${path}: 핸들러가 함수가 아닙니다.`,
         );
+      }
       layers.push({ method, regex, keys, prefix, handler });
     }
   }
@@ -103,9 +119,11 @@ function createRouter() {
   }
 
   router.use = (path, ...handlers) => {
-    if (typeof path === "function")
+    if (typeof path === "function") {
       add(null, "/", [path, ...handlers], { prefix: true });
-    else add(null, path, handlers, { prefix: true });
+    } else {
+      add(null, path, handlers, { prefix: true });
+    }
     return router;
   };
 
